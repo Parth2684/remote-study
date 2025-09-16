@@ -33,7 +33,7 @@ export const POST = async (req: NextRequest) => {
                 }
             })
         }else {
-            user = await prisma.instructor.findUnique({
+            user = await prisma.student.findUnique({
                 where: {
                     email
                 }
@@ -59,7 +59,8 @@ export const POST = async (req: NextRequest) => {
         const token = jwt.sign({
             id: user.id,
             email: user.email,
-            name: user.name
+            name: user.name,
+            role
         }, JWT_SECRET, { expiresIn: "7d" });
     
         (await cookies()).set("session", token, {
