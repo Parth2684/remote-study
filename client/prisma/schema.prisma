@@ -20,6 +20,7 @@ model Instructor {
   email     String      @unique
   password  String
   classroom Classroom[]
+  quizzes   Quiz[]
 }
 
 model Student {
@@ -28,6 +29,7 @@ model Student {
   email     String             @unique
   password  String
   classroom StudentClassroom[]
+  quizAttempts  QuizAttempt[]
 }
 
 model Classroom {
@@ -49,3 +51,50 @@ model StudentClassroom {
   @@id([studentId, classroomId])
 }
 
+model Quiz {
+  id  String @id  @default(uuid())
+  title String  
+  description String?
+  instructorId  String
+  instructor Instructor @relation(fields: [instructorId], references: [id])
+  questions Question[]
+  quizAttempts  QuizAttempt[]
+}
+
+model Question {
+  id String @id @default(uuid())
+  text  String  
+  quizId  String
+  quiz    Quiz  @relation(fields: [quizId], references: [id])
+  options Option[]
+  quizAnswers QuizAnswer[]
+}
+
+model Option {
+  id  String  @id @default(uuid())
+  text  String
+  isCorrect Boolean
+  questionId  String
+  question  Question  @relation(fields: [questionId], references: [id])
+  selectedOptions QuizAnswer[]
+}
+
+model QuizAttempt {
+  id String @id @default(uuid())
+  attemptedById String
+  attemptedBy Student @relation(fields: [attemptedById], references: [id])
+  quizAnswers QuizAnswer[]   
+  quizId  String
+  quiz  Quiz  @relation(fields: [quizId], references: [id])
+}
+
+model QuizAnswer {
+  id  String  @id @default(uuid())
+  questionId  String
+  selectedOptionId  String
+  isCorrect String
+  quizAttemptId String
+  question  Question  @relation(fields: [questionId], references: [id])
+  selectedOption  Option  @relation(fields: [selectedOptionId], references: [id])
+  quizAttempt QuizAttempt @relation(fields: [quizAttemptId], references: [id])
+}
