@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
+import bcrypt from "bcrypt"
 
 
 const signupSchema = z.object({
@@ -11,17 +12,47 @@ const signupSchema = z.object({
 })
 
 export const POST = async (req: NextRequest) => {
-    const body = await req.json();
-    const parsedBody = signupSchema.safeParse(body)
-    if(!parsedBody.success) {
+    try {
+        const body = await req.json();
+        const parsedBody = signupSchema.safeParse(body)
+        if(!parsedBody.success) {
+            return NextResponse.json({
+                message: "Incorrect or Incomplete details"
+            }, {
+                status: 411
+            })
+        }
+    
+        const hashedPassword = await bcrypt.hash(parsedBody.data.password, 10) 
+        
+        const role = parsedBody.data.role 
+        if(role == "INSTRUCTOR") {
+            await prisma.instructor.create({
+                data: {
+                    name: parsedBody.data.name,
+                    email: parsedBody.data.email,
+                    password: hashedPassword
+                }
+            })
+        }else {
+            await prisma.student.create({
+                data: {
+                    name: parsedBody.data.name,
+                    email: parsedBody.data.email,
+                    password: hashedPassword
+                }
+            })
+        }
         return NextResponse.json({
-            message: "Incorrect or Incomplete details"
+            message: `Created a ${role} account`
+        })
+    } catch (error) {
+        console.error(error)
+        return NextResponse.json({
+            message: "Error creating account"
         }, {
-            status: 411
+            status: 500
         })
     }
-    const role = (parsedBody.data.role == "INSTRUCTOR") ? "instructor" : "student";
-    if(role == "instructor") {
-        await prisma
-    }
+
 } 
