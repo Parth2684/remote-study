@@ -54,5 +54,4 @@ export const POST = async (req: NextRequest) => {
             status: 500
         })
     }
-
 } 

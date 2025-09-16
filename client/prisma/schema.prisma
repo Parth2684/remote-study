@@ -48,3 +48,4 @@ model StudentClassroom {
 
   @@id([studentId, classroomId])
 }
+
