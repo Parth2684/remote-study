@@ -20,8 +20,32 @@ model Instructor {
   name  String  
   email String  @unique
   password  String
+  classroom Classroom[]
 }
 
 model Student {
-  id String @id
+  id String @id @default(uuid())
+  name  String
+  email String  @unique
+  password  String
+  classroom StudentClassroom[]
+}
+
+model Classroom {
+  id    String @id  @default(uuid())
+  name  String
+  instructorId  String
+  instructor  Instructor  @relation(fields: [instructorId], references: [id])
+  students  StudentClassroom[]
+}
+
+model StudentClassroom {
+  studentId   String
+  classroomId String
+  joinedAt    DateTime @default(now())
+
+  student   Student   @relation(fields: [studentId], references: [id])
+  classroom Classroom @relation(fields: [classroomId], references: [id])
+
+  @@id([studentId, classroomId]) 
 }
