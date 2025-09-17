@@ -42,6 +42,7 @@ model Classroom {
   instructor   Instructor         @relation(fields: [instructorId], references: [id])
   students     StudentClassroom[]
   messages      Message[]
+  quizzes     Quiz[]
 }
 
 model Message{
@@ -75,6 +76,8 @@ model Quiz {
   title String  
   description String?
   instructorId  String
+  classroomId String  
+  classroom Classroom @relation(fields: [classroomId], references: [id])
   instructor Instructor @relation(fields: [instructorId], references: [id])
   questions Question[]
   quizAttempts  QuizAttempt[]
@@ -84,7 +87,7 @@ model Question {
   id String @id @default(uuid())
   text  String  
   quizId  String
-  quiz    Quiz  @relation(fields: [quizId], references: [id])
+  quiz    Quiz  @relation(fields: [quizId], references: [id], onDelete: Cascade)
   options Option[]
   quizAnswers QuizAnswer[]
 }
@@ -94,7 +97,7 @@ model Option {
   text  String
   isCorrect Boolean
   questionId  String
-  question  Question  @relation(fields: [questionId], references: [id])
+  question  Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
   selectedOptions QuizAnswer[]
 }
 
