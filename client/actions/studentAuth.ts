@@ -1,18 +1,10 @@
-"use server"
-
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken"
+import { payload } from "./instructorAuth"
 
 const JWT_SECRET = process.env.JWT_SECRET!
 
-export interface payload {
-    id: string
-    email: string
-    name: string,
-    role: "STUDENT" | "INSTRUCTOR"
-}
-
-export const instructorAuth = async(): Promise<payload | undefined> => {
+export const studentAuth = async(): Promise<payload | undefined>=> {
     try {
         const token = (await cookies()).get("session")?.value
         if(!token) {
@@ -22,8 +14,8 @@ export const instructorAuth = async(): Promise<payload | undefined> => {
         if(!verified) {
             throw new Error("Invalid token, authorization error")
         }
-        if(verified.role != "INSTRUCTOR") {
-            throw new Error("You are not a instructor")
+        if(verified.role != "STUDENT") {
+            throw new Error("You are not a student")
         }
         return verified
     } catch (error) {
