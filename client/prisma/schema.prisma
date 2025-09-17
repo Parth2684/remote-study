@@ -21,6 +21,7 @@ model Instructor {
   password  String
   classroom Classroom[]
   quizzes   Quiz[]
+  messages  Message[]
 }
 
 model Student {
@@ -30,6 +31,8 @@ model Student {
   password  String
   classroom StudentClassroom[]
   quizAttempts  QuizAttempt[]
+  messages   Message[]
+
 }
 
 model Classroom {
@@ -38,6 +41,22 @@ model Classroom {
   instructorId String
   instructor   Instructor         @relation(fields: [instructorId], references: [id])
   students     StudentClassroom[]
+  messages      Message[]
+}
+
+model Message{
+  id     String @id @default(uuid())
+  content String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  classroomId   String
+  classroom     Classroom   @relation(fields: [classroomId],references: [id],onDelete: Cascade)
+
+  instructorId   String?
+  instructor    Instructor?   @relation(fields: [instructorId],references: [id],onDelete: Cascade)
+
+  studentId     String?
+  student       Student?   @relation(fields: [studentId],references: [id],onDelete: Cascade)
 }
 
 model StudentClassroom {
