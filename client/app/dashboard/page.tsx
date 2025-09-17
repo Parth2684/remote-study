@@ -6,60 +6,127 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
-import { BookOpen, Users, FileText, LogOut } from "lucide-react"
-
-interface User {
-  id: string
-  name: string
-  email: string
-  role: "STUDENT" | "INSTRUCTOR"
-}
+import { BookOpen, Users, FileText, LogOut, Settings, Plus, Moon, Sun, UserIcon } from "lucide-react"
+import { getCurrentUser, signOut } from "@/lib/auth"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { User } from "@/lib/auth"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
-//   const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const router = useRouter()
 
+  useEffect(() => {
+    const currentUser = getCurrentUser()
+    if (currentUser) {
+      setUser(currentUser)
+    } else {
+      router.push("/signin")
+    }
+    setLoading(false)
+
+    const savedTheme = localStorage.getItem("theme")
+    if (savedTheme === "dark") {
+      setIsDarkMode(true)
+      document.documentElement.classList.add("dark")
+    }
+  }, [router])
+
   const handleSignOut = () => {
- 
+    signOut()
+    router.push("/")
   }
 
-//   if (loading) {
-//     return (
-//       <div className="min-h-screen bg-white flex items-center justify-center">
-//         <div className="text-center">
-//           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-//           <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
-//         </div>
-//       </div>
-//     )
-//   }
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
+    if (!isDarkMode) {
+      document.documentElement.classList.add("dark")
+      localStorage.setItem("theme", "dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+      localStorage.setItem("theme", "light")
+    }
+  }
 
-//   if (!user) {
-//     return (
-//       <div className="min-h-screen bg-white flex items-center justify-center">
-//         <div className="text-center">Redirecting to sign in...</div>
-//       </div>
-//     )
-//   }
+  const getInitials = (name: string) => {
+    return name.charAt(0).toUpperCase()
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">Redirecting to sign in...</div>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <BookOpen className="h-8 w-8 text-primary mr-3" />
-              <h1 className="text-xl font-bold">Virtual Classroom</h1>
+              <h1 className="text-xl font-bold text-foreground">Virtual Classroom</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="secondary">{user?.role}</Badge>
-              <span className="text-sm text-gray-600">{user?.name}</span>
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+
+            <div className="flex items-center space-x-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => router.push(user.role === "INSTRUCTOR" ? "/create-class" : "/join-class")}
+                  >
+                    {user.role === "INSTRUCTOR" ? "Create Class" : "Join Class"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button variant="ghost" size="sm" onClick={toggleTheme} className="h-9 w-9 p-0">
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 p-0 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    {getInitials(user.name)}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                    <UserIcon className="h-4 w-4 mr-2" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/settings")}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -68,96 +135,97 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, {user?.name}!</h2>
-          <p className="text-gray-600">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, {user?.name}!</h2>
+          <p className="text-muted-foreground">
             {user?.role === "INSTRUCTOR"
               ? "Manage your classrooms and create engaging content for your students."
-              : "Access your courses, assignments, and track your learning progress."}
+              : "Access your courses and track your learning progress."}
           </p>
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="classes">My Classes</TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="classrooms">{user?.role === "INSTRUCTOR" ? "My Classrooms" : "My Courses"}</TabsTrigger>
-            <TabsTrigger value="content">{user?.role === "INSTRUCTOR" ? "Content" : "Assignments"}</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <Card>
+              <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {user?.role === "INSTRUCTOR" ? "Active Classrooms" : "Enrolled Courses"}
+                    {user?.role === "INSTRUCTOR" ? "Active Classes" : "Enrolled Classes"}
                   </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">3</div>
+                  <div className="text-2xl font-bold text-blue-600">3</div>
                   <p className="text-xs text-muted-foreground">
                     {user?.role === "INSTRUCTOR" ? "+1 from last month" : "2 in progress"}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {user?.role === "INSTRUCTOR" ? "Total Students" : "Completed Assignments"}
+                    {user?.role === "INSTRUCTOR" ? "Total Students" : "Completed Tasks"}
                   </CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{user?.role === "INSTRUCTOR" ? "45" : "12"}</div>
+                  <div className="text-2xl font-bold text-green-600">{user?.role === "INSTRUCTOR" ? "45" : "12"}</div>
                   <p className="text-xs text-muted-foreground">
-                    {user?.role === "INSTRUCTOR" ? "Across all classrooms" : "This semester"}
+                    {user?.role === "INSTRUCTOR" ? "Across all classes" : "This semester"}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {user?.role === "INSTRUCTOR" ? "Quizzes Created" : "Average Score"}
+                    {user?.role === "INSTRUCTOR" ? "Content Created" : "Average Score"}
                   </CardTitle>
                   <BookOpen className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{user?.role === "INSTRUCTOR" ? "8" : "87%"}</div>
+                  <div className="text-2xl font-bold text-purple-600">{user?.role === "INSTRUCTOR" ? "8" : "87%"}</div>
                   <p className="text-xs text-muted-foreground">
-                    {user?.role === "INSTRUCTOR" ? "This month" : "Last 5 quizzes"}
+                    {user?.role === "INSTRUCTOR" ? "This month" : "Last 5 activities"}
                   </p>
                 </CardContent>
               </Card>
             </div>
 
             <div className="mt-8">
-              <Card>
+              <Card className="hover:shadow-lg transition-all duration-300">
                 <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    Recent Activity
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
+                  </CardTitle>
                   <CardDescription>Your latest classroom activities</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {user?.role === "INSTRUCTOR" ? (
                       <>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">Created new quiz: "JavaScript Fundamentals"</p>
                             <p className="text-xs text-muted-foreground">2 hours ago</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">Student Sarah completed Assignment 3</p>
                             <p className="text-xs text-muted-foreground">5 hours ago</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">New student joined "Web Development 101"</p>
                             <p className="text-xs text-muted-foreground">1 day ago</p>
@@ -166,22 +234,22 @@ export default function DashboardPage() {
                       </>
                     ) : (
                       <>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">Completed quiz: "JavaScript Fundamentals"</p>
                             <p className="text-xs text-muted-foreground">Score: 92% • 2 hours ago</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">Submitted Assignment 3</p>
                             <p className="text-xs text-muted-foreground">Web Development 101 • 1 day ago</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">Joined new course: "Advanced React"</p>
                             <p className="text-xs text-muted-foreground">3 days ago</p>
@@ -195,9 +263,12 @@ export default function DashboardPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="classrooms" className="mt-6">
+          <TabsContent value="classes" className="mt-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <Card>
+              <Card
+                className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                onClick={() => router.push("/class/1")}
+              >
                 <CardHeader>
                   <CardTitle className="text-lg">Web Development 101</CardTitle>
                   <CardDescription>
@@ -207,12 +278,15 @@ export default function DashboardPage() {
                 <CardContent>
                   <div className="flex justify-between items-center">
                     <Badge variant="outline">Active</Badge>
-                    <Button size="sm">{user?.role === "INSTRUCTOR" ? "Manage" : "Enter"}</Button>
+                    <Button size="sm">Enter Class</Button>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card
+                className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                onClick={() => router.push("/class/2")}
+              >
                 <CardHeader>
                   <CardTitle className="text-lg">Advanced React</CardTitle>
                   <CardDescription>
@@ -222,12 +296,15 @@ export default function DashboardPage() {
                 <CardContent>
                   <div className="flex justify-between items-center">
                     <Badge variant="outline">Active</Badge>
-                    <Button size="sm">{user?.role === "INSTRUCTOR" ? "Manage" : "Enter"}</Button>
+                    <Button size="sm">Enter Class</Button>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card
+                className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                onClick={() => router.push("/class/3")}
+              >
                 <CardHeader>
                   <CardTitle className="text-lg">Database Design</CardTitle>
                   <CardDescription>
@@ -238,63 +315,12 @@ export default function DashboardPage() {
                   <div className="flex justify-between items-center">
                     <Badge variant="secondary">Completed</Badge>
                     <Button size="sm" variant="outline">
-                      {user?.role === "INSTRUCTOR" ? "View" : "Review"}
+                      View Class
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-
-          <TabsContent value="content" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{user?.role === "INSTRUCTOR" ? "Content Management" : "My Assignments"}</CardTitle>
-                <CardDescription>
-                  {user?.role === "INSTRUCTOR"
-                    ? "Create and manage quizzes, assignments, and course materials"
-                    : "View and complete your assignments and quizzes"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    {user?.role === "INSTRUCTOR"
-                      ? "Content management features will be available soon"
-                      : "No assignments available at the moment"}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Settings</CardTitle>
-                <CardDescription>Manage your account preferences and profile</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Name</label>
-                    <p className="text-sm text-muted-foreground">{user?.name}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Email</label>
-                    <p className="text-sm text-muted-foreground">{user?.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Role</label>
-                    <p className="text-sm text-muted-foreground">{user?.role}</p>
-                  </div>
-                  <div className="pt-4">
-                    <Button variant="outline">Edit Profile</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </main>
