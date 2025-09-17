@@ -17,31 +17,31 @@ interface User {
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+//   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   const handleSignOut = () => {
  
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen bg-white flex items-center justify-center">
+//         <div className="text-center">
+//           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+//           <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
+//         </div>
+//       </div>
+//     )
+//   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">Redirecting to sign in...</div>
-      </div>
-    )
-  }
+//   if (!user) {
+//     return (
+//       <div className="min-h-screen bg-white flex items-center justify-center">
+//         <div className="text-center">Redirecting to sign in...</div>
+//       </div>
+//     )
+//   }
 
   return (
     <div className="min-h-screen bg-white">
