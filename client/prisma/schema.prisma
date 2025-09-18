@@ -108,15 +108,17 @@ model QuizAttempt {
   quizAnswers QuizAnswer[]   
   quizId  String
   quiz  Quiz  @relation(fields: [quizId], references: [id])
+  correctCount  Int
+  totalCount  Int
 }
 
 model QuizAnswer {
   id  String  @id @default(uuid())
   questionId  String
-  selectedOptionId  String
-  isCorrect String
+  selectedOptionId  String?
+  isCorrect Boolean
   quizAttemptId String
   question  Question  @relation(fields: [questionId], references: [id])
-  selectedOption  Option  @relation(fields: [selectedOptionId], references: [id])
+  selectedOption  Option?  @relation(fields: [selectedOptionId], references: [id])
   quizAttempt QuizAttempt @relation(fields: [quizAttemptId], references: [id])
 }
