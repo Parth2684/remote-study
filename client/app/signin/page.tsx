@@ -17,7 +17,7 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { signin, isAuthenticated } = useAuthStore()
+  const { signin, authUser } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
     e.preventDefault()
@@ -28,7 +28,7 @@ export default function SignInPage() {
     const email = formData.get("email") as string
     const password = formData.get("password") as string
     signin({ email, password, role })
-    if (isAuthenticated) {
+    if (authUser) {
       router.push("/dashboard")
     }
   }

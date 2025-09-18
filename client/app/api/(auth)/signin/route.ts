@@ -73,7 +73,12 @@ export const POST = async (req: NextRequest) => {
     
         return NextResponse.json({
             message: "Signed In",
-            user
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role
+            }
         })
     } catch (error) {
         console.error(error)

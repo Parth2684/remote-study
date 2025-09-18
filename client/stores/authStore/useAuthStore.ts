@@ -9,7 +9,6 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     authUser: null,
     isSigningUp: false,
     isSigningIn: false,
-    isAuthenticated: false,
 
     signup: async (data) => {
         set({ isSigningUp: true })
@@ -33,7 +32,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             const res = await axiosInstance.post("/signin", data)
             toast.success("Signed in successfully")
             const { user } = res.data 
-            set({ authUser: user, isAuthenticated: true })
+            set({ authUser: user })
         } catch (error) {
             console.error(error)
             if(error instanceof AxiosError && error.response?.data.message) {
@@ -44,6 +43,21 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         }
     },
     signout: () => {
-        set({ isAuthenticated: false })
+        set({ authUser: null })
     },
+
+    checkAuth: async () => {
+        try {
+            const res = await axiosInstance.get("/check")
+            const { user } = res.data 
+            set({ authUser: user })
+        } catch (error) {
+            console.error(error)
+            if(error instanceof AxiosError && error.response?.data.message) {
+                toast.error(error.request.data.message as string)
+            }else {
+                toast.error("An unexpected error occurred")
+            }
+        }
+    }
 }))

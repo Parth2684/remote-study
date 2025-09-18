@@ -13,13 +13,18 @@ import { User } from "@/stores/authStore/types"
 import { signoutAction } from "@/actions/signout"
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const router = useRouter()
-  const { authUser, signout } = useAuthStore()
+  const { authUser, signout, checkAuth } = useAuthStore()
 
   useEffect(() => {
-    setUser(authUser) 
+    async function check() {
+      await checkAuth()
+    }
+    check()
+    if (!authUser) {
+      router.push("/signin")
+    }
 
     const savedTheme = localStorage.getItem("theme")
     if (savedTheme === "dark") {
@@ -49,7 +54,7 @@ export default function DashboardPage() {
     return name.charAt(0).toUpperCase()
   }
 
-  if (!user) {
+  if (!authUser) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">Redirecting to sign in...</div>
@@ -76,9 +81,9 @@ export default function DashboardPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem
-                    onClick={() => router.push(user.role === "INSTRUCTOR" ? "/create-class" : "/join-class")}
+                    onClick={() => router.push(authUser.role === "INSTRUCTOR" ? "/create-class" : "/join-class")}
                   >
-                    {user.role === "INSTRUCTOR" ? "Create Class" : "Join Class"}
+                    {authUser.role === "INSTRUCTOR" ? "Create Class" : "Join Class"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -94,7 +99,7 @@ export default function DashboardPage() {
                     size="sm"
                     className="h-9 w-9 p-0 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                   >
-                    {getInitials(user.name)}
+                    {getInitials(authUser.name)}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
@@ -120,9 +125,9 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, {user?.name}!</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, {authUser.name}!</h2>
           <p className="text-muted-foreground">
-            {user?.role === "INSTRUCTOR"
+            {authUser.role === "INSTRUCTOR"
               ? "Manage your classrooms and create engaging content for your students."
               : "Access your courses and track your learning progress."}
           </p>
@@ -139,14 +144,14 @@ export default function DashboardPage() {
               <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {user?.role === "INSTRUCTOR" ? "Active Classes" : "Enrolled Classes"}
+                    {authUser.role === "INSTRUCTOR" ? "Active Classes" : "Enrolled Classes"}
                   </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-blue-600">3</div>
                   <p className="text-xs text-muted-foreground">
-                    {user?.role === "INSTRUCTOR" ? "+1 from last month" : "2 in progress"}
+                    {authUser.role === "INSTRUCTOR" ? "+1 from last month" : "2 in progress"}
                   </p>
                 </CardContent>
               </Card>
@@ -154,14 +159,14 @@ export default function DashboardPage() {
               <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {user?.role === "INSTRUCTOR" ? "Total Students" : "Completed Tasks"}
+                    {authUser.role === "INSTRUCTOR" ? "Total Students" : "Completed Tasks"}
                   </CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{user?.role === "INSTRUCTOR" ? "45" : "12"}</div>
+                  <div className="text-2xl font-bold text-green-600">{authUser.role === "INSTRUCTOR" ? "45" : "12"}</div>
                   <p className="text-xs text-muted-foreground">
-                    {user?.role === "INSTRUCTOR" ? "Across all classes" : "This semester"}
+                    {authUser.role === "INSTRUCTOR" ? "Across all classes" : "This semester"}
                   </p>
                 </CardContent>
               </Card>
@@ -169,14 +174,14 @@ export default function DashboardPage() {
               <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {user?.role === "INSTRUCTOR" ? "Content Created" : "Average Score"}
+                    {authUser.role === "INSTRUCTOR" ? "Content Created" : "Average Score"}
                   </CardTitle>
                   <BookOpen className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-purple-600">{user?.role === "INSTRUCTOR" ? "8" : "87%"}</div>
+                  <div className="text-2xl font-bold text-purple-600">{authUser.role === "INSTRUCTOR" ? "8" : "87%"}</div>
                   <p className="text-xs text-muted-foreground">
-                    {user?.role === "INSTRUCTOR" ? "This month" : "Last 5 activities"}
+                    {authUser.role === "INSTRUCTOR" ? "This month" : "Last 5 activities"}
                   </p>
                 </CardContent>
               </Card>
@@ -193,7 +198,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {user?.role === "INSTRUCTOR" ? (
+                    {authUser.role === "INSTRUCTOR" ? (
                       <>
                         <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                           <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -257,7 +262,7 @@ export default function DashboardPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Web Development 101</CardTitle>
                   <CardDescription>
-                    {user?.role === "INSTRUCTOR" ? "25 students enrolled" : "Instructor: Dr. Smith"}
+                    {authUser.role === "INSTRUCTOR" ? "25 students enrolled" : "Instructor: Dr. Smith"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -275,7 +280,7 @@ export default function DashboardPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Advanced React</CardTitle>
                   <CardDescription>
-                    {user?.role === "INSTRUCTOR" ? "12 students enrolled" : "Instructor: Prof. Johnson"}
+                    {authUser.role === "INSTRUCTOR" ? "12 students enrolled" : "Instructor: Prof. Johnson"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -293,7 +298,7 @@ export default function DashboardPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Database Design</CardTitle>
                   <CardDescription>
-                    {user?.role === "INSTRUCTOR" ? "8 students enrolled" : "Instructor: Dr. Wilson"}
+                    {authUser.role === "INSTRUCTOR" ? "8 students enrolled" : "Instructor: Dr. Wilson"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
