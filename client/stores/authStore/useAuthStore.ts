@@ -43,7 +43,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             }
         }
     },
-    signout: async () => {
-        
+    signout: () => {
+        set({ isAuthenticated: false })
     },
 }))

@@ -10,12 +10,13 @@ import { BookOpen, Users, FileText, LogOut, Settings, Plus, Moon, Sun, UserIcon 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { User } from "@/stores/authStore/types"
+import { signoutAction } from "@/actions/signout"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const router = useRouter()
-  const { authUser } = useAuthStore()
+  const { authUser, signout } = useAuthStore()
 
   useEffect(() => {
     setUser(authUser) 
@@ -28,8 +29,9 @@ export default function DashboardPage() {
   }, [router])
 
   const handleSignOut = () => {
-    signOut()
-    router.push("/")
+    signoutAction()
+    signout()
+    router.push("/signin")
   }
 
   const toggleTheme = () => {
@@ -45,6 +47,14 @@ export default function DashboardPage() {
 
   const getInitials = (name: string) => {
     return name.charAt(0).toUpperCase()
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">Redirecting to sign in...</div>
+      </div>
+    )
   }
 
   return (
