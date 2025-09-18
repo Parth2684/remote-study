@@ -7,24 +7,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { BookOpen, Users, FileText, LogOut, Settings, Plus, Moon, Sun, UserIcon } from "lucide-react"
-import { getCurrentUser, signOut } from "@/lib/auth"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { User } from "@/lib/auth"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
+import { User } from "@/stores/authStore/types"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const router = useRouter()
+  const { authUser } = useAuthStore()
 
   useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (currentUser) {
-      setUser(currentUser)
-    } else {
-      router.push("/signin")
-    }
-    setLoading(false)
+    setUser(authUser) 
 
     const savedTheme = localStorage.getItem("theme")
     if (savedTheme === "dark") {
@@ -51,25 +45,6 @@ export default function DashboardPage() {
 
   const getInitials = (name: string) => {
     return name.charAt(0).toUpperCase()
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">Redirecting to sign in...</div>
-      </div>
-    )
   }
 
   return (

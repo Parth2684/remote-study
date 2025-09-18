@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import axios from "axios"
 
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -30,33 +31,19 @@ export default function SignUpPage() {
 
     try {
       // Get existing users from localStorage
-      const users = JSON.parse(localStorage.getItem("users") || "[]")
-
-      // Check if user already exists
-      const existingUser = users.find((u: any) => u.email === email)
-      if (existingUser) {
-        setError("User with this email already exists")
-        return
-      }
-
-      // Create new user
-      const newUser = {
-        id: Date.now().toString(),
+      
+      const response = await axios.post("/api/signup", {
         name,
         email,
         password,
-        role,
-        createdAt: new Date().toISOString(),
+        role
+      })
+  
+      if(response.status != 200) {
+        throw new Error("Couldn't signin")
       }
-
-      // Add to users array and save to localStorage
-      users.push(newUser)
-      localStorage.setItem("users", JSON.stringify(users))
-
       setSuccess("Account created successfully! Redirecting to sign in...")
-      setTimeout(() => {
-        router.push("/signin")
-      }, 2000)
+      router.push("/signin")      
     } catch (err) {
       setError("Sign up failed. Please try again.")
     } finally {

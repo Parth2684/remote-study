@@ -10,11 +10,14 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
+
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const { signin, isAuthenticated } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
     e.preventDefault()
@@ -24,25 +27,9 @@ export default function SignInPage() {
     const formData = new FormData(e.currentTarget)
     const email = formData.get("email") as string
     const password = formData.get("password") as string
-
-    try {
-      // Get users from localStorage
-      const users = JSON.parse(localStorage.getItem("users") || "[]")
-
-      // Find user with matching email, password, and role
-      const user = users.find((u: any) => u.email === email && u.password === password && u.role === role)
-
-      if (user) {
-        // Store current user session
-        localStorage.setItem("currentUser", JSON.stringify(user))
-        router.push("/dashboard")
-      } else {
-        setError("Invalid credentials or role mismatch")
-      }
-    } catch (err) {
-      setError("Sign in failed. Please try again.")
-    } finally {
-      setIsLoading(false)
+    signin({ email, password, role })
+    if (isAuthenticated) {
+      router.push("/dashboard")
     }
   }
 
