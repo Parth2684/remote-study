@@ -9,6 +9,20 @@ import { redirect, useParams } from "next/navigation"
 import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock, Edit } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
+// Define the interface for class data
+interface ClassData {
+  name: string;
+  instructor: string;
+  description: string;
+  students: number;
+  code: string;
+  schedule: string;
+}
+
+// Define the type for the classData object
+type ClassDataMap = {
+  [key: number]: ClassData;
+}
 
 export default function ClassPage() {
   const params = useParams()
@@ -17,7 +31,7 @@ export default function ClassPage() {
   const router = useRouter()
 
   // Mock class data - in real app this would come from API
-  const classData = {
+  const classData: ClassDataMap = {
     1: {
       name: "General Science",
       instructor: "Sir John Doe",
@@ -52,7 +66,7 @@ export default function ClassPage() {
 
   const classIdNumber = Number(classId);
 
-  if (isNaN(classIdNumber) || !classData[classIdNumber]) {
+  if (isNaN(classIdNumber)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">Class not found</div>
@@ -60,7 +74,6 @@ export default function ClassPage() {
     );
   }
 
-  // Now it's safe to use classIdNumber as the index
   const currentClass = classData[classIdNumber];
 
 
