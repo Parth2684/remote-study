@@ -1,20 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { useRouter, useParams } from "next/navigation"
+import { redirect, useParams } from "next/navigation"
 import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock } from "lucide-react"
-import { getCurrentUser, User } from "@/lib/auth"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
 export default function ClassPage() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
   const params = useParams()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
+  const { authUser, checkAuth } = useAuthStore()
 
   // Mock class data - in real app this would come from API
   const classData = {
@@ -46,39 +44,29 @@ export default function ClassPage() {
 
   const classIdNumber = Number(classId);
 
-if (isNaN(classIdNumber) || !classData[classIdNumber]) {
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center">Class not found</div>
-    </div>
-  );
-}
-
-// Now it's safe to use classIdNumber as the index
-const currentClass = classData[classIdNumber];
-
-  useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (currentUser) {
-      setUser(currentUser)
-    } else {
-      router.push("/signin")
-    }
-    setLoading(false)
-  }, [router])
-
-  if (loading) {
+  if (isNaN(classIdNumber) || !classData[classIdNumber]) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
-        </div>
+        <div className="text-center">Class not found</div>
       </div>
-    )
+    );
   }
 
-  if (!user || !currentClass) {
+  // Now it's safe to use classIdNumber as the index
+  const currentClass = classData[classIdNumber];
+
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  useEffect(() => {
+    if (!authUser) {
+      redirect("/signin"); 
+    }
+  }, [authUser]);
+
+  if (!authUser || !currentClass) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">Class not found</div>
@@ -216,7 +204,7 @@ const currentClass = classData[classIdNumber];
                   <div className="mt-6 pt-4 border-t">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
-                        {user.name.charAt(0).toUpperCase()}
+                        {authUser.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1">
                         <textarea

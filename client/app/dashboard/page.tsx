@@ -22,7 +22,7 @@ export default function DashboardPage() {
       setIsDarkMode(true)
       document.documentElement.classList.add("dark")
     }
-  }, [router])
+  }, [])
 
   useEffect(() => {
     checkAuth()
@@ -125,7 +125,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-neutral-50 min-h-[calc(100vh-4.05rem)]">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, {authUser.name}!</h2>
           <p className="text-muted-foreground">
@@ -135,7 +135,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue="classes" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="classes">My Classes</TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
