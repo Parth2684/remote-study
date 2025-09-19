@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { BookOpen, Users, FileText, LogOut, Settings, Plus, Moon, Sun, UserIcon } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
-import { User } from "@/stores/authStore/types"
 import { signoutAction } from "@/actions/signout"
 
 export default function DashboardPage() {
@@ -18,20 +17,23 @@ export default function DashboardPage() {
   const { authUser, signout, checkAuth } = useAuthStore()
 
   useEffect(() => {
-    async function check() {
-      await checkAuth()
-    }
-    check()
-    if (!authUser) {
-      router.push("/signin")
-    }
-
     const savedTheme = localStorage.getItem("theme")
     if (savedTheme === "dark") {
       setIsDarkMode(true)
       document.documentElement.classList.add("dark")
     }
   }, [router])
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  useEffect(() => {
+    if (!authUser) {
+      redirect("/signin"); 
+    }
+
+  }, [authUser]);
 
   const handleSignOut = () => {
     signoutAction()

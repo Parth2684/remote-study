@@ -2,21 +2,22 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import Link from "next/link"
-import axios from "axios"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const router = useRouter()
+  const { authUser, signup } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
     e.preventDefault()
@@ -30,18 +31,13 @@ export default function SignUpPage() {
     const password = formData.get("password") as string
 
     try {
-      // Get existing users from localStorage
-      
-      const response = await axios.post("/api/signup", {
+      signup({
         name,
         email,
         password,
         role
       })
   
-      if(response.status != 200) {
-        throw new Error("Couldn't signin")
-      }
       setSuccess("Account created successfully! Redirecting to sign in...")
       router.push("/signin")      
     } catch (err) {
@@ -50,6 +46,12 @@ export default function SignUpPage() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+      if (authUser) {
+        redirect("/dashboard")
+      }
+    }, [authUser])
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">

@@ -1,8 +1,9 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
-import { Suspense } from "react"
 import "./globals.css"
+import ClientAuthLoader from "@/components/client-auth-loader"
+import { Toaster } from "react-hot-toast"
 
 export const metadata: Metadata = {
   title: "EduLite - Simple Virtual Classroom",
@@ -18,8 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans`}>
-        <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+        <ClientAuthLoader />
+        {children}
         <Analytics />
+        <Toaster />
       </body>
     </html>
   )

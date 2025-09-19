@@ -2,13 +2,13 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
@@ -16,7 +16,6 @@ import { useAuthStore } from "@/stores/authStore/useAuthStore"
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const router = useRouter()
   const { signin, authUser } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
@@ -28,10 +27,13 @@ export default function SignInPage() {
     const email = formData.get("email") as string
     const password = formData.get("password") as string
     signin({ email, password, role })
-    if (authUser) {
-      router.push("/dashboard")
-    }
   }
+
+  useEffect(() => {
+    if (authUser) {
+      redirect("/dashboard")
+    }
+  }, [authUser])
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
