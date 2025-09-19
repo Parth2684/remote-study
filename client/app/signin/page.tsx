@@ -24,12 +24,20 @@ export default function SignInPage() {
     setIsLoading(true)
     setError("")
 
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
-    signin({ email, password, role })
-    if (authUser) {
+    try {
+      const formData = new FormData(e.currentTarget)
+      const email = formData.get("email") as string
+      const password = formData.get("password") as string
+      
+      await signin({ email, password, role })
+      
+      // After successful signin, check the auth state
       router.push("/dashboard")
+    } catch (error) {
+      console.error("Sign in error:", error)
+      setError("Failed to sign in. Please check your credentials and try again.")
+    } finally {
+      setIsLoading(false)
     }
   }
 

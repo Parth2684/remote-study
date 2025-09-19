@@ -7,7 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { useRouter, useParams } from "next/navigation"
 import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock } from "lucide-react"
-import { getCurrentUser, User } from "@/lib/auth"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
+import { User } from "@/stores/authStore/types"
+
 
 export default function ClassPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -15,7 +17,7 @@ export default function ClassPage() {
   const router = useRouter()
   const params = useParams()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
-
+  const { authUser } = useAuthStore()
   // Mock class data - in real app this would come from API
   const classData = {
     1: {
@@ -58,7 +60,7 @@ if (isNaN(classIdNumber) || !classData[classIdNumber]) {
 const currentClass = classData[classIdNumber];
 
   useEffect(() => {
-    const currentUser = getCurrentUser()
+    const currentUser = authUser
     if (currentUser) {
       setUser(currentUser)
     } else {
