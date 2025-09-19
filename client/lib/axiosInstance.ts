@@ -4,7 +4,7 @@ import axios from "axios";
 export const HTTP_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`
 
 export const axiosInstance = axios.create({
-    baseURL: HTTP_URL, 
+    baseURL: process.env.NODE_ENV == "development" ? HTTP_URL : "/api/v1",
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json', 
