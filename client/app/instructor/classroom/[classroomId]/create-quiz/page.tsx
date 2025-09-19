@@ -16,7 +16,7 @@ type Question = {
   correctOption: string;
 };
 
-export default function CreateQuizPage({ params }: { params: { classroomId: string } }) {
+export default function CreateQuizPage({ params }: { params: Promise<{ classroomId: string }> }) {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -144,7 +144,7 @@ export default function CreateQuizPage({ params }: { params: { classroomId: stri
     }
 
     try {
-      const response = await fetch(`/api/instructor/classroom/${params.classroomId}/create-quiz`, {
+      const response = await fetch(`/api/instructor/classroom/${(await params).classroomId}/create-quiz`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ export default function CreateQuizPage({ params }: { params: { classroomId: stri
 
       if (response.ok) {
         toast.success('Quiz created successfully!');
-        router.push(`/instructor/classroom/${params.classroomId}`);
+        router.push(`/instructor/classroom/${(await params).classroomId}`);
       } else {
         throw new Error(data.message || 'Failed to create quiz');
       }

@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, BookOpen, Mail, Shield, Bell, Palette, Globe } from "lucide-react"
-import { getCurrentUser, signOut } from "@/lib/auth"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
+import { signoutAction } from "@/actions/signout"
 
 interface UserInterface {
   id: string
@@ -23,17 +24,16 @@ export default function SettingsPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({ name: "", email: "" })
   const router = useRouter()
+  const { authUser } = useAuthStore()
 
   useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (currentUser) {
-      setUser(currentUser)
-      setFormData({ name: currentUser.name, email: currentUser.email })
-    } else {
+    if (!authUser) {
       router.push("/signin")
     }
+    setUser(authUser)
+    setFormData({ name: authUser?.name!, email: authUser?.email! })
     setLoading(false)
-  }, [router])
+  }, [router, authUser])
 
   const handleSave = () => {
     if (user) {
@@ -54,7 +54,7 @@ export default function SettingsPage() {
   }
 
   const handleSignOut = () => {
-    signOut()
+    signoutAction()
     router.push("/")
   }
 

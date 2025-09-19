@@ -15,7 +15,7 @@ const attemptQuizSchema = z.object({
     )
 })
 
-export const POST = async (req: NextRequest, { params }: { params: { classroomId: string } }) => {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ classroomId: string }> }) {
     try {
         const [body, student] = await Promise.all([
             req.json(),
@@ -39,7 +39,7 @@ export const POST = async (req: NextRequest, { params }: { params: { classroomId
         const studentExistsInCLass = prisma.studentClassroom.findFirst({
             where: { 
                 studentId: student.id,
-                classroomId: params.classroomId
+                classroomId: (await params).classroomId
             }
         })
 
