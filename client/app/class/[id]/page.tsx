@@ -6,13 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { redirect, useParams } from "next/navigation"
-import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock } from "lucide-react"
+import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock, Edit } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
+import { useRouter } from "next/navigation"
 
 export default function ClassPage() {
   const params = useParams()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
   const { authUser, checkAuth } = useAuthStore()
+  const router = useRouter()
 
   // Mock class data - in real app this would come from API
   const classData = {
@@ -41,6 +43,12 @@ export default function ClassPage() {
       schedule: "Mon, Wed - 3:00 PM",
     },
   }
+
+  const quizzes = [
+    { id: 1, title: "HTML Basics", attempts: 5 },
+    { id: 2, title: "CSS Fundamentals", attempts: 2 },
+    { id: 3, title: "JavaScript Essentials", attempts: 8 },
+  ]
 
   const classIdNumber = Number(classId);
 
@@ -108,9 +116,10 @@ export default function ClassPage() {
         </div>
 
         <Tabs defaultValue="discussions" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="discussions">Discussions</TabsTrigger>
             <TabsTrigger value="sessions">Videos/Sessions</TabsTrigger>
+            <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
           </TabsList>
 
           <TabsContent value="discussions" className="mt-6">
@@ -325,6 +334,38 @@ export default function ClassPage() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="quizzes" className="mt-6">
+            <div className="space-y-6">
+              {authUser.role === 'INSTRUCTOR' && (
+                <div className="mb-4">
+                  <Button variant="default" onClick={() => router.push(`/quiz/create?classId=${classIdNumber}`)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Create Quiz
+                  </Button>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {quizzes.map((quiz) => (
+                  <Card key={quiz.id} className="hover:bg-muted/50 transition-colors">
+                    <CardHeader>
+                      <CardTitle>{quiz.title}</CardTitle>
+                      <CardDescription>Attempts: {quiz.attempts}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push(`/quiz/${quiz.id}`)}
+                      >
+                        Attempt Quiz
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </TabsContent>
         </Tabs>
