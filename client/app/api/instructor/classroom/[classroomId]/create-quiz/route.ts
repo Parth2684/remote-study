@@ -18,7 +18,7 @@ const quizSchema = z.object({
     )
 })
 
-export const POST = async(req: NextRequest, { params }: { params: { classroomId: string } } ) => {
+export async function POST(req: NextRequest,  {params}  : { params: Promise<{ classroomId: string }> }) {
     try {
         const [body, instructor] = await Promise.all([
             req.json(),
@@ -41,6 +41,7 @@ export const POST = async(req: NextRequest, { params }: { params: { classroomId:
         }
     
         const { title, description, questionAnswer } = parsedBody.data
+        const classroomId = (await params).classroomId
     
         await prisma.$transaction(async (tx) => {
             const quizId = uuidv4()
@@ -50,7 +51,7 @@ export const POST = async(req: NextRequest, { params }: { params: { classroomId:
                     instructorId: instructor.id,
                     title,
                     description,
-                    classroomId: params.classroomId
+                    classroomId
                 }
             })
     

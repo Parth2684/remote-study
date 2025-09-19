@@ -5,68 +5,35 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { ArrowLeft, UserIcon, Mail, Calendar, BookOpen } from "lucide-react"
-import { getCurrentUser } from "@/lib/auth"
-import { User } from "@/lib/auth"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
   })
   const router = useRouter()
+  const { authUser } = useAuthStore()
+  const user = authUser
+
+  if(!user) {
+    return redirect("/signin")
+  }
 
   useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (currentUser) {
-      setUser(currentUser)
-      setFormData({
-        name: currentUser.name,
-        email: currentUser.email,
-      })
-    } else {
-      router.push("/signin")
-    }
-    setLoading(false)
-  }, [router])
+    setFormData({
+      name: user.name,
+      email: user.email,
+    })
+  }, [user])
 
   const handleSave = () => {
-    // Ensure role is always "STUDENT" or "INSTRUCTOR"
-    const updatedUser = { 
-      ...user, 
-      ...formData,
-      id: user?.id || "defaultId", // Ensure id is a string
-      role: user?.role ?? "STUDENT", // Default to "STUDENT" if role is undefined
-    }
     
-    localStorage.setItem("currentUser", JSON.stringify(updatedUser))
-    setUser(updatedUser)
-    setIsEditing(false)
-  }  
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
   }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">Redirecting to sign in...</div>
-      </div>
-    )
-  }
-
+  
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

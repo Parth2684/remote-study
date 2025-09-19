@@ -1,23 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { useRouter, useParams } from "next/navigation"
-import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock } from "lucide-react"
+import { redirect, useParams } from "next/navigation"
+import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock, Edit } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
-import { User } from "@/stores/authStore/types"
-
+import { useRouter } from "next/navigation"
 
 export default function ClassPage() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
   const params = useParams()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
-  const { authUser } = useAuthStore()
+  const { authUser, checkAuth } = useAuthStore()
+  const router = useRouter()
+
   // Mock class data - in real app this would come from API
   const classData = {
     1: {
@@ -46,41 +44,37 @@ export default function ClassPage() {
     },
   }
 
+  const quizzes = [
+    { id: 1, title: "HTML Basics", attempts: 5 },
+    { id: 2, title: "CSS Fundamentals", attempts: 2 },
+    { id: 3, title: "JavaScript Essentials", attempts: 8 },
+  ]
+
   const classIdNumber = Number(classId);
 
-if (isNaN(classIdNumber) || !classData[classIdNumber]) {
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center">Class not found</div>
-    </div>
-  );
-}
-
-// Now it's safe to use classIdNumber as the index
-const currentClass = classData[classIdNumber];
-
-  useEffect(() => {
-    const currentUser = authUser
-    if (currentUser) {
-      setUser(currentUser)
-    } else {
-      router.push("/signin")
-    }
-    setLoading(false)
-  }, [router])
-
-  if (loading) {
+  if (isNaN(classIdNumber) || !classData[classIdNumber]) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
-        </div>
+        <div className="text-center">Class not found</div>
       </div>
-    )
+    );
   }
 
-  if (!user || !currentClass) {
+  // Now it's safe to use classIdNumber as the index
+  const currentClass = classData[classIdNumber];
+
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  useEffect(() => {
+    if (!authUser) {
+      redirect("/signin"); 
+    }
+  }, [authUser]);
+
+  if (!authUser || !currentClass) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">Class not found</div>
@@ -122,9 +116,10 @@ const currentClass = classData[classIdNumber];
         </div>
 
         <Tabs defaultValue="discussions" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="discussions">Discussions</TabsTrigger>
             <TabsTrigger value="sessions">Videos/Sessions</TabsTrigger>
+            <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
           </TabsList>
 
           <TabsContent value="discussions" className="mt-6">
@@ -218,7 +213,7 @@ const currentClass = classData[classIdNumber];
                   <div className="mt-6 pt-4 border-t">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
-                        {user.name.charAt(0).toUpperCase()}
+                        {authUser.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1">
                         <textarea
@@ -339,6 +334,38 @@ const currentClass = classData[classIdNumber];
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="quizzes" className="mt-6">
+            <div className="space-y-6">
+              {authUser.role === 'INSTRUCTOR' && (
+                <div className="mb-4">
+                  <Button variant="default" onClick={() => router.push(`/quiz/create?classId=${classIdNumber}`)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Create Quiz
+                  </Button>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {quizzes.map((quiz) => (
+                  <Card key={quiz.id} className="hover:bg-muted/50 transition-colors">
+                    <CardHeader>
+                      <CardTitle>{quiz.title}</CardTitle>
+                      <CardDescription>Attempts: {quiz.attempts}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push(`/quiz/${quiz.id}`)}
+                      >
+                        Attempt Quiz
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </TabsContent>
         </Tabs>

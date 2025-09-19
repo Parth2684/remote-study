@@ -9,6 +9,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     authUser: null,
     isSigningUp: false,
     isSigningIn: false,
+    isCheckingAuth: false,
 
     signup: async (data) => {
         set({ isSigningUp: true })
@@ -47,6 +48,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     },
 
     checkAuth: async () => {
+        set({ isCheckingAuth: true })
         try {
             const res = await axiosInstance.get("/check")
             const { user } = res.data 
@@ -58,6 +60,8 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             }else {
                 toast.error("An unexpected error occurred")
             }
+        } finally {
+            set({ isCheckingAuth: false })
         }
     }
 }))

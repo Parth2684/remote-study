@@ -2,11 +2,9 @@ import { studentAuth } from "@/actions/studentAuth";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-
-
-export const POST = async(req: NextRequest, { params }: { params: { classroomId: string } }) => {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ classroomId: string }> }) {
     try {
-        const { classroomId } = params
+        const { classroomId } = await params
         const student = await studentAuth()
         if(!student) {
             return NextResponse.json({
@@ -23,7 +21,8 @@ export const POST = async(req: NextRequest, { params }: { params: { classroomId:
             }
         })
 
-        if(!existingRelation) {
+        // If the relation already exists, return 400
+        if(existingRelation) {
             return NextResponse.json({
                 message: "Student already in classroom"
             }, {
