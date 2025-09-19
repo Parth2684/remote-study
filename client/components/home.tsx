@@ -38,7 +38,7 @@ export default function Home() {
                 Simple learning for everyone
               </h1>
               <p className="text-xl text-muted-foreground mb-8 text-pretty">
-                EduLite brings quality education to rural areas with an easy-to-use virtual classroom. No complex setup,
+                EduLite brings quality education to low-bandwidth regions with an easy-to-use virtual classroom. No complex setup,
                 no confusion - just simple, effective learning.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -96,7 +96,7 @@ export default function Home() {
       <section className="py-20 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Built for rural communities</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Built for Low-Bandwidth regions</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               We understand the challenges of limited internet and tech experience. EduLite is designed to work smoothly
               even with basic connections.

@@ -71,7 +71,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <BookOpen className="h-8 w-8 text-primary mr-3" />
-              <h1 className="text-xl font-bold text-foreground">Virtual Classroom</h1>
+              <h1 className="text-xl font-bold text-foreground">EduLite</h1>
             </div>
 
             <div className="flex items-center space-x-3">
@@ -219,7 +219,7 @@ export default function DashboardPage() {
                         <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                           <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium">New student joined "Web Development 101"</p>
+                            <p className="text-sm font-medium">New student joined "General Science"</p>
                             <p className="text-xs text-muted-foreground">1 day ago</p>
                           </div>
                         </div>
@@ -237,13 +237,13 @@ export default function DashboardPage() {
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">Submitted Assignment 3</p>
-                            <p className="text-xs text-muted-foreground">Web Development 101 • 1 day ago</p>
+                            <p className="text-xs text-muted-foreground">General Science • 1 day ago</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                           <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium">Joined new course: "Advanced React"</p>
+                            <p className="text-sm font-medium">Joined new course: "English Language"</p>
                             <p className="text-xs text-muted-foreground">3 days ago</p>
                           </div>
                         </div>
@@ -262,9 +262,9 @@ export default function DashboardPage() {
                 onClick={() => router.push("/class/1")}
               >
                 <CardHeader>
-                  <CardTitle className="text-lg">Web Development 101</CardTitle>
+                  <CardTitle className="text-lg">General Science</CardTitle>
                   <CardDescription>
-                    {authUser.role === "INSTRUCTOR" ? "25 students enrolled" : "Instructor: Dr. Smith"}
+                    {authUser.role === "INSTRUCTOR" ? "25 students enrolled" : "Instructor: Sir John Doe"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -280,7 +280,7 @@ export default function DashboardPage() {
                 onClick={() => router.push("/class/2")}
               >
                 <CardHeader>
-                  <CardTitle className="text-lg">Advanced React</CardTitle>
+                  <CardTitle className="text-lg">English Language</CardTitle>
                   <CardDescription>
                     {authUser.role === "INSTRUCTOR" ? "12 students enrolled" : "Instructor: Prof. Johnson"}
                   </CardDescription>
@@ -298,7 +298,7 @@ export default function DashboardPage() {
                 onClick={() => router.push("/class/3")}
               >
                 <CardHeader>
-                  <CardTitle className="text-lg">Database Design</CardTitle>
+                  <CardTitle className="text-lg">Mathematics</CardTitle>
                   <CardDescription>
                     {authUser.role === "INSTRUCTOR" ? "8 students enrolled" : "Instructor: Dr. Wilson"}
                   </CardDescription>

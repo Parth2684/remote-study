@@ -19,27 +19,27 @@ export default function ClassPage() {
   // Mock class data - in real app this would come from API
   const classData = {
     1: {
-      name: "Web Development 101",
-      instructor: "Dr. Smith",
-      description: "Learn the fundamentals of web development including HTML, CSS, and JavaScript",
+      name: "General Science",
+      instructor: "Sir John Doe",
+      description: "Learn the fundamentals of General Science",
       students: 25,
-      code: "WEB101",
+      code: "GEN101",
       schedule: "Mon, Wed, Fri - 10:00 AM",
     },
     2: {
-      name: "Advanced React",
+      name: "English Language",
       instructor: "Prof. Johnson",
-      description: "Master advanced React concepts including hooks, context, and performance optimization",
+      description: "Master English Language",
       students: 12,
-      code: "REACT202",
+      code: "ENG202",
       schedule: "Tue, Thu - 2:00 PM",
     },
     3: {
-      name: "Database Design",
+      name: "Mathematics",
       instructor: "Dr. Wilson",
-      description: "Learn database design principles and SQL fundamentals",
+      description: "Learn Mathematics",
       students: 8,
-      code: "DB301",
+      code: "MATH301",
       schedule: "Mon, Wed - 3:00 PM",
     },
   }
