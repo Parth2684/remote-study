@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { redirect, useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
@@ -16,7 +16,6 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const router = useRouter()
   const { authUser, signup } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
@@ -37,9 +36,6 @@ export default function SignUpPage() {
         password,
         role
       })
-  
-      setSuccess("Account created successfully! Redirecting to sign in...")
-      router.push("/signin")      
     } catch (err) {
       setError("Sign up failed. Please try again.")
     } finally {

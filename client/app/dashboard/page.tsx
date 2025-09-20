@@ -10,6 +10,7 @@ import { BookOpen, Users, FileText, LogOut, Settings, Plus, Moon, Sun, UserIcon 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { signoutAction } from "@/actions/signout"
+import ClientAuthLoader from "@/components/client-auth-loader"
 
 export default function DashboardPage() {
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -58,9 +59,7 @@ export default function DashboardPage() {
 
   if (!authUser) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">Redirecting to sign in...</div>
-      </div>
+      <ClientAuthLoader />
     )
   }
 

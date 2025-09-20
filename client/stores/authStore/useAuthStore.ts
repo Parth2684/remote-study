@@ -14,7 +14,8 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     signup: async (data) => {
         set({ isSigningUp: true })
         try {
-            await axiosInstance.post("/signup", data)
+            const res = await axiosInstance.post("/signup", data)
+            set({ authUser: res.data.user })
             toast.success("Signup complete please signin to continue")
         } catch (error) {
             console.error(error)
