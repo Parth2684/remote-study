@@ -98,7 +98,7 @@ export default function DashboardPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-9 w-9 p-0 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="h-9 w-9 p-0 rounded-full bg-primary select-none text-primary-foreground hover:bg-primary/90"
                   >
                     {getInitials(authUser.name)}
                   </Button>

@@ -1,9 +1,8 @@
 import { create } from "zustand"
 import { authAction, authState } from "./types"
 import { axiosInstance } from "@/lib/axiosInstance"
-import { toast } from "sonner"
+import { toast } from "react-hot-toast"
 import { AxiosError } from "axios"
-
 
 export const useAuthStore = create<authState & authAction>((set, get) => ({
     authUser: null,
@@ -16,7 +15,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         try {
             const res = await axiosInstance.post("/signup", data)
             set({ authUser: res.data.user })
-            toast.success("Signup complete please signin to continue")
+            toast.success("Signed up successfully")
         } catch (error) {
             console.error(error)
             if(error instanceof AxiosError && error.response?.data.message) {
