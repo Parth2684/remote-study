@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BookOpen, Users, Video, ArrowRight, CheckCircle, Globe, Wifi } from "lucide-react"
 
-export default function Home() {
+export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}

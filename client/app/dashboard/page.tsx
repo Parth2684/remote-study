@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-neutral-300 dark:border-neutral-800 bg-background/80 dark:bg-neutral-950/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -124,7 +124,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-neutral-50 min-h-[calc(100vh-4.05rem)]">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-neutral-50 dark:bg-neutral-950/70 min-h-[calc(100vh-4.05rem)]">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, {authUser.name}!</h2>
           <p className="text-muted-foreground">
@@ -135,9 +135,9 @@ export default function DashboardPage() {
         </div>
 
         <Tabs defaultValue="classes" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="classes">My Classes</TabsTrigger>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 mb-6 dark:bg-neutral-800">
+            <TabsTrigger className="" value="classes">My Classes</TabsTrigger>
+            <TabsTrigger className="" value="overview">Overview</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
