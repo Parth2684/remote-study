@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat Tester</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .user-panel { 
+            background: white; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin: 10px; 
+            width: 45%; 
+            display: inline-block; 
+            vertical-align: top; 
+        }
+        .instructor { border-color: #ff6b6b; }
+        .student { border-color: #4ecdc4; }
+        .messages { 
+            height: 200px; 
+            overflow-y: auto; 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            margin: 10px 0; 
+            background: #fafafa; 
+        }
+        .message { margin: 5px 0; padding: 5px; background: white; border-radius: 4px; }
+        input, button { padding: 8px; margin: 5px; }
+        .connected { color: green; }
+        .disconnected { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🧪 WebSocket Chat Tester</h1>
+    
+    <!-- Instructor Panel -->
+    <div class="user-panel instructor">
+        <h2>👩‍🏫 Instructor Panel</h2>
+        <div>
+            Status: <span id="instructor-status" class="disconnected">Disconnected</span>
+        </div>
+        <div>
+            <input type="text" id="instructor-token" placeholder="Instructor JWT Token" style="width: 300px;">
+            <button onclick="connectInstructor()">Connect</button>
+            <button onclick="disconnectInstructor()">Disconnect</button>
+        </div>
+        <div>
+            <input type="text" id="instructor-room" placeholder="Room ID" value="c79d6329-b0b7-491a-ac5c-be934e6a2c1c">
+            <button onclick="instructorJoinRoom()">Join Room</button>
+        </div>
+        <div>
+            <input type="text" id="instructor-message" placeholder="Type message..." style="width: 250px;">
+            <button onclick="instructorSendMessage()">Send</button>
+        </div>
+        <div class="messages" id="instructor-messages"></div>
+    </div>
+
+    <!-- Student Panel -->
+    <div class="user-panel student">
+        <h2>👨‍🎓 Student Panel</h2>
+        <div>
+            Status: <span id="student-status" class="disconnected">Disconnected</span>
+        </div>
+        <div>
+            <input type="text" id="student-token" placeholder="Student JWT Token" style="width: 300px;">
+            <button onclick="connectStudent()">Connect</button>
+            <button onclick="disconnectStudent()">Disconnect</button>
+        </div>
+        <div>
+            <input type="text" id="student-room" placeholder="Room ID" value="c79d6329-b0b7-491a-ac5c-be934e6a2c1c">
+            <button onclick="studentJoinRoom()">Join Room</button>
+        </div>
+        <div>
+            <input type="text" id="student-message" placeholder="Type message..." style="width: 250px;">
+            <button onclick="studentSendMessage()">Send</button>
+        </div>
+        <div class="messages" id="student-messages"></div>
+    </div>
+
+    <script>
+        let instructorWs = null;
+        let studentWs = null;
+
+        // Instructor functions
+        function connectInstructor() {
+            const token = document.getElementById('instructor-token').value;
+            if (!token) {
+                alert('Please enter instructor token');
+                return;
+            }
+
+            instructorWs = new WebSocket(`ws://localhost:8080?token=${token}`);
+            
+            instructorWs.onopen = () => {
+                document.getElementById('instructor-status').textContent = 'Connected';
+                document.getElementById('instructor-status').className = 'connected';
+                addInstructorMessage('✅ Connected to server');
+            };
+
+            instructorWs.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                addInstructorMessage(`📨 ${JSON.stringify(data, null, 2)}`);
+            };
+
+            instructorWs.onclose = () => {
+                document.getElementById('instructor-status').textContent = 'Disconnected';
+                document.getElementById('instructor-status').className = 'disconnected';
+                addInstructorMessage('❌ Disconnected');
+            };
+        }
+
+        function disconnectInstructor() {
+            if (instructorWs) instructorWs.close();
+        }
+
+        function instructorJoinRoom() {
+            const roomId = document.getElementById('instructor-room').value;
+            if (!roomId || !instructorWs) return;
+            
+            instructorWs.send(JSON.stringify({
+                type: 'join_room',
+                classroomId: roomId
+            }));
+        }
+
+        function instructorSendMessage() {
+            const roomId = document.getElementById('instructor-room').value;
+            const message = document.getElementById('instructor-message').value;
+            if (!roomId || !message || !instructorWs) return;
+
+            instructorWs.send(JSON.stringify({
+                type: 'send_message',
+                classroomId: roomId,
+                content: message
+            }));
+            
+            document.getElementById('instructor-message').value = '';
+        }
+
+        function addInstructorMessage(text) {
+            const messages = document.getElementById('instructor-messages');
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = `<small>${new Date().toLocaleTimeString()}</small><br>${text}`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Student functions (similar to instructor)
+        function connectStudent() {
+            const token = document.getElementById('student-token').value;
+            if (!token) {
+                alert('Please enter student token');
+                return;
+            }
+
+            studentWs = new WebSocket(`ws://localhost:8080?token=${token}`);
+            
+            studentWs.onopen = () => {
+                document.getElementById('student-status').textContent = 'Connected';
+                document.getElementById('student-status').className = 'connected';
+                addStudentMessage('✅ Connected to server');
+            };
+
+            studentWs.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                addStudentMessage(`📨 ${JSON.stringify(data, null, 2)}`);
+            };
+
+            studentWs.onclose = () => {
+                document.getElementById('student-status').textContent = 'Disconnected';
+                document.getElementById('student-status').className = 'disconnected';
+                addStudentMessage('❌ Disconnected');
+            };
+        }
+
+        function disconnectStudent() {
+            if (studentWs) studentWs.close();
+        }
+
+        function studentJoinRoom() {
+            const roomId = document.getElementById('student-room').value;
+            if (!roomId || !studentWs) return;
+            
+            studentWs.send(JSON.stringify({
+                type: 'join_room',
+                classroomId: roomId
+            }));
+        }
+
+        function studentSendMessage() {
+            const roomId = document.getElementById('student-room').value;
+            const message = document.getElementById('student-message').value;
+            if (!roomId || !message || !studentWs) return;
+
+            studentWs.send(JSON.stringify({
+                type: 'send_message',
+                classroomId: roomId,
+                content: message
+            }));
+            
+            document.getElementById('student-message').value = '';
+        }
+
+        function addStudentMessage(text) {
+            const messages = document.getElementById('student-messages');
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = `<small>${new Date().toLocaleTimeString()}</small><br>${text}`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Allow Enter key to send messages
+        document.getElementById('instructor-message').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') instructorSendMessage();
+        });
+        
+        document.getElementById('student-message').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') studentSendMessage();
+        });
+    </script>
+</body>
+</html>
