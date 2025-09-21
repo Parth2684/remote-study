@@ -14,7 +14,7 @@ import ClientAuthLoader from "@/components/client-auth-loader"
 export default function DashboardPage() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const router = useRouter()
-  const { authUser, signout, checkAuth, isSigningOut } = useAuthStore()
+  const { authUser, signout, isSigningOut } = useAuthStore()
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme")
@@ -24,19 +24,9 @@ export default function DashboardPage() {
     }
   }, [])
 
-  useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
-
-  useEffect(() => {
-    if (!authUser) {
-      redirect("/signin"); 
-    }
-
-  }, [authUser]);
-
   const handleSignOut = () => {
     signout()
+    redirect("/signin")
   }
 
   const toggleTheme = () => {

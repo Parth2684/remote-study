@@ -14,7 +14,6 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     signup: async (data) => {
         set({ isSigningUp: true })
         try {
-            await new Promise(r => setTimeout(r, 3000))
             const res = await axiosInstance.post("/signup", data)
             set({ authUser: res.data.user })
             toast.success("Signed up successfully")
@@ -33,7 +32,6 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     signin: async (data) => {
         set({ isSigningIn: true })
         try {
-            await new Promise(r => setTimeout(r, 3000))
             const res = await axiosInstance.post("/signin", data)
             const { user } = res.data 
             set({ authUser: user })

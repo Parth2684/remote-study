@@ -76,17 +76,6 @@ export default function ClassPage() {
 
   const currentClass = classData[classIdNumber];
 
-
-  useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
-
-  useEffect(() => {
-    if (!authUser) {
-      redirect("/signin"); 
-    }
-  }, [authUser]);
-
   if (!authUser || !currentClass) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
