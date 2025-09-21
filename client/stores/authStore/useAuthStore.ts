@@ -8,6 +8,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     authUser: null,
     isSigningUp: false,
     isSigningIn: false,
+    isSigningOut: false,
     isCheckingAuth: false,
 
     signup: async (data) => {
@@ -43,8 +44,23 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             }
         }
     },
-    signout: () => {
-        set({ authUser: null })
+    signout: async () => {
+        set({ isSigningOut: true })
+        try {
+            await axiosInstance.post("/signout")
+            set({ authUser: null })
+            toast.success("Signed out successfully")
+        } catch (error) {
+            console.error("Error while siging out: ", error)
+            if(error instanceof AxiosError && error.response?.data.message) {
+                toast.error(error.request.data.message as string)
+            }else {
+                toast.error("An unexpected error occurred")
+            }
+        } finally {
+            set({ isSigningOut: false })
+        }
+
     },
 
     checkAuth: async () => {

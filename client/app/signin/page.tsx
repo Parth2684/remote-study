@@ -36,7 +36,7 @@ export default function SignInPage() {
   }, [authUser])
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white dark:bg-neutral-950 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
@@ -44,7 +44,7 @@ export default function SignInPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="student" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-2 dark:bg-neutral-800">
               <TabsTrigger value="student">Student</TabsTrigger>
               <TabsTrigger value="instructor">Instructor</TabsTrigger>
             </TabsList>

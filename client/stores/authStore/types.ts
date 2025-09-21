@@ -12,6 +12,7 @@ export type authState = {
     authUser: User | null
     isSigningUp: boolean
     isSigningIn: boolean
+    isSigningOut: boolean
     isCheckingAuth: boolean
 }
 

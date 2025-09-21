@@ -9,13 +9,12 @@ import { redirect, useRouter } from "next/navigation"
 import { BookOpen, Users, FileText, LogOut, Settings, Plus, Moon, Sun, UserIcon } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
-import { signoutAction } from "@/actions/signout"
 import ClientAuthLoader from "@/components/client-auth-loader"
 
 export default function DashboardPage() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const router = useRouter()
-  const { authUser, signout, checkAuth } = useAuthStore()
+  const { authUser, signout, checkAuth, isSigningOut } = useAuthStore()
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme")
@@ -37,9 +36,7 @@ export default function DashboardPage() {
   }, [authUser]);
 
   const handleSignOut = () => {
-    signoutAction()
     signout()
-    router.push("/signin")
   }
 
   const toggleTheme = () => {
@@ -114,7 +111,7 @@ export default function DashboardPage() {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
+                    {isSigningOut ? "Signing out..." : "Sign Out"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
