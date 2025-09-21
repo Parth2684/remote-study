@@ -14,13 +14,11 @@ import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
 
 export default function SignInPage() {
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const { signin, authUser } = useAuthStore()
+  const { signin, authUser, isSigningIn } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
     e.preventDefault()
-    setIsLoading(true)
     setError("")
 
     const formData = new FormData(e.currentTarget)
@@ -60,8 +58,8 @@ export default function SignInPage() {
                   <Input id="student-password" name="password" type="password" required />
                 </div>
                 {error && <div className="text-sm text-destructive">{error}</div>}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign In as Student"}
+                <Button type="submit" className="w-full" disabled={isSigningIn}>
+                  {isSigningIn ? "Signing in..." : "Sign In as Student"}
                 </Button>
               </form>
             </TabsContent>
@@ -83,8 +81,8 @@ export default function SignInPage() {
                   <Input id="instructor-password" name="password" type="password" required />
                 </div>
                 {error && <div className="text-sm text-destructive">{error}</div>}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign In as Instructor"}
+                <Button type="submit" className="w-full" disabled={isSigningIn}>
+                  {isSigningIn ? "Signing in..." : "Sign In as Instructor"}
                 </Button>
               </form>
             </TabsContent>

@@ -33,6 +33,20 @@ export const POST = async (req: NextRequest) => {
         let user;
         
         if (role === "INSTRUCTOR") {
+            const existingUser = await prisma.instructor.findUnique({
+                where: {
+                    email: parsedBody.data.email
+                }
+            });
+
+            if (existingUser) {
+                return NextResponse.json({
+                    message: "User already exists"
+                }, {
+                    status: 409
+                });
+            }
+
             user = await prisma.instructor.create({
                 data: {
                     name: parsedBody.data.name,
@@ -41,6 +55,20 @@ export const POST = async (req: NextRequest) => {
                 }
             });
         } else {
+            const existingUser = await prisma.student.findUnique({
+                where: {
+                    email: parsedBody.data.email
+                }
+            });
+
+            if (existingUser) {
+                return NextResponse.json({
+                    message: "User already exists"
+                }, {
+                    status: 409
+                });
+            }
+
             user = await prisma.student.create({
                 data: {
                     name: parsedBody.data.name,
