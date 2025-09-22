@@ -5,7 +5,8 @@ import z from "zod";
 
 
 const createClassroomSchema = z.object({
-    name: z.string()
+    name: z.string(),
+    description: z.string().optional()
 })
 
 export const POST = async (req: NextRequest) => {
@@ -32,7 +33,8 @@ export const POST = async (req: NextRequest) => {
         const classroom = await prisma.classroom.create({
             data: {
                 name: parsedBody.data.name,
-                instructorId: instructor.id
+                instructorId: instructor.id,
+                description: parsedBody.data.description || "No description of the class"
             }
         })
 

@@ -38,6 +38,7 @@ model Student {
 model Classroom {
   id           String             @id @default(uuid())
   name         String
+  description  String
   instructorId String
   instructor   Instructor         @relation(fields: [instructorId], references: [id])
   students     StudentClassroom[]
