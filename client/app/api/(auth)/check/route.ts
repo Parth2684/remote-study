@@ -26,11 +26,20 @@ export const GET = async (req: NextRequest) => {
         if (!isJwtPayload(decodedToken)) {
             throw new Error("Invalid token payload");
         }
-        const user = await prisma.student.findUnique({
-            where: {
-                id: decodedToken.id
-            }
-        });
+        let user
+        if(decodedToken.role === "STUDENT") {
+            user = await prisma.student.findUnique({
+                where: {
+                    id: decodedToken.id
+                }
+            });
+        } else if(decodedToken.role === "INSTRUCTOR") {
+            user = await prisma.instructor.findUnique({
+                where: {
+                    id: decodedToken.id
+                }
+            });
+        }
 
         if (!user) {
             return NextResponse.json({
@@ -45,7 +54,8 @@ export const GET = async (req: NextRequest) => {
             user: {
                 id: user.id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: decodedToken.role
             }
         });
 
