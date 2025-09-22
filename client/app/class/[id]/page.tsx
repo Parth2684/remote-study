@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { redirect, useParams } from "next/navigation"
-import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock, Edit } from "lucide-react"
+import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock, Edit, Upload, Radio } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
 // Define the interface for class data
@@ -33,7 +33,7 @@ export default function ClassPage() {
   // Mock class data - in real app this would come from API
   const classData: ClassDataMap = {
     1: {
-      name: "General Science",
+      name: "Web Development 101",
       instructor: "Sir John Doe",
       description: "Learn the fundamentals of General Science",
       students: 25,
@@ -41,9 +41,9 @@ export default function ClassPage() {
       schedule: "Mon, Wed, Fri - 10:00 AM",
     },
     2: {
-      name: "English Language",
+      name: "Javascript Masterclass",
       instructor: "Prof. Johnson",
-      description: "Master English Language",
+      description: "Master Javascript",
       students: 12,
       code: "ENG202",
       schedule: "Tue, Thu - 2:00 PM",
@@ -82,6 +82,20 @@ export default function ClassPage() {
         <div className="text-center">Class not found</div>
       </div>
     )
+  }
+
+  const handleUploadVideo = () => {
+    // In a real app, this would open a file picker or navigate to upload page
+    console.log("Upload video functionality")
+    // You could navigate to an upload page or open a modal
+    // router.push(`/class/${classIdNumber}/upload-video`)
+  }
+
+  const handleStartLiveSession = () => {
+    // In a real app, this would start a live session
+    console.log("Start live session functionality")
+    // You could navigate to a live session page or start streaming
+    // router.push(`/class/${classIdNumber}/live-session`)
   }
 
   return (
@@ -238,11 +252,27 @@ export default function ClassPage() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Video className="h-5 w-5" />
-                    Video Sessions
-                  </CardTitle>
-                  <CardDescription>Access recorded sessions and upcoming live classes</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Video className="h-5 w-5" />
+                        Video Sessions
+                      </CardTitle>
+                      <CardDescription>Access recorded sessions and upcoming live classes</CardDescription>
+                    </div>
+                    {authUser.role === 'INSTRUCTOR' && (
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={handleUploadVideo}>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Video
+                        </Button>
+                        <Button onClick={handleStartLiveSession}>
+                          <Radio className="h-4 w-4 mr-2" />
+                          Start Live Session
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -261,9 +291,16 @@ export default function ClassPage() {
                             </div>
                           </div>
                         </div>
-                        <Button size="sm" variant="outline">
-                          Watch
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            Watch
+                          </Button>
+                          {authUser.role === 'INSTRUCTOR' && (
+                            <Button size="sm" variant="ghost">
+                              Edit
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -282,9 +319,16 @@ export default function ClassPage() {
                             </div>
                           </div>
                         </div>
-                        <Button size="sm" variant="outline">
-                          Watch
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            Watch
+                          </Button>
+                          {authUser.role === 'INSTRUCTOR' && (
+                            <Button size="sm" variant="ghost">
+                              Edit
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -306,7 +350,16 @@ export default function ClassPage() {
                             </div>
                           </div>
                         </div>
-                        <Button size="sm">Join Live</Button>
+                        <div className="flex gap-2">
+                          <Button size="sm">
+                            {authUser.role === 'INSTRUCTOR' ? 'Start Session' : 'Join Live'}
+                          </Button>
+                          {authUser.role === 'INSTRUCTOR' && (
+                            <Button size="sm" variant="ghost">
+                              Edit
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -328,9 +381,16 @@ export default function ClassPage() {
                             </div>
                           </div>
                         </div>
-                        <Button size="sm" variant="outline" disabled>
-                          Not Available
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" disabled>
+                            Not Available
+                          </Button>
+                          {authUser.role === 'INSTRUCTOR' && (
+                            <Button size="sm" variant="ghost">
+                              Edit
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
