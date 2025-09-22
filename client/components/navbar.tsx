@@ -39,7 +39,7 @@ export default function Navbar() {
 
   const handleSignOut = () => {
     signout()
-    router.push("/signin")
+    router.push("/")
   }
 
   const toggleTheme = () => {
