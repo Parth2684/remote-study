@@ -33,7 +33,7 @@ export default function ClassPage() {
   // Mock class data - in real app this would come from API
   const classData: ClassDataMap = {
     1: {
-      name: "Web Development 101",
+      name: "General Science",
       instructor: "Sir John Doe",
       description: "Learn the fundamentals of General Science",
       students: 25,
@@ -41,9 +41,9 @@ export default function ClassPage() {
       schedule: "Mon, Wed, Fri - 10:00 AM",
     },
     2: {
-      name: "Javascript Masterclass",
+      name: "English Language",
       instructor: "Prof. Johnson",
-      description: "Master Javascript",
+      description: "Master English Language",
       students: 12,
       code: "ENG202",
       schedule: "Tue, Thu - 2:00 PM",
@@ -422,7 +422,7 @@ export default function ClassPage() {
                         variant="outline"
                         onClick={() => router.push(`/quiz/${quiz.id}`)}
                       >
-                        Attempt Quiz
+                        {authUser.role === 'INSTRUCTOR' ? 'View analysis' : 'Attempt Quiz'}
                       </Button>
                     </CardContent>
                   </Card>
