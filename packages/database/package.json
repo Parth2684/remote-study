@@ -7,7 +7,6 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --skip-generate",
     "db:deploy": "prisma migrate deploy",
-    "dev": "tsup src/* --watch",
     "format": "prisma format",
     "generate": "prisma generate",
     "prebuild": "pnpm run generate",
