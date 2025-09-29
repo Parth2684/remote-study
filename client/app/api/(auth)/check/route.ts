@@ -15,42 +15,47 @@ export const GET = async (req: NextRequest) => {
 
         if (!token) {
             return NextResponse.json({
-                message: "User is not authenticated"
+                message: "Unauthorized"
             }, {
                 status: 401
             });
         }
 
-        // Verify the JWT token
         const decodedToken = jwt.verify(token!.value, process.env.JWT_SECRET!);
 
-        // Use the type guard to check if decodedToken is JwtPayload
         if (!isJwtPayload(decodedToken)) {
             throw new Error("Invalid token payload");
         }
-
-        // If JWT verification succeeds, fetch the user
-        const user = await prisma.student.findUnique({
-            where: {
-                id: decodedToken.id
-            }
-        });
-
-        if (!user) {
-            return NextResponse.json({
-                message: "User not found"
-            }, {
-                status: 404
+        let user
+        if(decodedToken.role === "STUDENT") {
+            user = await prisma.student.findUnique({
+                where: {
+                    id: decodedToken.id
+                }
+            });
+        } else if(decodedToken.role === "INSTRUCTOR") {
+            user = await prisma.instructor.findUnique({
+                where: {
+                    id: decodedToken.id
+                }
             });
         }
 
-        // Return user data if authenticated
+        if (!user) {
+            return NextResponse.json({
+                message: "Unauthorized"
+            }, {
+                status: 401
+            });
+        }
+
         return NextResponse.json({
             message: "Authenticated",
             user: {
                 id: user.id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: decodedToken.role
             }
         });
 

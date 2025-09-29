@@ -27,13 +27,10 @@ export default function SettingsPage() {
   const { authUser } = useAuthStore()
 
   useEffect(() => {
-    if (!authUser) {
-      router.push("/signin")
-    }
     setUser(authUser)
     setFormData({ name: authUser?.name!, email: authUser?.email! })
     setLoading(false)
-  }, [router, authUser])
+  }, [router])
 
   const handleSave = () => {
     if (user) {

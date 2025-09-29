@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { redirect, useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
@@ -16,7 +16,6 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const router = useRouter()
   const { authUser, signup } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
@@ -37,9 +36,6 @@ export default function SignUpPage() {
         password,
         role
       })
-  
-      setSuccess("Account created successfully! Redirecting to sign in...")
-      router.push("/signin")      
     } catch (err) {
       setError("Sign up failed. Please try again.")
     } finally {
@@ -54,7 +50,7 @@ export default function SignUpPage() {
     }, [authUser])
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white dark:bg-neutral-950 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
@@ -62,7 +58,7 @@ export default function SignUpPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="student" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-2 dark:bg-neutral-800">
               <TabsTrigger value="student">Student</TabsTrigger>
               <TabsTrigger value="instructor">Instructor</TabsTrigger>
             </TabsList>

@@ -4,8 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { v4 as uuidv4 } from "uuid";
 
-
-
 const quizSchema = z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -18,7 +16,7 @@ const quizSchema = z.object({
     )
 })
 
-export async function POST(req: NextRequest,  {params}  : { params: Promise<{ classroomId: string }> }) {
+export async function POST(req: NextRequest,  { params }: { params: Promise<{ classroomId: string }> }) {
     try {
         const [body, instructor] = await Promise.all([
             req.json(),
@@ -51,7 +49,7 @@ export async function POST(req: NextRequest,  {params}  : { params: Promise<{ cl
                     instructorId: instructor.id,
                     title,
                     description,
-                    classroomId
+                    classroomId: classroomId
                 }
             })
     

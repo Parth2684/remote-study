@@ -2,33 +2,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, Users, Video, ArrowRight, CheckCircle, Globe, Wifi } from "lucide-react"
+import { BookOpen, Users, Video, ArrowRight, CheckCircle, Globe } from "lucide-react"
 
-export default function Home() {
+export default function Landing() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b border-border/40 backdrop-blur-md bg-background/80 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 gradient-purple rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-foreground">EduLite</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button asChild variant="ghost">
-                <Link href="/signin">Sign In</Link>
-              </Button>
-              <Button asChild className="gradient-purple text-white border-0 hover:opacity-90">
-                <Link href="/signup">Get Started</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <div className="min-h-screen bg-background dark:bg-neutral-950">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
@@ -38,7 +16,7 @@ export default function Home() {
                 Simple learning for everyone
               </h1>
               <p className="text-xl text-muted-foreground mb-8 text-pretty">
-                EduLite brings quality education to rural areas with an easy-to-use virtual classroom. No complex setup,
+                EduLite brings quality education to low-bandwidth regions with an easy-to-use virtual classroom. No complex setup,
                 no confusion - just simple, effective learning.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -51,7 +29,7 @@ export default function Home() {
                     Start Learning Free <ArrowRight className="w-5 h-5 ml-2" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
+                <Button asChild variant="outline" size="lg" className="dark:bg-neutral-800 dark:border-neutral-700 dark:hover:bg-neutral-900 dark:hover:text-white">
                   <Link href="/signin">I'm an Instructor</Link>
                 </Button>
               </div>
@@ -96,7 +74,7 @@ export default function Home() {
       <section className="py-20 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Built for rural communities</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Built for Low-Bandwidth regions</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               We understand the challenges of limited internet and tech experience. EduLite is designed to work smoothly
               even with basic connections.

@@ -9,37 +9,51 @@ import { redirect, useParams } from "next/navigation"
 import { ArrowLeft, Users, MessageCircle, Video, BookOpen, Calendar, Clock, Edit } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
+// Define the interface for class data
+interface ClassData {
+  name: string;
+  instructor: string;
+  description: string;
+  students: number;
+  code: string;
+  schedule: string;
+}
+
+// Define the type for the classData object
+type ClassDataMap = {
+  [key: number]: ClassData;
+}
 
 export default function ClassPage() {
   const params = useParams()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
-  const { authUser, checkAuth } = useAuthStore()
+  const { authUser } = useAuthStore()
   const router = useRouter()
 
   // Mock class data - in real app this would come from API
-  const classData = {
+  const classData: ClassDataMap = {
     1: {
-      name: "Web Development 101",
-      instructor: "Dr. Smith",
-      description: "Learn the fundamentals of web development including HTML, CSS, and JavaScript",
+      name: "General Science",
+      instructor: "Sir John Doe",
+      description: "Learn the fundamentals of General Science",
       students: 25,
-      code: "WEB101",
+      code: "GEN101",
       schedule: "Mon, Wed, Fri - 10:00 AM",
     },
     2: {
-      name: "Advanced React",
+      name: "English Language",
       instructor: "Prof. Johnson",
-      description: "Master advanced React concepts including hooks, context, and performance optimization",
+      description: "Master English Language",
       students: 12,
-      code: "REACT202",
+      code: "ENG202",
       schedule: "Tue, Thu - 2:00 PM",
     },
     3: {
-      name: "Database Design",
+      name: "Mathematics",
       instructor: "Dr. Wilson",
-      description: "Learn database design principles and SQL fundamentals",
+      description: "Learn Mathematics",
       students: 8,
-      code: "DB301",
+      code: "MATH301",
       schedule: "Mon, Wed - 3:00 PM",
     },
   }
@@ -52,7 +66,7 @@ export default function ClassPage() {
 
   const classIdNumber = Number(classId);
 
-  if (isNaN(classIdNumber) || !classData[classIdNumber]) {
+  if (isNaN(classIdNumber)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">Class not found</div>
@@ -60,19 +74,7 @@ export default function ClassPage() {
     );
   }
 
-  // Now it's safe to use classIdNumber as the index
   const currentClass = classData[classIdNumber];
-
-
-  useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
-
-  useEffect(() => {
-    if (!authUser) {
-      redirect("/signin"); 
-    }
-  }, [authUser]);
 
   if (!authUser || !currentClass) {
     return (

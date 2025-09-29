@@ -19,9 +19,9 @@ export const POST = async (req: NextRequest) => {
         const parsedBody = signinSchema.safeParse(body)
         if(!parsedBody.success) {
             return NextResponse.json({
-                message: "Invalid input"
+                message: "Invalid inputs"
             }, {
-                status: 411
+                status: 400
             })
         }
         const { email, password, role } = parsedBody.data
@@ -41,7 +41,7 @@ export const POST = async (req: NextRequest) => {
         }
         if(!user) {
             return NextResponse.json({
-                message: "Couldn't find the user"
+                message: "User with this email doesn't exist"
             }, {
                 status: 401
             })
@@ -83,7 +83,7 @@ export const POST = async (req: NextRequest) => {
     } catch (error) {
         console.error(error)
         return NextResponse.json({
-            message: "Server Error"
+            message: "Internal Server Error"
         }, {
             status: 500
         })
