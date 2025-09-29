@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import ClientAuthLoader from "@/components/client-auth-loader"
 import { Toaster } from "react-hot-toast"
+import Navbar from "@/components/navbar"
 
 export const metadata: Metadata = {
   title: "EduLite - Simple Virtual Classroom",
@@ -19,8 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans`}>
-        <ClientAuthLoader />
-        {children}
+        <Navbar />
+        <main>
+          {children}
+        </main>
         <Analytics />
         <Toaster />
       </body>

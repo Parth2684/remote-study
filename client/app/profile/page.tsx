@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { redirect, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, UserIcon, Mail, Calendar, BookOpen } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
@@ -17,18 +17,13 @@ export default function ProfilePage() {
   })
   const router = useRouter()
   const { authUser } = useAuthStore()
-  const user = authUser
-
-  if(!user) {
-    return redirect("/signin")
-  }
 
   useEffect(() => {
     setFormData({
-      name: user.name,
-      email: user.email,
+      name: authUser?.name!,
+      email: authUser?.email!,
     })
-  }, [user])
+  }, [authUser])
 
   const handleSave = () => {
     
@@ -75,7 +70,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
-                  <Input id="role" value={user.role} disabled className="bg-muted" />
+                  <Input id="role" value={authUser?.role} disabled className="bg-muted" />
                 </div>
                 <div className="flex gap-2 pt-4">
                   {isEditing ? (
@@ -104,17 +99,17 @@ export default function ProfilePage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-center">
                   <div className="w-20 h-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold">
-                    {user.name.charAt(0).toUpperCase()}
+                    {authUser?.name.charAt(0).toUpperCase()}
                   </div>
                 </div>
                 <div className="text-center">
-                  <h3 className="font-semibold">{user.name}</h3>
-                  <p className="text-sm text-muted-foreground">{user.role}</p>
+                  <h3 className="font-semibold">{authUser?.name}</h3>
+                  <p className="text-sm text-muted-foreground">{authUser?.role}</p>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span>{user.email}</span>
+                    <span>{authUser?.email}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />

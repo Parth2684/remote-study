@@ -29,7 +29,7 @@ export const POST = async (req: NextRequest) => {
                 status: 411
             })
         }
-        const classroom = prisma.classroom.create({
+        const classroom = await prisma.classroom.create({
             data: {
                 name: parsedBody.data.name,
                 instructorId: instructor.id
