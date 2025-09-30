@@ -9,7 +9,7 @@ import nodemailer from "nodemailer"
 
 const signupSchema = z.object({
     name: z.string(),
-    email: z.string(),
+    email: z.email(),
 })
 
 const transporter = nodemailer.createTransport({
@@ -27,7 +27,7 @@ const sendEmail = async (email: string, subject: string, html: string) => transp
     html
 })
 
-export const signup = async (req: Request, res: Response) => {
+export const signupStudentHandler = async (req: Request, res: Response) => {
     try {
         const body = req.body
         const parsedBody = signupSchema.safeParse(body)
