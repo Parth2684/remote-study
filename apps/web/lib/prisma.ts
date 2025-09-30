@@ -1,1 +1,2 @@
-export { prisma } from "@repo/db"
+import { prisma } from "@repo/db"
+export default prisma

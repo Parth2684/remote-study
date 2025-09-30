@@ -28,11 +28,18 @@ model Student {
   id        String             @id @default(uuid())
   name      String
   email     String             @unique
-  password  String
+  password  String?
   classroom StudentClassroom[]
   quizAttempts  QuizAttempt[]
   messages   Message[]
+  provider  Provider
+  verified  Boolean @default(false)
+  token String?
+}
 
+enum Provider {
+  GOOGLE
+  CREDENTIALS
 }
 
 model Classroom {
