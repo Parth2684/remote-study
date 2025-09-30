@@ -77,16 +77,26 @@ export const signupStudentHandler = async (req: Request, res: Response) => {
         }, JWT_SECRET)
 
         const [student, emailSent] = await Promise.all([
-            prisma.student.create({
-                data: {
+            prisma.student.upsert({
+                where: {
+                    email
+                },
+                update: {
+                    id: studentId,
+                    name,
+                    token,
+                    tokenExpiry: new Date(Date.now() + (24 * 60 * 60 * 1000))
+                },
+                create: {
                     id: studentId,
                     email,
                     name,
                     provider: "CREDENTIALS",
-                    token
+                    token,
+                    tokenExpiry: new Date(Date.now() + (24 * 60 * 60 * 1000))
                 }
             }),
-            sendEmail(email, "Verify and Set Password to your Email", `<p> Hi ${name}, click <a href="${FRONTEND_URL}/set-password?token=${token}">here</a> to verify your email and set the password </p>`)
+            sendEmail(email, "Verify and Set Password to your Email", `<p> Hi ${name}, click <a href="${FRONTEND_URL}/set-password?token=${token}">here</a> to verify your email and set the password. It is only valid for 24 hours</p>`)
         ])
 
         if(!student) {

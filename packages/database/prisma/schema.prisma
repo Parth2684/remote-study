@@ -34,7 +34,8 @@ model Student {
   messages   Message[]
   provider  Provider
   verified  Boolean @default(false)
-  token String?
+  token String?   @unique
+  tokenExpiry DateTime
 }
 
 enum Provider {
