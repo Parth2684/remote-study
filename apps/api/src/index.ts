@@ -2,6 +2,7 @@ import dotenv from "dotenv"
 dotenv.config()
 import express from "express"
 import cors from "cors"
+import cookieParser from "cookie-parser"
 
 const PORT = process.env.PORT
 const app = express()
@@ -16,6 +17,8 @@ app.use(cors({
     preflightContinue: false,
     optionsSuccessStatus: 200
 }))
+
+app.use(cookieParser())
 
 
 app.use(express.json())
