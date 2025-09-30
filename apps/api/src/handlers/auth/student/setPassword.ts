@@ -61,6 +61,7 @@ export const setPasswordHandler = async(req: Request, res: Response) => {
             res.status(403).json({
                 message: "Account already verified"
             })
+            return
         }
     
         const currentTime = new Date()
@@ -68,6 +69,7 @@ export const setPasswordHandler = async(req: Request, res: Response) => {
             res.status(403).json({
                 message: "Please retry the whole process token is expired"
             })
+            return
         }
     
         const changes = await prisma.student.update({
