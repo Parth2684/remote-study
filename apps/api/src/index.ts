@@ -1,0 +1,23 @@
+import dotenv from "dotenv"
+dotenv.config()
+import express from "express"
+import cors from "cors"
+
+const PORT = process.env.PORT
+const app = express()
+
+app.set('trust proxy', 1)
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTION'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie', 'Origin'],
+    exposedHeaders: ['Set-Cookie'],
+    preflightContinue: false,
+    optionsSuccessStatus: 200
+}))
+
+
+app.use(express.json())
+
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
