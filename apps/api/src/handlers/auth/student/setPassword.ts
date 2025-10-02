@@ -65,7 +65,7 @@ export const setPasswordHandler = async(req: Request, res: Response) => {
         }
     
         const currentTime = new Date()
-        if(currentTime > existingStudent.tokenExpiry) {
+        if(currentTime > existingStudent.tokenExpiry!) {
             res.status(403).json({
                 message: "Please retry the whole process token is expired"
             })
