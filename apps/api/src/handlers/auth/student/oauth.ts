@@ -112,6 +112,9 @@ export const oauthCallbackHandler = async (req: Request, res: Response) => {
             user: student
         })
     } catch (error) {
-        
+        console.error(error)
+        res.status(500).json({
+            message: "Server Error"
+        })
     }
 } 
