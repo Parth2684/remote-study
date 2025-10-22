@@ -1,5 +1,5 @@
 "use client";
-import { useAuthStore } from "@/stores/authStore/useAuthStore";
+import { useAuthStore } from "../stores/authStore/useAuthStore";
 import { Loader2 } from "lucide-react";
 
 export default function ClientAuthLoader() {

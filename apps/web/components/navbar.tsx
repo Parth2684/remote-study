@@ -7,7 +7,7 @@ import { Button } from "@repo/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@repo/ui/dropdown-menu"
 import { BookOpen, Plus, Moon, Sun, UserIcon, LogOut, Settings } from "lucide-react"
 import { Badge } from "@repo/ui/badge"
-import { useAuthStore } from "@/stores/authStore/useAuthStore"
+import { useAuthStore } from "../stores/authStore/useAuthStore"
 import { Skeleton } from "@repo/ui/skeleton"
 
 export default function Navbar() {

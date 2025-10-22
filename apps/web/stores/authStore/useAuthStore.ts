@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { authAction, authState } from "./types"
-import { axiosInstance } from "@/lib/axiosInstance"
+import { axiosInstance } from "../../lib/axiosInstance"
 import { toast } from "react-hot-toast"
 import { AxiosError } from "axios"
 
