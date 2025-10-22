@@ -1,7 +1,7 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@repo/ui/button"
+import { Card, CardContent } from "@repo/ui/card"
+import { Badge } from "@repo/ui/badge"
 import { BookOpen, Users, Video, ArrowRight, CheckCircle, Globe } from "lucide-react"
 
 export default function Landing() {
