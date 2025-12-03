@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@repo/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/tabs"
+import { Button } from "@/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs"
 import { BookOpen, Users, FileText, Loader2, PenSquare } from "lucide-react"
 import { useAuthStore } from "../../stores/authStore/useAuthStore"
 import ClientAuthLoader from "../../components/client-auth-loader"

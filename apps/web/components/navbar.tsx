@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
-import { Button } from "@repo/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@repo/ui/dropdown-menu"
+import { Button } from "@/components/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/dropdown-menu"
 import { BookOpen, Plus, Moon, Sun, UserIcon, LogOut, Settings } from "lucide-react"
-import { Badge } from "@repo/ui/badge"
+import { Badge } from "@/components/badge"
 import { useAuthStore } from "../stores/authStore/useAuthStore"
-import { Skeleton } from "@repo/ui/skeleton"
+import { Skeleton } from "@/components/skeleton"
 
 export default function Navbar() {
   const [isDarkMode, setIsDarkMode] = useState(false)

@@ -25,6 +25,6 @@ app.use(cookieParser())
 app.use(express.json())
 
 
-app.use("/api/v1/user", userRouter)
+app.use("/api/user", userRouter)
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))

@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Button } from '@repo/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/card';
-import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group';
-import { Label } from '@repo/ui/label';
+import { Button } from '@/components/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/card';
+import { RadioGroup, RadioGroupItem } from '@/components/radio-group';
+import { Label } from '@/components/label';
 import { toast } from 'sonner';
 
 interface Question {

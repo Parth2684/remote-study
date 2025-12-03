@@ -1,13 +1,12 @@
 import Link from "next/link"
-import { Button } from "@repo/ui/button"
-import { Card, CardContent } from "@repo/ui/card"
-import { Badge } from "@repo/ui/badge"
+import { Button } from "@/components/button"
+import { Card, CardContent } from "@/components/card"
+import { Badge } from "@/components/badge"
 import { BookOpen, Users, Video, ArrowRight, CheckCircle, Globe } from "lucide-react"
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background dark:bg-neutral-950">
-      {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -35,7 +34,6 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Hero Visual */}
             <div className="animate-slide-up">
               <Card className="p-8 gradient-purple text-white border-0 animate-float">
                 <div className="space-y-6">

@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@repo/ui/button';
-import { Input } from '@repo/ui/input';
-import { Textarea } from '@repo/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/card';
+import { Button } from '@/components/button';
+import { Input } from '@/components/input';
+import { Textarea } from '@/components/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -132,19 +132,19 @@ export default function CreateQuizPage({ params }: { params: Promise<{ classroom
 
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q!.question.trim()) {
+      if (!q || !q.question.trim()) {
         toast.error(`Question ${i + 1} is missing text`);
         setIsSubmitting(false);
         return;
       }
       
-      if (q!.options.some(opt => !opt.trim())) {
+      if (q.options.some(opt => !opt.trim())) {
         toast.error(`Question ${i + 1} has empty options`);
         setIsSubmitting(false);
         return;
       }
       
-      if (!q!.correctOption) {
+      if (!q.correctOption) {
         toast.error(`Please select a correct option for question ${i + 1}`);
         setIsSubmitting(false);
         return;
