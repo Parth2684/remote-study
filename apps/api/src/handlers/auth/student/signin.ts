@@ -14,8 +14,9 @@ const signinSchema = z.object({
 
 export const signinStudentHandler = async (req: Request, res: Response) => {
     try {
+        
         const body = req.body
-        const parsedBody = signinSchema.safeParse(body)
+        const parsedBody = sig
         if(!parsedBody.success) {
             res.status(400).json({
                 message: "Please provide correct inputs",
