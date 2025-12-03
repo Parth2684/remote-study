@@ -111,7 +111,7 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
-      '@/components':
+      '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@vercel/analytics':

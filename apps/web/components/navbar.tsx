@@ -15,7 +15,7 @@ export default function Navbar() {
   const [isHydrated, setIsHydrated] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
-  const { authUser, signout, isSigningOut, isCheckingAuth, checkAuth } = useAuthStore()
+  const { authUser, signout, isSigningOut, isCheckingAuth } = useAuthStore()
 
   const hideNavbarRoutes = ['/signin', '/signup', '/forgot-password']
   const shouldHideNavbar = hideNavbarRoutes.includes(pathname)
@@ -30,12 +30,6 @@ export default function Navbar() {
       document.documentElement.classList.add("dark")
     }
   }, [])
-
-  useEffect(() => {
-    if (isHydrated) {
-      checkAuth()
-    }
-  }, [isHydrated, checkAuth])
 
   const handleSignOut = () => {
     signout()
