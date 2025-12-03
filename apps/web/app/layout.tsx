@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-import ClientAuthLoader from "@/components/client-auth-loader"
 import { Toaster } from "react-hot-toast"
 import Navbar from "@/components/navbar"
 

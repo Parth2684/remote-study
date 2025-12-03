@@ -1,16 +1,13 @@
-// File: app/api/classroom/[classroomId]/verify-access/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// We are changing the function signature here to use a 'context' object
-export const POST = async (
+export async function POST (
   req: NextRequest,
-  context: { params: { classroomId: string } }
-) => {
+  { params }: { params: Promise<{ classroomId: string }> }
+) {
   try {
     // We now get the classroomId from the 'context' object
-    const classroomId = context.params.classroomId;
+    const { classroomId } = await params;
     
     const body = await req.json();
     const { userId, userType } = body;

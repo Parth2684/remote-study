@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@repo/ui/button';
+import { Input } from '@repo/ui/input';
+import { Textarea } from '@repo/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/card';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -39,6 +39,7 @@ export default function CreateQuizPage({ params }: { params: Promise<{ classroom
       } catch (err) {
         setError('You must be logged in as an instructor to create a quiz');
         router.push('/signin?redirect=/instructor');
+        console.log("Error: ", err)
       }
     };
 
@@ -86,27 +87,34 @@ export default function CreateQuizPage({ params }: { params: Promise<{ classroom
 
   const updateQuestion = (index: number, field: string, value: string) => {
     const newQuestions = [...questions];
+    const question = newQuestions[index];
+    if (!question) return;
+    
     if (field === 'question') {
-      newQuestions[index].question = value;
+      question.question = value;
     } else if (field.startsWith('option')) {
-      const optionIndex = parseInt(field.split('-')[1]);
-      newQuestions[index].options[optionIndex] = value;
+      const optionIndex = parseInt(field.split('-')[1] ?? '0');
+      question.options[optionIndex] = value;
     } else if (field === 'correctOption') {
-      newQuestions[index].correctOption = value;
+      question.correctOption = value;
     }
     setQuestions(newQuestions);
   };
 
   const addOption = (questionIndex: number) => {
     const newQuestions = [...questions];
-    newQuestions[questionIndex].options.push('');
+    const question = newQuestions[questionIndex];
+    if (question) {
+      question.options.push('');
+    }
     setQuestions(newQuestions);
   };
 
   const removeOption = (questionIndex: number, optionIndex: number) => {
     const newQuestions = [...questions];
-    if (newQuestions[questionIndex].options.length > 2) {
-      newQuestions[questionIndex].options.splice(optionIndex, 1);
+    const question = newQuestions[questionIndex];
+    if (question && question.options.length > 2) {
+      question.options.splice(optionIndex, 1);
       setQuestions(newQuestions);
     }
   };
@@ -124,19 +132,19 @@ export default function CreateQuizPage({ params }: { params: Promise<{ classroom
 
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q.question.trim()) {
+      if (!q!.question.trim()) {
         toast.error(`Question ${i + 1} is missing text`);
         setIsSubmitting(false);
         return;
       }
       
-      if (q.options.some(opt => !opt.trim())) {
+      if (q!.options.some(opt => !opt.trim())) {
         toast.error(`Question ${i + 1} has empty options`);
         setIsSubmitting(false);
         return;
       }
       
-      if (!q.correctOption) {
+      if (!q!.correctOption) {
         toast.error(`Please select a correct option for question ${i + 1}`);
         setIsSubmitting(false);
         return;
