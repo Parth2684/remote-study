@@ -45,53 +45,52 @@ export const signupStudentHandler = async (req: Request, res: Response) => {
                     verified: false
                 }
             }), 
-            prisma.instructor.findUnique({
+            prisma.student.findUnique({
                 where: {
                     email
                 }
             })
         ])
 
-        if(existingStudent?.verified == true) {
+        if(existingInstructor?.verified == true) {
             res.status(409).json({
-                message: "Student already exists"
+                message: "Instructor already exists"
             })
             return
         }
 
-        if(isInstructor) {
+        if(isStudent) {
             res.status(409).json({
                 message: "Instructors cannot signup as students"
             })
             return
         }
 
-        const studentId = uuidv4()
+        const instructorId = uuidv4()
 
         const token = jwt.sign({
-            userId: studentId,
+            userId: instructorId,
             email,
             name,
-            role: "STUDENT"
+            role: "INSTRUCTOR"
         }, JWT_SECRET)
 
-        const [student, emailSent] = await Promise.all([
-            prisma.student.upsert({
+        const [instructor, emailSent] = await Promise.all([
+            prisma.instructor.upsert({
                 where: {
                     email,
                     verified: false
                 },
                 update: {
-                    id: studentId,
+                    id: instructorId,
                     name,
                     token,
                     tokenExpiry: new Date(Date.now() + (24 * 60 * 60 * 1000))
                 },
                 create: {
-                    id: studentId,
+                    id: instructorId,
                     email,
                     name,
-                    provider: "CREDENTIALS",
                     token,
                     tokenExpiry: new Date(Date.now() + (24 * 60 * 60 * 1000))
                 }
@@ -99,7 +98,7 @@ export const signupStudentHandler = async (req: Request, res: Response) => {
             sendEmail(email, "Verify and Set Password to your Email", `<p> Hi ${name}, click <a href="${FRONTEND_URL}/set-password?token=${token}">here</a> to verify your email and set the password. It is only valid for 24 hours</p>`)
         ])
 
-        if(!student) {
+        if(!instructor) {
             throw new Error("Couldn't create account")
         }
         
