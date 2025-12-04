@@ -20,7 +20,7 @@ const setPasswordSchema = z.object({
     .regex(/[^a-zA-Z0-9]/, "Must include a special character"),
 });
 
-export const setPasswordHandler = async (req: Request, res: Response) => {
+export const setPasswordInstructorHandler = async (req: Request, res: Response) => {
   try {
     const token = req.query.token;
     const body = req.body;
@@ -41,8 +41,8 @@ export const setPasswordHandler = async (req: Request, res: Response) => {
       return;
     }
 
-    const [existingStudent, hashedPassword] = await Promise.all([
-      prisma.student.findUnique({
+    const [existingInstructor, hashedPassword] = await Promise.all([
+      prisma.instructor.findUnique({
         where: {
           token: String(token),
         },
@@ -50,14 +50,14 @@ export const setPasswordHandler = async (req: Request, res: Response) => {
       bcrypt.hash(parsedBody.data.password, 10),
     ]);
 
-    if (!existingStudent) {
+    if (!existingInstructor) {
       res.status(404).json({
-        message: "Student account not found",
+        message: "Instructor account not found",
       });
       return;
     }
 
-    if (existingStudent.verified == true) {
+    if (existingInstructor.verified == true) {
       res.status(403).json({
         message: "Account already verified",
       });
@@ -65,14 +65,14 @@ export const setPasswordHandler = async (req: Request, res: Response) => {
     }
 
     const currentTime = new Date();
-    if (currentTime > existingStudent.tokenExpiry!) {
+    if (currentTime > existingInstructor.tokenExpiry!) {
       res.status(403).json({
         message: "Please retry the whole process token is expired",
       });
       return;
     }
 
-    await prisma.student.update({
+    await prisma.instructor.update({
       where: {
         token: String(token),
       },
@@ -84,7 +84,7 @@ export const setPasswordHandler = async (req: Request, res: Response) => {
     });
 
     res.json({
-      message: "Student account verified",
+      message: "Instructor account verified",
     });
   } catch (error) {
     console.error(error);

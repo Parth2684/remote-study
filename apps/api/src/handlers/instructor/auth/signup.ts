@@ -27,7 +27,7 @@ const sendEmail = async (email: string, subject: string, html: string) =>
     html,
   });
 
-export const signupStudentHandler = async (req: Request, res: Response) => {
+export const signupInstructorHandler = async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const parsedBody = signupSchema.safeParse(body);
@@ -38,64 +38,62 @@ export const signupStudentHandler = async (req: Request, res: Response) => {
       return;
     }
     const { name, email } = parsedBody.data;
-    const [existingStudent, isInstructor] = await Promise.all([
-      prisma.student.findUnique({
+    const [existingInstructor, isStudent] = await Promise.all([
+      prisma.instructor.findUnique({
         where: {
           email,
-          provider: "CREDENTIALS",
           verified: false,
         },
       }),
-      prisma.instructor.findUnique({
+      prisma.student.findUnique({
         where: {
           email,
         },
       }),
     ]);
 
-    if (existingStudent?.verified == true) {
+    if (existingInstructor?.verified == true) {
       res.status(409).json({
-        message: "Student already exists",
+        message: "Instructor already exists",
       });
       return;
     }
 
-    if (isInstructor) {
+    if (isStudent) {
       res.status(409).json({
         message: "Instructors cannot signup as students",
       });
       return;
     }
 
-    const studentId = uuidv4();
+    const instructorId = uuidv4();
 
     const token = jwt.sign(
       {
-        userId: studentId,
+        userId: instructorId,
         email,
         name,
-        role: "STUDENT",
+        role: "INSTRUCTOR",
       },
       JWT_SECRET,
     );
 
-    const [student, emailSent] = await Promise.all([
-      prisma.student.upsert({
+    const [instructor, emailSent] = await Promise.all([
+      prisma.instructor.upsert({
         where: {
           email,
           verified: false,
         },
         update: {
-          id: studentId,
+          id: instructorId,
           name,
           token,
           tokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
         create: {
-          id: studentId,
+          id: instructorId,
           email,
           name,
-          provider: "CREDENTIALS",
           token,
           tokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
@@ -107,7 +105,7 @@ export const signupStudentHandler = async (req: Request, res: Response) => {
       ),
     ]);
 
-    if (!student) {
+    if (!instructor) {
       throw new Error("Couldn't create account");
     }
 

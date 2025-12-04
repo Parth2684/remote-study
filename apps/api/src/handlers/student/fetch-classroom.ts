@@ -16,7 +16,7 @@ export const fetchClassroom = async (req: Request, res: Response) => {
         studentId: student.id,
       },
       include: {
-        classroom: true,  
+        classroom: true,
       },
     });
 
@@ -28,7 +28,7 @@ export const fetchClassroom = async (req: Request, res: Response) => {
 
     return res.json({
       message: "Student's classrooms fetched successfully",
-      classrooms: classrooms.map((sc) => sc.classroom), 
+      classrooms: classrooms.map((sc) => sc.classroom),
     });
   } catch (error) {
     console.error(error);
@@ -37,5 +37,3 @@ export const fetchClassroom = async (req: Request, res: Response) => {
     });
   }
 };
-
-

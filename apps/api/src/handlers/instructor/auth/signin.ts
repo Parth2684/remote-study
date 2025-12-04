@@ -10,7 +10,7 @@ const signinSchema = z.object({
   password: z.string(),
 });
 
-export const signinStudentHandler = async (req: Request, res: Response) => {
+export const signinInstructorHandler = async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const parsedBody = signinSchema.safeParse(body);
@@ -35,35 +35,28 @@ export const signinStudentHandler = async (req: Request, res: Response) => {
       }),
     ]);
 
-    if (instructor) {
+    if (student) {
       res.status(403).json({
-        message: "You cannot signin as a student",
+        message: "You cannot signin as a instructor, you are a student",
       });
       return;
     }
 
-    if (!student) {
+    if (!instructor) {
       res.status(404).json({
-        message: "Student account not found",
+        message: "Instructor account not found",
       });
       return;
     }
 
-    if (!student.verified) {
+    if (!instructor.verified) {
       res.status(403).json({
         message: "Please verify your account before signing in",
       });
       return;
     }
 
-    if (student.provider !== "CREDENTIALS" || !student.password) {
-      res.status(403).json({
-        message: "Please signin via correct provider",
-      });
-      return;
-    }
-
-    const validPassword = await bcrypt.compare(password, student.password);
+    const validPassword = await bcrypt.compare(password, instructor.password!);
     if (!validPassword) {
       res.status(401).json({
         message: "Incorrect Password",
@@ -71,18 +64,18 @@ export const signinStudentHandler = async (req: Request, res: Response) => {
       return;
     }
 
-    const returnStudent = {
-      id: student.id,
+    const returnInstructor = {
+      id: instructor.id,
       email,
-      name: student.name,
+      name: instructor.name,
     };
 
     const token = jwt.sign(
       {
-        id: student.id,
+        id: instructor.id,
         email,
-        name: student.name,
-        role: "STUDENT",
+        name: instructor.name,
+        role: "INSTRUCTOR",
       },
       JWT_SECRET,
       {
@@ -101,7 +94,7 @@ export const signinStudentHandler = async (req: Request, res: Response) => {
 
     res.json({
       message: "Signin Successful",
-      student: returnStudent,
+      student: returnInstructor,
     });
   } catch (error) {
     console.error(error);
