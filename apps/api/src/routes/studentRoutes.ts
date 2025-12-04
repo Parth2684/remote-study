@@ -6,20 +6,20 @@ import { studentAuth } from "../middleware/auth";
 import { oauthCallbackHandler, oauthGetCodeHandler } from "../handlers/student/auth/oauth";
 import classroomHandler from "../handlers/student/classroomhandler";
 
-const studentRouter: Router = Router()
+const studentRouter: Router = Router();
 
-studentRouter.post("/signup", signupStudentHandler)
+studentRouter.post("/signup", signupStudentHandler);
 
-studentRouter.post("/set-password", setPasswordHandler)
+studentRouter.post("/set-password", setPasswordHandler);
 
-studentRouter.post("/signin", signinStudentHandler)
+studentRouter.post("/signin", signinStudentHandler);
 
-studentRouter.get("/auth/google", oauthGetCodeHandler)
+studentRouter.get("/auth/google", oauthGetCodeHandler);
 
-studentRouter.get("/auth/google/callback", oauthCallbackHandler)
+studentRouter.get("/auth/google/callback", oauthCallbackHandler);
 
-studentRouter.use(studentAuth) 
+studentRouter.use(studentAuth);
 
-studentRouter.get("/classroom", classroomHandler)
+studentRouter.get("/classroom", classroomHandler);
 
 export default studentRouter;

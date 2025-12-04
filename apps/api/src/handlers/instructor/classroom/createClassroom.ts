@@ -23,8 +23,7 @@ export const createClassroomHandler = async (req: Request, res: Response) => {
       data: {
         name: parsedBody.data.name,
         instructorId: req.user.id,
-        description:
-          parsedBody.data.description || "No description of the class",
+        description: parsedBody.data.description || "No description of the class",
       },
     });
 

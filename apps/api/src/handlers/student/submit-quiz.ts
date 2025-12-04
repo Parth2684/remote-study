@@ -9,7 +9,7 @@ const attemptQuizSchema = z.object({
     z.object({
       questionId: z.string(),
       optionId: z.string().optional(),
-    })
+    }),
   ),
 });
 
@@ -17,7 +17,7 @@ export const submitQuiz = async (req: Request, res: Response) => {
   try {
     const { classroomId } = req.params;
     const body = req.body;
-    const student = req.user;  
+    const student = req.user;
 
     const parsedBody = attemptQuizSchema.safeParse(body);
     if (!parsedBody.success) {
@@ -54,7 +54,7 @@ export const submitQuiz = async (req: Request, res: Response) => {
       });
 
       const totalQuestions = questions.length;
-      const correctOptionIds = new Set<string>(); 
+      const correctOptionIds = new Set<string>();
       let correctAnswerCount = 0;
 
       questions.forEach((question) => {

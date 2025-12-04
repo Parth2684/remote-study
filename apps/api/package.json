@@ -8,7 +8,7 @@
     "build": "bun build src/index.ts --target=bun --outdir ./dist",
     "start": "bun dist/src/indes.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "fmt": "prettier --write"
+    "fmt": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^7.0.2",
     "@types/uuid": "^11.0.0",
+    "prettier": "^3.7.4",
     "ts-node-dev": "^2.0.0",
     "tsc": "^2.0.4"
   },
