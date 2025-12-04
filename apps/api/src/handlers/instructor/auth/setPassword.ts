@@ -20,7 +20,7 @@ const setPasswordSchema = z.object({
         .regex(/[^a-zA-Z0-9]/, "Must include a special character")
 })
 
-export const setPasswordHandler = async(req: Request, res: Response) => {
+export const setPasswordInstructorHandler = async(req: Request, res: Response) => {
     try {
         const token = req.query.token
         const body = req.body

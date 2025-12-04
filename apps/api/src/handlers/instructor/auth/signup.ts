@@ -27,7 +27,7 @@ const sendEmail = async (email: string, subject: string, html: string) => transp
     html
 })
 
-export const signupStudentHandler = async (req: Request, res: Response) => {
+export const signupInstructorHandler = async (req: Request, res: Response) => {
     try {
         const body = req.body
         const parsedBody = signupSchema.safeParse(body)
