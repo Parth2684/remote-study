@@ -3,7 +3,7 @@ import { signupInstructorHandler } from '../handlers/instructor/auth/signup';
 import { setPasswordInstructorHandler } from '../handlers/instructor/auth/setPassword';
 import { signinInstructorHandler } from '../handlers/instructor/auth/signin';
 import { instructorAuth } from '../middleware/auth';
-import { createClassroomHandler } from '../handlers/instructor/classroom/createClassroom';
+import classroomRouter from '../handlers/instructor/classroom/classroomRouter';
 
 
 
@@ -17,6 +17,5 @@ instructorRoutes.post("/signin", signinInstructorHandler)
 
 instructorRoutes.use(instructorAuth)
 
-instructorRoutes.post("/create-classroom", createClassroomHandler);
-
+instructorRoutes.use("/classroom", classroomRouter)
 export default instructorRoutes
