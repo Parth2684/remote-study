@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { signupStudentHandler } from "../handlers/auth/student/signup";
-import { setPasswordHandler } from "../handlers/auth/student/setPassword";
-import { signinStudentHandler } from "../handlers/auth/student/signin";
+import { signupStudentHandler } from "../handlers/student/auth/signup";
+import { setPasswordHandler } from "../handlers/student/auth/setPassword";
+import { signinStudentHandler } from "../handlers/student/auth/signin";
 import { studentAuth } from "../middleware/auth";
-import { oauthCallbackHandler, oauthGetCodeHandler } from "../handlers/auth/student/oauth";
+import { oauthCallbackHandler, oauthGetCodeHandler } from "../handlers/student/auth/oauth";
 
 
 

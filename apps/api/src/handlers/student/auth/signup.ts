@@ -79,7 +79,8 @@ export const signupStudentHandler = async (req: Request, res: Response) => {
         const [student, emailSent] = await Promise.all([
             prisma.student.upsert({
                 where: {
-                    email
+                    email,
+                    verified: false
                 },
                 update: {
                     id: studentId,
