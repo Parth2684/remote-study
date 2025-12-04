@@ -14,9 +14,16 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     signup: async (data) => {
         set({ isSigningUp: true })
         try {
-            const res = await axiosInstance.post("/user/signup", data)
-            set({ authUser: res.data.user })
-            toast.success("Signed up successfully")
+            if(data.role === "STUDENT"){
+                const res = await axiosInstance.post("/student/signup", data)
+                set({ authUser: res.data.user })
+                toast.success("Signed up successfully")
+            }
+            else {
+                const res = await axiosInstance.post("/instructor/signup", data)
+                set({ authUser: res.data.user })
+                toast.success("Signed up successfully")
+            }
         } catch (error) {
             console.error(error)
             if (error instanceof AxiosError && error.response?.data?.message) {
@@ -32,11 +39,20 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     signin: async (data) => {
         set({ isSigningIn: true })
         try {
-            const res = await axiosInstance.post("/signin", data)
-            const { user } = res.data 
-            set({ authUser: user })
-            console.log("auth user: ", get().authUser)
-            toast.success("Signed in successfully")
+            if(data.role === "STUDENT"){
+                const res = await axiosInstance.post("/student/signin", data)
+                const { user } = res.data 
+                set({ authUser: user })
+                console.log("auth user: ", get().authUser)
+                toast.success("Signed in successfully")
+            }
+            else {
+                const res = await axiosInstance.post("/instructor/signin", data)
+                const { user } = res.data 
+                set({ authUser: user })
+                console.log("auth user: ", get().authUser)
+                toast.success("Signed in successfully")
+            }
         } catch (error) {
             console.error(error)
             if (error instanceof AxiosError && error.response?.data?.message) {
