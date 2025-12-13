@@ -18,21 +18,18 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             let res;
 
             if (data.role === "STUDENT") {
-                // Only send name and email
                 res = await axiosInstance.post("/student/signup", {
                     name: data.name,
                     email: data.email,
                 });
             } else {
-                // Instructor flow may differ — adjust if backend differs
-                res = await axiosInstance.post("/instructor/signup", data);
+                res = await axiosInstance.post("/instructor/signup", {
+                    name: data.name,
+                    email: data.email
+                })
             }
 
             toast.success(res.data.message || "Signup successful. Check your email.");
-
-            // DO NOT SET AUTH USER — backend does not return user
-            // set({ authUser: res.data.user }) ❌ REMOVE
-
         } catch (error) {
             console.error(error);
             if (error instanceof AxiosError && error.response?.data?.message) {
@@ -45,13 +42,21 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         }
     },
 
-     setPassword: async (data: { token: string; password: string; confirmPassword: string }) => {
+    setPassword: async (data: { token: string; password: string; confirmPassword: string, role: string }) => {
         set({ isSettingPassword: true });
         try {
-            const res = await axiosInstance.post(`/student/set-password?token=${data.token}`, {
-                password: data.password,
-                confirmPassword: data.confirmPassword
-            });
+            const endpoint =
+                data.role === "STUDENT"
+                    ? "/student/set-password"
+                    : "/instructor/set-password"
+
+            const res = await axiosInstance.post(
+                `${endpoint}?token=${data.token}`,
+                {
+                    password: data.password,
+                    confirmPassword: data.confirmPassword
+                }
+            )
             set({ authUser: res.data.user });
             toast.success("Password set successfully! Please sign in.");
         } catch (error) {

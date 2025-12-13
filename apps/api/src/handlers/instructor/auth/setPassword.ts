@@ -72,7 +72,7 @@ export const setPasswordInstructorHandler = async (req: Request, res: Response) 
       return;
     }
 
-    await prisma.instructor.update({
+    const user = await prisma.instructor.update({
       where: {
         token: String(token),
       },
@@ -85,6 +85,7 @@ export const setPasswordInstructorHandler = async (req: Request, res: Response) 
 
     res.json({
       message: "Instructor account verified",
+      user
     });
   } catch (error) {
     console.error(error);

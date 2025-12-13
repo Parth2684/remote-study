@@ -12,6 +12,7 @@ import { Eye, EyeOff } from "lucide-react"
 export default function SetPasswordPage() {
   const params = useSearchParams()
   const token = params.get("token")
+  const role = (params.get("role") as "STUDENT" | "INSTRUCTOR") || "STUDENT"
 
   const router = useRouter()
   const { setPassword, isSettingPassword, authUser } = useAuthStore()
@@ -20,7 +21,7 @@ export default function SetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -43,7 +44,13 @@ export default function SetPasswordPage() {
       return
     }
 
-    setPassword({ token, password, confirmPassword })
+    setPassword({
+      token,
+      password,
+      confirmPassword,
+      role
+    })
+
   }
 
   return (
@@ -55,7 +62,7 @@ export default function SetPasswordPage() {
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">

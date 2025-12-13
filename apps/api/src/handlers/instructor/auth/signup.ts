@@ -100,8 +100,8 @@ export const signupInstructorHandler = async (req: Request, res: Response) => {
       }),
       sendEmail(
         email,
-        "Verify and Set Password to your Email",
-        `<p> Hi ${name}, click <a href="${FRONTEND_URL}/set-password?token=${token}">here</a> to verify your email and set the password. It is only valid for 24 hours</p>`,
+        "Verify and Set Password",
+        `<p>Hi ${name}, click <a href="${FRONTEND_URL}/set-password?token=${token}&role=INSTRUCTOR">here</a> to verify your email and set your password.</p>`
       ),
     ]);
 
@@ -115,12 +115,13 @@ export const signupInstructorHandler = async (req: Request, res: Response) => {
 
     res.json({
       message: "You've been sent an email to set a password for your account",
+      user: instructor
     });
   } catch (error) {
     console.error(error);
     res
       .json({
-        message: "Server Error",
+        message: "Internal Server Error",
       })
       .status(500);
   }

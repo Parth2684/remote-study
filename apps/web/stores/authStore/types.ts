@@ -19,5 +19,5 @@ export type authAction = {
     signin: (data: { email: string, password: string, role: "STUDENT" | "INSTRUCTOR" }) => Promise<void>
     signout: () => void,
     checkAuth: () => void,
-    setPassword: (data: { token: string; password: string; confirmPassword: string }) => void;
+    setPassword: (data: { token: string; password: string; confirmPassword: string, role: string }) => void;
 }

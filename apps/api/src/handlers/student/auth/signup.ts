@@ -102,8 +102,8 @@ export const signupStudentHandler = async (req: Request, res: Response) => {
       }),
       sendEmail(
         email,
-        "Verify and Set Password to your Email",
-        `<p> Hi ${name}, click <a href="${FRONTEND_URL}/set-password?token=${token}">here</a> to verify your email and set the password. It is only valid for 24 hours</p>`,
+        "Verify and Set Password",
+        `<p>Hi ${name}, click <a href="${FRONTEND_URL}/set-password?token=${token}&role=STUDENT">here</a> to verify your email and set your password.</p>`
       ),
     ]);
 

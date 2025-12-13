@@ -94,7 +94,7 @@ export const signinInstructorHandler = async (req: Request, res: Response) => {
 
     res.json({
       message: "Signin Successful",
-      student: returnInstructor,
+      user: returnInstructor,
     });
   } catch (error) {
     console.error(error);

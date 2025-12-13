@@ -28,11 +28,11 @@ export default function SignInPage() {
   }
 
   useEffect(() => {
-    checkAuth()
+
     if (authUser) {
       redirect("/dashboard")
     }
-  }, [authUser, checkAuth])
+  }, [authUser])
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950 flex items-center justify-center p-4">
