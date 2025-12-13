@@ -17,7 +17,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const { authUser, signout, isSigningOut, isCheckingAuth } = useAuthStore()
 
-  const hideNavbarRoutes = ['/signin', '/signup', '/forgot-password']
+  const hideNavbarRoutes = ['/signin', '/signup', '/forgot-password', '/set-password']
   const shouldHideNavbar = hideNavbarRoutes.includes(pathname)
 
   useEffect(() => {

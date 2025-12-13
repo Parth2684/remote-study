@@ -11,11 +11,13 @@ export type authState = {
     isSigningIn: boolean
     isSigningOut: boolean
     isCheckingAuth: boolean
+    isSettingPassword: boolean
 }
 
 export type authAction = {
-    signup: (data: { name: string, email: string, password: string, role: "STUDENT" | "INSTRUCTOR" }) => Promise<void>
+    signup: (data: { name: string, email: string, password?: string, role: "STUDENT" | "INSTRUCTOR" }) => Promise<void>
     signin: (data: { email: string, password: string, role: "STUDENT" | "INSTRUCTOR" }) => Promise<void>
     signout: () => void,
-    checkAuth: () => void
+    checkAuth: () => void,
+    setPassword: (data: { token: string; password: string; confirmPassword: string }) => void;
 }

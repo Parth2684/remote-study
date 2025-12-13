@@ -10,29 +10,58 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     isSigningIn: false,
     isSigningOut: false,
     isCheckingAuth: false,
+    isSettingPassword: false,
 
-    signup: async (data) => {
-        set({ isSigningUp: true })
+   signup: async (data) => {
+    set({ isSigningUp: true });
         try {
-            if(data.role === "STUDENT"){
-                const res = await axiosInstance.post("/student/signup", data)
-                set({ authUser: res.data.user })
-                toast.success("Signed up successfully")
+            let res;
+
+            if (data.role === "STUDENT") {
+                // Only send name and email
+                res = await axiosInstance.post("/student/signup", {
+                    name: data.name,
+                    email: data.email,
+                });
+            } else {
+                // Instructor flow may differ — adjust if backend differs
+                res = await axiosInstance.post("/instructor/signup", data);
             }
-            else {
-                const res = await axiosInstance.post("/instructor/signup", data)
-                set({ authUser: res.data.user })
-                toast.success("Signed up successfully")
-            }
+
+            toast.success(res.data.message || "Signup successful. Check your email.");
+
+            // DO NOT SET AUTH USER — backend does not return user
+            // set({ authUser: res.data.user }) ❌ REMOVE
+
         } catch (error) {
-            console.error(error)
+            console.error(error);
             if (error instanceof AxiosError && error.response?.data?.message) {
-                toast.error(error.response.data.message as string);
+                toast.error(error.response.data.message);
             } else {
                 toast.error("An unexpected error occurred.");
             }
         } finally {
-            set({ isSigningUp: false })
+            set({ isSigningUp: false });
+        }
+    },
+
+     setPassword: async (data: { token: string; password: string; confirmPassword: string }) => {
+        set({ isSettingPassword: true });
+        try {
+            const res = await axiosInstance.post(`/student/set-password?token=${data.token}`, {
+                password: data.password,
+                confirmPassword: data.confirmPassword
+            });
+            set({ authUser: res.data.user });
+            toast.success("Password set successfully! Please sign in.");
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Unexpected error");
+            }
+        } finally {
+            set({ isSettingPassword: false });
         }
     },
 
@@ -41,8 +70,7 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
         try {
             if(data.role === "STUDENT"){
                 const res = await axiosInstance.post("/student/signin", data)
-                const { user } = res.data 
-                set({ authUser: user })
+                set({ authUser: res.data.student })
                 console.log("auth user: ", get().authUser)
                 toast.success("Signed in successfully")
             }
