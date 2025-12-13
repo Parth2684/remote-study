@@ -5,6 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import instructorRoutes from "./routes/instructorRoutes";
 import studentRouter from "./routes/studentRoutes";
+import { checkAuth } from "./handlers/check-auth";
 
 const PORT = process.env.PORT;
 const app = express();
@@ -28,5 +29,7 @@ app.use(express.json());
 
 app.use("/api/instructor", instructorRoutes);
 app.use("/api/student", studentRouter);
+
+app.get("/api/check", checkAuth);
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

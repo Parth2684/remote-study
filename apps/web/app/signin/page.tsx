@@ -15,7 +15,7 @@ import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
 export default function SignInPage() {
   const [error, setError] = useState("")
-  const { signin, authUser, isSigningIn } = useAuthStore()
+  const { signin, authUser, isSigningIn, checkAuth } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
     e.preventDefault()
@@ -28,10 +28,11 @@ export default function SignInPage() {
   }
 
   useEffect(() => {
+    checkAuth()
     if (authUser) {
       redirect("/dashboard")
     }
-  }, [authUser])
+  }, [authUser, checkAuth])
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950 flex items-center justify-center p-4">
@@ -89,7 +90,7 @@ export default function SignInPage() {
           </Tabs>
 
           <div className="mt-4 text-center text-sm">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-primary hover:underline">
               Sign up
             </Link>

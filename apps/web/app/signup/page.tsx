@@ -17,12 +17,12 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  const { authUser, signup } = useAuthStore()
+  const { authUser, signup, checkAuth } = useAuthStore()
 
-  // If already logged in → go to dashboard
   useEffect(() => {
+    checkAuth()
     if (authUser) redirect("/dashboard")
-  }, [authUser])
+  }, [authUser, checkAuth])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, role: "STUDENT" | "INSTRUCTOR") => {
     e.preventDefault()
@@ -49,6 +49,7 @@ export default function SignUpPage() {
       }
     } catch (err) {
       setError("Signup failed. Try again.")
+      console.error("Error: ", err)
     } finally {
       setIsLoading(false)
     }

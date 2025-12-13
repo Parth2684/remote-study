@@ -4,14 +4,14 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs"
-import { BookOpen, Users, FileText, Loader2, PenSquare } from "lucide-react"
+import { BookOpen, Users, Loader2, PenSquare } from "lucide-react"
 import { useAuthStore } from "../../stores/authStore/useAuthStore"
 import ClientAuthLoader from "../../components/client-auth-loader"
 import { axiosInstance } from "../../lib/axiosInstance"
 
 // Note: This JSON is updated to reflect the Prisma schema.
 // It is used as fallback data if no classrooms are found for the user.
-let classroomsjson = {
+const classroomsjson = {
   "message": "Sample classrooms fetched successfully",
   "classrooms": [
     {
@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const [classrooms, setClassrooms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
 
   // Fetch classrooms from API
   useEffect(() => {

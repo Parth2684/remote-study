@@ -153,7 +153,7 @@ export default function ClassPage() {
                             <span className="text-xs text-muted-foreground">2h ago</span>
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Let's introduce ourselves to the class...
+                            Let&apos;s introduce ourselves to the class...
                           </p>
                           <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                             <span>12 replies</span>
@@ -175,7 +175,7 @@ export default function ClassPage() {
                             <span className="text-xs text-muted-foreground">1d ago</span>
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">
-                            I'm having trouble with question 3. Can anyone help?
+                            I&apos;m having trouble with question 3. Can anyone help?
                           </p>
                           <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                             <span>5 replies</span>
