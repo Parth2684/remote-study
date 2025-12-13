@@ -7,6 +7,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --skip-generate",
     "db:deploy": "prisma migrate deploy",
+    "seed": "ts-node ./src/seed.ts",
     "format": "prisma format",
     "generate": "prisma generate",
     "prebuild": "pnpm run generate",
@@ -23,7 +24,9 @@
     "tsup": "^8.5.0"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.2"
+    "@prisma/client": "^6.16.2",
+    "bcryptjs": "^3.0.3",
+    "ts-node": "^10.9.2"
   },
   "exports": {
     ".": "./src/index.ts"
