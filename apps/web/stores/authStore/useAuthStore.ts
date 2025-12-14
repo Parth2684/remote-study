@@ -125,11 +125,11 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             set({ authUser: user })
         } catch (error) {
             console.error(error)
-            if (error instanceof AxiosError && error.response?.data?.message) {
-                toast.error(error.response.data.message as string);
-            } else {
-                toast.error("An unexpected error occurred.");
-            }
+            // if (error instanceof AxiosError && error.response?.data?.message) {
+            //     toast.error(error.response.data.message as string);
+            // } else {
+            //     toast.error("An unexpected error occurred.");
+            // }
         } finally {
             set({ isCheckingAuth: false })
         }
