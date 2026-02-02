@@ -2,10 +2,10 @@ import type { Classroom } from "@repo/db"
 
 
 export type InstructorState = {
-  classroom: Classroom
+  classrooms: Classroom[] 
 }
 
 export type InstructorAction = {
-  createClassroom: (name: string, description: string, instructorId: string) => Promise<void>
-  
+  createClassroom: (name: string, description: string) => Promise<void>
+  getClassrooms: () => Promise<void>
 }
