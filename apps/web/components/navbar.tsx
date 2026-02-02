@@ -29,6 +29,7 @@ export default function Navbar() {
       setIsDarkMode(true)
       document.documentElement.classList.add("dark")
     }
+    console.log("role: ", authUser?.role)
   }, [])
 
   const handleSignOut = () => {

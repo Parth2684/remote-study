@@ -68,6 +68,7 @@ export const signinInstructorHandler = async (req: Request, res: Response) => {
       id: instructor.id,
       email,
       name: instructor.name,
+      role: "INSTRUCTOR"
     };
 
     const token = jwt.sign(

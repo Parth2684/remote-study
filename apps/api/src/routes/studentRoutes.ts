@@ -5,6 +5,7 @@ import { signinStudentHandler } from "../handlers/student/auth/signin";
 import { studentAuth } from "../middleware/auth";
 import { oauthCallbackHandler, oauthGetCodeHandler } from "../handlers/student/auth/oauth";
 import classroomRouter from "../handlers/student/classroom/classroom-router";
+import { signoutHandler } from "../handlers/signout";
 
 const studentRouter: Router = Router();
 
@@ -21,5 +22,7 @@ studentRouter.get("/auth/google/callback", oauthCallbackHandler);
 studentRouter.use(studentAuth);
 
 studentRouter.use("/classroom", classroomRouter)
+
+studentRouter.post("/signout", signoutHandler);
 
 export default studentRouter;

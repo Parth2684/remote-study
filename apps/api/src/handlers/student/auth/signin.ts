@@ -75,6 +75,7 @@ export const signinStudentHandler = async (req: Request, res: Response) => {
       id: student.id,
       email,
       name: student.name,
+      role: "STUDENT"
     };
 
     const token = jwt.sign(

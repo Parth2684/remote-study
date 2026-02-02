@@ -101,20 +101,31 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
     signout: async () => {
         set({ isSigningOut: true })
         try {
-            await axiosInstance.post("/signout")
+            const user = get().authUser
+
+            if (!user) {
+            throw new Error("No authenticated user")
+            }
+
+            const endpoint =
+            user.role === "STUDENT"
+                ? "/student/signout"
+                : "/instructor/signout"
+
+            await axiosInstance.post(endpoint)
+
             set({ authUser: null })
             toast.success("Signed out successfully")
         } catch (error) {
-            console.error("Error while siging out: ", error)
+            console.error("Error while signing out: ", error)
             if (error instanceof AxiosError && error.response?.data?.message) {
-                toast.error(error.response.data.message as string);
+            toast.error(error.response.data.message as string)
             } else {
-                toast.error("An unexpected error occurred.");
+            toast.error("An unexpected error occurred.")
             }
         } finally {
             set({ isSigningOut: false })
         }
-
     },
 
     checkAuth: async () => {
