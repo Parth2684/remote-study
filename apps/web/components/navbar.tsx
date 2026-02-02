@@ -163,7 +163,7 @@ export default function Navbar() {
                   </DropdownMenuItem>
                   
                   {/* Role-specific menu items */}
-                  {authUser.role === "INSTRUCTOR" && (
+                  {/* {authUser.role === "INSTRUCTOR" && (
                     <>
                       <DropdownMenuItem onClick={() => router.push("/analytics")}>
                         📊 Analytics
@@ -172,9 +172,9 @@ export default function Navbar() {
                         👥 Manage Students
                       </DropdownMenuItem>
                     </>
-                  )}
+                  )} */}
                   
-                  {authUser.role === "STUDENT" && (
+                  {/* {authUser.role === "STUDENT" && (
                     <>
                       <DropdownMenuItem onClick={() => router.push("/grades")}>
                         📝 My Grades
@@ -183,7 +183,7 @@ export default function Navbar() {
                         📅 Class Schedule
                       </DropdownMenuItem>
                     </>
-                  )}
+                  )} */}
 
                   <div className="border-t dark:border-t-neutral-800">
                     <DropdownMenuItem 
