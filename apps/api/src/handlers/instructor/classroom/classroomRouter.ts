@@ -8,7 +8,7 @@ const classroomRouter: Router = Router();
 
 classroomRouter.post("/create-classroom", createClassroomHandler);
 
-classroomRouter.post("/create-quiz", createQuizHandler);
+classroomRouter.post("/create-quiz/:classroomId", createQuizHandler);
 
 classroomRouter.get("/my-classrooms", getMyClassrooms);
 

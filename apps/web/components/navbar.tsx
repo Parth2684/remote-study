@@ -110,10 +110,10 @@ export default function Navbar() {
                         <Plus className="h-4 w-4 mr-2" />
                         Create Quiz
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => router.push("/create-assignment")}>
+                      {/* <DropdownMenuItem onClick={() => router.push("/create-assignment")}>
                         <Plus className="h-4 w-4 mr-2" />
                         Create Assignment
-                      </DropdownMenuItem>
+                      </DropdownMenuItem> */}
                     </>
                   ) : (
                     <>
