@@ -20,4 +20,5 @@ export type authAction = {
     signout: () => void,
     checkAuth: () => void,
     setPassword: (data: { token: string; password: string; confirmPassword: string, role: string }) => void;
+    updateUser: (data: { name: string; email: string }) => Promise<void>
 }

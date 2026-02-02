@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { Toaster } from "react-hot-toast"
 import Navbar from "@/components/navbar"
+import AuthInitializer from "@/components/auth-initializer"
+import ClientAuthLoader from "@/components/client-auth-loader"
 
 export const metadata: Metadata = {
   title: "EduLite - Simple Virtual Classroom",
@@ -19,6 +21,8 @@ export default function RootLayout({
       <body className={`font-sans`}>
         <Navbar />
         <main>
+          <AuthInitializer />
+          <ClientAuthLoader />
           {children}
         </main>
         <Toaster />

@@ -47,7 +47,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-
   // Fetch classrooms from API
   useEffect(() => {
     const fetchClassrooms = async () => {
@@ -56,7 +55,7 @@ export default function DashboardPage() {
         setError(null) // Reset error state on new fetch
 
         const role = authUser?.role
-        const endpoint = role === "INSTRUCTOR" ? '/instructor/classroom' : '/student/classroom'
+        const endpoint = role === "INSTRUCTOR" ? '/instructor/classroom/my-classrooms' : '/student/classroom'
         const response = await axiosInstance.get(endpoint)
         
         const data = await response.data
