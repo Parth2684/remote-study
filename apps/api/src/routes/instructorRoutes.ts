@@ -16,4 +16,5 @@ instructorRoutes.post("/signin", signinInstructorHandler);
 instructorRoutes.use(instructorAuth);
 
 instructorRoutes.use("/classroom", classroomRouter);
+
 export default instructorRoutes;
