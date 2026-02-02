@@ -20,6 +20,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.2",
     "@types/uuid": "^11.0.0",
     "prettier": "^3.7.4",
@@ -36,7 +37,9 @@
     "express": "^5.1.0",
     "googleapis": "^161.0.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "nodemailer": "^7.0.6",
+    "redis": "^5.10.0",
     "uuid": "^13.0.0",
     "zod": "^4.1.8"
   }

@@ -1,0 +1,10 @@
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('ENCODING', 'FAIL', 'SUCCESS');
+
+-- AlterTable
+ALTER TABLE "Video" ADD COLUMN     "failReason" TEXT,
+ADD COLUMN     "fhdSize" DOUBLE PRECISION,
+ADD COLUMN     "hdSize" DOUBLE PRECISION,
+ADD COLUMN     "originalSize" DOUBLE PRECISION,
+ADD COLUMN     "sdSize" DOUBLE PRECISION,
+ADD COLUMN     "status" "Status" NOT NULL DEFAULT 'ENCODING';
