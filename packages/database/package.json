@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev --skip-generate",
+    "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "seed": "ts-node ./src/seed.ts",
     "format": "prisma format",
@@ -21,13 +21,13 @@
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.15.30",
     "@types/pg": "^8.16.0",
-    "prisma": "^6.16.3",
+    "prisma": "^7.3.0",
     "tsup": "^8.5.0",
     "tsx": "^4.20.6"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "^7.3.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
     "pg": "^8.18.0",
