@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-export const HTTP_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`
+export const HTTP_URL = `${process.env.BACKEND_URL}/api`
 
 export const axiosInstance = axios.create({
     baseURL: HTTP_URL,
