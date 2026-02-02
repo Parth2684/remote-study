@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs"
 import { Badge } from "@/components/badge"
 import { useParams } from "next/navigation"
-import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2 } from "lucide-react"
+import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2, Copy, Check } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
 import { axiosInstance } from "@/lib/axiosInstance"
@@ -33,7 +33,7 @@ export default function ClassPage() {
   const [classData, setClassData] = useState<ClassData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+  const [copied, setCopied] = useState(false)
   const params = useParams()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
   const { authUser } = useAuthStore()
@@ -80,6 +80,20 @@ export default function ClassPage() {
     fetchClassData()
   }, [classId, authUser])
 
+  const handleCopyCode = async () => {
+  try {
+      await navigator.clipboard.writeText(classData!.code)
+      setCopied(true)
+
+      setTimeout(() => {
+        setCopied(false)
+      }, 4000)
+    } catch (err) {
+      console.error("Failed to copy:", err)
+    }
+  }
+
+
   if (!authUser) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -121,9 +135,21 @@ export default function ClassPage() {
                   <Users className="h-4 w-4" />
                   <span>{classData.students} {classData.students === 1 ? 'student' : 'students'}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
+
                   <span>Code: {classData.code}</span>
+                  <button
+                    onClick={handleCopyCode}
+                    className="flex items-center gap-1 text-sm font-mono hover:text-primary transition-colors"
+                    type="button"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>

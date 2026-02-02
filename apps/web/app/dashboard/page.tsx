@@ -9,38 +9,6 @@ import { useAuthStore } from "../../stores/authStore/useAuthStore"
 import ClientAuthLoader from "../../components/client-auth-loader"
 import { axiosInstance } from "../../lib/axiosInstance"
 
-// Note: This JSON is updated to reflect the Prisma schema.
-// It is used as fallback data if no classrooms are found for the user.
-const classroomsjson = {
-  "message": "Sample classrooms fetched successfully",
-  "classrooms": [
-    {
-      "id": "1",
-      "name": "General Science",
-      "instructorName": "Sir John Doe",
-      "studentsCount": 25
-    },
-    {
-      "id": "2",
-      "name": "English Language",
-      "instructorName": "Prof. Johnson",
-      "studentsCount": 12
-    },
-    {
-      "id": "3",
-      "name": "Advanced Mathematics",
-      "instructorName": "Dr. Wilson",
-      "studentsCount": 8
-    },
-    {
-      "id": "4",
-      "name": "Intro to Programming",
-      "instructorName": "Ms. Tech",
-      "studentsCount": 18
-    }
-  ]
-}
-
 export default function DashboardPage() {
   const { authUser } = useAuthStore()
   const [classrooms, setClassrooms] = useState<any[]>([])
@@ -96,9 +64,7 @@ export default function DashboardPage() {
   }
 
   // Determine which classroom data to display. If the fetched data is empty (and not loading/error), use the JSON fallback.
-  const classroomsToDisplay = !loading && classrooms.length === 0 && !error
-    ? classroomsjson.classrooms
-    : classrooms;
+  const classroomsToDisplay = classrooms;
     
   const uniqueInstructorsCount = new Set(classroomsToDisplay.map(c => c.instructorName)).size;
 
@@ -207,7 +173,7 @@ export default function DashboardPage() {
                       <CardDescription>
                         {authUser.role === "INSTRUCTOR" 
                           ? `${classroom.studentsCount || 0} students enrolled`
-                          : `Instructor: ${classroom.instructorName || 'Unknown'}`
+                          : `Instructor: ${classroom.instructor.name || 'Unknown'}`
                         }
                       </CardDescription>
                     </CardHeader>

@@ -7,8 +7,17 @@ export const getMyClassrooms = async (req: Request, res: Response) => {
     const classrooms = await prisma.classroom.findMany({
       where: {
         instructorId: req.user.id
-      }
+      },
+      include: {
+        instructor: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
+
     res.json({
       classrooms
     })
