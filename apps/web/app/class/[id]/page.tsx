@@ -9,6 +9,7 @@ import { useParams } from "next/navigation"
 import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
+import { axiosInstance } from "@/lib/axiosInstance"
 
 // Define the interface for quiz data
 interface Quiz {
@@ -40,36 +41,44 @@ export default function ClassPage() {
 
   useEffect(() => {
     const fetchClassData = async () => {
-      if (!classId) return
-      
+      if (!classId || !authUser) return
+
       try {
         setLoading(true)
-        const response = await fetch(`/api/fetch-class/${classId}`)
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch class data')
-        }
-        
-        const data = await response.json()
+        setError(null)
+
+        const endpoint =
+          authUser.role === "INSTRUCTOR"
+            ? `/instructor/classroom/${classId}`
+            : `/student/classroom/${classId}`
+
+        const res = await axiosInstance.get(endpoint)
+
+        const classroom = res.data.classroom
+
         setClassData({
-          ...data,
-          quizzes: Array.isArray(data.quizzes) 
-            ? data.quizzes.map((quiz: Quiz) => ({
-                ...quiz,
-                attempts: quiz.attempts || 0
-              }))
-            : []
+          name: classroom.name,
+          description: classroom.description,
+          instructor: classroom.instructor.name,
+          students: classroom.students.length,
+          code: classroom.id,
+          quizzes: classroom.quizzes.map((quiz: any) => ({
+            id: quiz.id,
+            title: quiz.title,
+            description: quiz.description,
+            attempts: quiz.attempts ?? 0,
+          })),
         })
       } catch (err) {
-        console.error('Error fetching class data:', err)
-        setError('Failed to load class data')
+        console.error("Error fetching class data:", err)
+        setError("Failed to load class data")
       } finally {
         setLoading(false)
       }
     }
 
     fetchClassData()
-  }, [classId])
+  }, [classId, authUser])
 
   if (!authUser) {
     return (
