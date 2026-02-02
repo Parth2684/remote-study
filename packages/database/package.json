@@ -7,7 +7,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "seed": "ts-node ./src/seed.ts",
+    "seed": "tsx ./src/seed.ts",
     "format": "prisma format",
     "generate": "prisma generate",
     "prebuild": "pnpm run generate",

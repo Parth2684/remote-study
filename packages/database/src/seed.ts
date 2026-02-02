@@ -1,23 +1,24 @@
+import 'dotenv/config'
 import { hash } from 'bcryptjs'
 import { prisma } from './client'
 
 async function main() {
-  const hashedInstructorPassword = await hash('instructorPassword123', 10)
-  const hashedStudentPassword = await hash('studentPassword123', 10)
+  const hashedInstructorPassword = await hash('test', 10)
+  const hashedStudentPassword = await hash('test', 10)
 
-  const instructor = await prisma.instructor.create({
+  await prisma.instructor.create({
     data: {
       name: 'John Doe',
-      email: 'instructor@example.com',
+      email: 'instructor@gmail.com',
       password: hashedInstructorPassword,
       verified: true,
     }
   })
 
-  const student = await prisma.student.create({
+  await prisma.student.create({
     data: {
       name: 'Jane Smith',
-      email: 'student@example.com',
+      email: 'student@gmail.com',
       password: hashedStudentPassword,
       verified: true,
       provider: 'CREDENTIALS',
@@ -28,9 +29,7 @@ async function main() {
 }
 
 main()
-  .catch(e => {
-    throw e
-  })
+  .catch(console.error)
   .finally(async () => {
     await prisma.$disconnect()
   })
