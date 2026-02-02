@@ -140,6 +140,7 @@ model QuizAnswer {
 model Video {
   id          String    @id @default(uuid())
   name        String
+  title       String
   description String?
   cover       String?
   link        String
