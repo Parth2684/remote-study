@@ -16,7 +16,16 @@ export const fetchClassroom = async (req: Request, res: Response) => {
         studentId: student.id,
       },
       include: {
-        classroom: true,
+        classroom: {
+          include: {
+            instructor: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 

@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs"
 import { Badge } from "@/components/badge"
 import { Input } from "@/components/input"
 import { useParams } from "next/navigation"
-import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2, Send } from "lucide-react"
+import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2, Copy, Check, Send } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
 import { axiosInstance } from "@/lib/axiosInstance"
@@ -56,7 +56,7 @@ export default function ClassPage() {
   // WebSocket ref
   const wsRef = useRef<WebSocket | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  
+  const [copied, setCopied] = useState(false)
   const params = useParams()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
   const { authUser } = useAuthStore()
@@ -301,6 +301,20 @@ export default function ClassPage() {
     return `${days}d ago`
   }
 
+  const handleCopyCode = async () => {
+  try {
+      await navigator.clipboard.writeText(classData!.code)
+      setCopied(true)
+
+      setTimeout(() => {
+        setCopied(false)
+      }, 4000)
+    } catch (err) {
+      console.error("Failed to copy:", err)
+    }
+  }
+
+
   if (!authUser) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -342,8 +356,9 @@ export default function ClassPage() {
                   <Users className="h-4 w-4" />
                   <span>{classData.students} {classData.students === 1 ? 'student' : 'students'}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
+
                   <span>Code: {classData.code}</span>
                 </div>
                 {/* WebSocket connection indicator */}
@@ -397,7 +412,7 @@ export default function ClassPage() {
                         >
                           <div className="flex items-start gap-3">
                             {/* User Avatar */}
-                            <div className={`p-2 rounded-full flex-shrink-0 ${
+                            <div className={`p-2 rounded-full shrink-0 ${
                               message.role === 'INSTRUCTOR' ? 'bg-purple-100' : 'bg-blue-100'
                             }`}>
                               <MessageCircle className={`h-4 w-4 ${
@@ -419,7 +434,7 @@ export default function ClassPage() {
                                   {formatTimestamp(message.timestamp)}
                                 </span>
                               </div>
-                              <p className="text-sm text-foreground break-words">
+                              <p className="text-sm text-foreground break-word">
                                 {message.content}
                               </p>
                             </div>
