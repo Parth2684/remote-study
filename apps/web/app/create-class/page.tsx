@@ -19,17 +19,24 @@ export default function CreateClassPage() {
   const router = useRouter()
   const { createClassroom } = useInstructorStore()
 
-  const handleCreateClass = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+const handleCreateClass = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
 
+  try {
     await createClassroom(
       formData.name,
       formData.description
     )
 
+    router.push("/dashboard")
+  } catch (error) {
+    console.error("Failed to create class", error)
+  } finally {
     setLoading(false)
   }
+}
+
 
   return (
     <div className="min-h-screen bg-background">

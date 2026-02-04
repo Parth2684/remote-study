@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs"
 import { Badge } from "@/components/badge"
+import { Input } from "@/components/input"
 import { useParams } from "next/navigation"
-import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2, Copy, Check } from "lucide-react"
+import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2, Copy, Check, Send } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
 import { axiosInstance } from "@/lib/axiosInstance"
@@ -29,16 +30,39 @@ interface ClassData {
   quizzes: Quiz[];
 }
 
+// Define the interface for discussion messages
+interface Message {
+  id: string;
+  userId: string;
+  userName: string;
+  userProfilePic?: string;
+  content: string;
+  timestamp: Date;
+  isEdited: boolean;
+  role: 'INSTRUCTOR' | 'STUDENT';
+}
+
 export default function ClassPage() {
   const [classData, setClassData] = useState<ClassData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Discussion state
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState("")
+  const [isSending, setIsSending] = useState(false)
+  const [wsConnected, setWsConnected] = useState(false)
+  
+  // WebSocket ref
+  const wsRef = useRef<WebSocket | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const [copied, setCopied] = useState(false)
   const params = useParams()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
   const { authUser } = useAuthStore()
   const router = useRouter()
 
+  // Fetch class data
   useEffect(() => {
     const fetchClassData = async () => {
       if (!classId || !authUser) return
@@ -53,7 +77,6 @@ export default function ClassPage() {
             : `/student/classroom/${classId}`
 
         const res = await axiosInstance.get(endpoint)
-
         const classroom = res.data.classroom
 
         setClassData({
@@ -69,6 +92,26 @@ export default function ClassPage() {
             attempts: quiz.attempts ?? 0,
           })),
         })
+
+        // Load existing messages via REST API
+        try {
+          const messagesRes = await axiosInstance.get(`/classroom/${classId}/messages`)
+          if (messagesRes.data.messages) {
+            setMessages(messagesRes.data.messages.map((msg: any) => ({
+              id: msg.id,
+              userId: msg.userId,
+              userName: msg.userName,
+              userProfilePic: msg.userProfilePic,
+              content: msg.content,
+              timestamp: new Date(msg.createdAt),
+              isEdited: msg.isEdited,
+              role: msg.role
+            })))
+          }
+        } catch (err) {
+          console.error('Error loading messages:', err)
+        }
+
       } catch (err) {
         console.error("Error fetching class data:", err)
         setError("Failed to load class data")
@@ -79,6 +122,184 @@ export default function ClassPage() {
 
     fetchClassData()
   }, [classId, authUser])
+
+  // WebSocket connection setup
+  useEffect(() => {
+    if (!classId || !authUser) return
+
+    // REPLACE WITH YOUR BACKEND URL
+    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080'
+    
+    // Create WebSocket connection
+    // Cookie with authToken will be sent automatically by browser
+    const ws = new WebSocket(`${WS_URL}/classroom/${classId}`)
+    
+    ws.onopen = () => {
+      console.log('WebSocket connected to classroom:', classId)
+      setWsConnected(true)
+    }
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        
+        // Handle different message types from server
+        switch (data.type) {
+          case 'auth_success':
+            console.log('Authenticated as:', data.userName, data.role)
+            break
+            
+          case 'new_message':
+            // Add new message to the list
+            setMessages((prev) => [...prev, {
+              id: data.id,
+              userId: data.userId,
+              userName: data.userName,
+              userProfilePic: data.userProfilePic,
+              content: data.content,
+              timestamp: new Date(data.createdAt),
+              isEdited: data.isEdited,
+              role: data.role
+            }])
+            break
+            
+          case 'message_history':
+            // Load historical messages (already loaded via REST API, but can update if needed)
+            if (data.messages && data.messages.length > 0) {
+              setMessages(data.messages.map((msg: any) => ({
+                id: msg.id,
+                userId: msg.userId,
+                userName: msg.userName,
+                userProfilePic: msg.userProfilePic,
+                content: msg.content,
+                timestamp: new Date(msg.createdAt),
+                isEdited: msg.isEdited,
+                role: msg.role
+              })))
+            }
+            break
+            
+          case 'delete_message':
+            // Remove deleted message
+            setMessages((prev) => prev.filter(msg => msg.id !== data.messageId))
+            break
+            
+          case 'edit_message':
+            // Update edited message
+            setMessages((prev) => prev.map(msg => 
+              msg.id === data.id 
+                ? { ...msg, content: data.content, isEdited: true }
+                : msg
+            ))
+            break
+            
+          case 'error':
+            console.error('WebSocket error:', data.message)
+            // Show error to user (you can add toast notification here)
+            break
+            
+          default:
+            console.log('Unknown message type:', data.type)
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err)
+      }
+    }
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error)
+      setWsConnected(false)
+    }
+
+    ws.onclose = () => {
+      console.log('WebSocket disconnected from classroom:', classId)
+      setWsConnected(false)
+      
+      // Optional: Implement reconnection logic
+      // setTimeout(() => {
+      //   console.log('Attempting to reconnect...')
+      //   // Reconnect logic here
+      // }, 3000)
+    }
+
+    wsRef.current = ws
+
+    // Cleanup on unmount
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close()
+      }
+    }
+  }, [classId, authUser])
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // Handle sending messages
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!newMessage.trim() || !authUser) return
+    
+    setIsSending(true)
+    
+    try {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        // Send via WebSocket
+        const messageData = {
+          type: 'send_message',
+          content: newMessage.trim()
+        }
+        
+        wsRef.current.send(JSON.stringify(messageData))
+      } else {
+        // Fallback to REST API if WebSocket is not connected
+        const response = await axiosInstance.post(`/classroom/${classId}/messages`, {
+          content: newMessage.trim()
+        })
+        
+        // Add message to local state
+        if (response.data.message) {
+          setMessages(prev => [...prev, {
+            id: response.data.message.id,
+            userId: response.data.message.userId,
+            userName: response.data.message.userName,
+            userProfilePic: response.data.message.userProfilePic,
+            content: response.data.message.content,
+            timestamp: new Date(response.data.message.createdAt),
+            isEdited: response.data.message.isEdited,
+            role: response.data.message.role
+          }])
+        }
+      }
+      
+      // Clear input
+      setNewMessage("")
+      
+    } catch (err) {
+      console.error('Error sending message:', err)
+      // Show error to user (you can add toast notification here)
+      alert('Failed to send message. Please try again.')
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  // Format timestamp
+  const formatTimestamp = (date: Date) => {
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+
+    if (minutes < 1) return 'Just now'
+    if (minutes < 60) return `${minutes}m ago`
+    if (hours < 24) return `${hours}h ago`
+    return `${days}d ago`
+  }
 
   const handleCopyCode = async () => {
   try {
@@ -139,17 +360,11 @@ export default function ClassPage() {
                   <BookOpen className="h-4 w-4" />
 
                   <span>Code: {classData.code}</span>
-                  <button
-                    onClick={handleCopyCode}
-                    className="flex items-center gap-1 text-sm font-mono hover:text-primary transition-colors"
-                    type="button"
-                  >
-                    {copied ? (
-                      <Check className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </button>
+                </div>
+                {/* WebSocket connection indicator */}
+                <div className="flex items-center gap-1">
+                  <div className={`h-2 w-2 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className="text-xs">{wsConnected ? 'Live' : 'Offline'}</span>
                 </div>
               </div>
             </div>
@@ -167,61 +382,99 @@ export default function ClassPage() {
 
           <TabsContent value="discussions" className="mt-6">
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
+              <Card className="h-[600px] flex flex-col">
+                <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2">
                     <MessageCircle className="h-5 w-5" />
                     Class Discussions
                   </CardTitle>
                   <CardDescription>Join the conversation with your classmates</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <div className="bg-blue-100 p-2 rounded-full">
-                          <MessageCircle className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-medium">Welcome to the class!</h3>
-                            <span className="text-xs text-muted-foreground">2h ago</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Let&apos;s introduce ourselves to the class...
-                          </p>
-                          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                            <span>12 replies</span>
-                            <span>•</span>
-                            <span>Last reply 1h ago</span>
-                          </div>
-                        </div>
+                
+                {/* Messages Area */}
+                <CardContent className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                  {messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-center text-muted-foreground">
+                      <div>
+                        <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p className="font-medium">No messages yet</p>
+                        <p className="text-sm">Be the first to start a discussion!</p>
                       </div>
                     </div>
-
-                    <div className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <div className="bg-purple-100 p-2 rounded-full">
-                          <MessageCircle className="h-4 w-4 text-purple-600" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-medium">Question about the assignment</h3>
-                            <span className="text-xs text-muted-foreground">1d ago</span>
+                  ) : (
+                    <>
+                      {messages.map((message) => (
+                        <div 
+                          key={message.id} 
+                          className={`border rounded-lg p-4 transition-colors ${
+                            message.userId === authUser.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-muted/50'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            {/* User Avatar */}
+                            <div className={`p-2 rounded-full shrink-0 ${
+                              message.role === 'INSTRUCTOR' ? 'bg-purple-100' : 'bg-blue-100'
+                            }`}>
+                              <MessageCircle className={`h-4 w-4 ${
+                                message.role === 'INSTRUCTOR' ? 'text-purple-600' : 'text-blue-600'
+                              }`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-medium truncate">{message.userName}</h3>
+                                  {message.role === 'INSTRUCTOR' && (
+                                    <Badge variant="secondary" className="text-xs">Instructor</Badge>
+                                  )}
+                                  {message.isEdited && (
+                                    <span className="text-xs text-muted-foreground">(edited)</span>
+                                  )}
+                                </div>
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                  {formatTimestamp(message.timestamp)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-foreground break-word">
+                                {message.content}
+                              </p>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            I&apos;m having trouble with question 3. Can anyone help?
-                          </p>
-                          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                            <span>5 replies</span>
-                            <span>•</span>
-                            <span>Last reply 3h ago</span>
-                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </>
+                  )}
                 </CardContent>
+
+                {/* Message Input Area */}
+                <div className="border-t p-4">
+                  <form onSubmit={handleSendMessage} className="flex gap-2">
+                    <Input
+                      type="text"
+                      placeholder="Type your message..."
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      disabled={isSending}
+                      className="flex-1"
+                      maxLength={2000}
+                    />
+                    <Button 
+                      type="submit" 
+                      disabled={!newMessage.trim() || isSending}
+                      size="icon"
+                    >
+                      {isSending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </form>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {newMessage.length}/2000 characters
+                    {!wsConnected && <span className="text-amber-600 ml-2">• Offline mode - messages will sync when reconnected</span>}
+                  </p>
+                </div>
               </Card>
             </div>
           </TabsContent>

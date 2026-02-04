@@ -5,5 +5,11 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "prisma": "6.19.2"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.2"
   }
 }

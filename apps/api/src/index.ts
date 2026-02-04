@@ -3,11 +3,14 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { createServer } from "http";
 import instructorRoutes from "./routes/instructorRoutes";
 import studentRouter from "./routes/studentRoutes";
 import { checkAuth } from "./handlers/check-auth";
+import classroomRoutes from "./routes/classroomRoutes";
+import { createWebSocketServer } from "./websocket";
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 4000;
 const app = express();
 
 app.set("trust proxy", 1);
@@ -29,7 +32,15 @@ app.use(express.json());
 
 app.use("/api/instructor", instructorRoutes);
 app.use("/api/student", studentRouter);
+app.use("/api/classroom", classroomRoutes);
 
 app.get("/api/check", checkAuth);
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+const server = createServer(app);
+
+createWebSocketServer(server);
+
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`WebSocket server running on ws://localhost:${PORT}`);
+});
