@@ -11,6 +11,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Instructor {
@@ -71,6 +72,16 @@ model Message {
 
   studentId String?
   student   Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  isEdited Boolean @default(false)
+  isDeleted Boolean @default(false)
+  replyToId String?
+  replyTo   Message? @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: Cascade)
+  replies   Message[] @relation("MessageReplies")
+
+  @@index([classroomId , createdAt])
+  @@index([instructorId])
+  @@index([studentId])
 }
 
 model StudentClassroom {
