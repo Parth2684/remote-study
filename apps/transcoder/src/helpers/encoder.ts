@@ -11,8 +11,8 @@ type Rendition = {
 };
 
 const LADDER: Rendition[] = [
-  { name: "480", width: 854, height: 480, crf: 34, audioBitrate: 48 },
-  { name: "720", width: 1280, height: 720, crf: 32, audioBitrate: 64 },
+  { name: "480", width: 854, height: 480, crf: 30, audioBitrate: 48 },
+  { name: "720", width: 1280, height: 720, crf: 30, audioBitrate: 64 },
   { name: "1080", width: 1920, height: 1080, crf: 30, audioBitrate: 80 },
 ];
 
