@@ -3,7 +3,7 @@ import path from "path";
 import crypto from "crypto";
 
 const storage = multer.diskStorage({
-  destination: "../../../uploads/",
+  destination: "../uploads/",
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname);
     cb(null, crypto.randomUUID() + ext);

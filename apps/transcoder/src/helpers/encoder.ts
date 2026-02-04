@@ -16,7 +16,7 @@ const LADDER: Rendition[] = [
   { name: "1080", width: 1920, height: 1080, crf: 30, audioBitrate: 80 },
 ];
 
-async function reEncode(job: Video) {
+export async function reEncode(job: Video) {
   let fps: number;
   if (job.mediaInfo!.fps >= 30) {
     fps = 30;
@@ -46,7 +46,7 @@ async function reEncode(job: Video) {
   });
 
   // ---------- FFmpeg args ----------
-  const args: string[] = ["-y", "-i", job.path, "-filter_complex", filter];
+  const args: string[] = ["-y", "-i", `../uploads/${job.name}`, "-filter_complex", filter];
 
   // map video
   renditions.forEach((_, i) => {
@@ -98,6 +98,14 @@ async function reEncode(job: Video) {
   });
 
   // ---------- HLS ----------
+  // 
+  // ---------- Variant stream map (CRITICAL) ----------
+  const varStreamMap = renditions
+    .map((_, i) => `v:${i},a:${i}`)
+    .join(" ");
+  
+  args.push("-var_stream_map", varStreamMap);
+
   args.push(
     "-f",
     "hls",
@@ -109,10 +117,16 @@ async function reEncode(job: Video) {
     "independent_segments",
     "-hls_segment_type",
     "fmp4",
-
+  
     "-hls_segment_filename",
     path.join(jobOutDir, "v%v", "seg_%03d.m4s"),
-
+  );
+  
+  // 👇 THIS MUST COME BEFORE master playlist
+  args.push("-var_stream_map", varStreamMap);
+  
+  // master + variant playlists
+  args.push(
     "-master_pl_name",
     "master.m3u8",
     path.join(jobOutDir, "v%v", "stream.m3u8"),
