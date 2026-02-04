@@ -110,6 +110,7 @@ export const uploadVideoHandler: RequestHandler[] = [
             width: number;
             height: number;
             fps: number;
+            hasAudio: boolean
           };
           description: string | null;
           cover: string | null;

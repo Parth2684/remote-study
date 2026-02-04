@@ -4,12 +4,12 @@ export function ffprobeVideo(file: string): Promise<{
   width: number;
   height: number;
   fps: number;
+  hasAudio: boolean;
 }> {
   return new Promise((resolve, reject) => {
     const args = [
       "-v", "error",
-      "-select_streams", "v:0",
-      "-show_entries", "stream=width,height,avg_frame_rate",
+      "-show_entries", "stream=codec_type,width,height,avg_frame_rate",
       "-of", "json",
       file
     ];
@@ -24,16 +24,27 @@ export function ffprobeVideo(file: string): Promise<{
       if (code !== 0) return reject(new Error("ffprobe failed"));
 
       const json = JSON.parse(output);
-      const stream = json.streams[0];
+      const streams = json.streams as any[];
 
-      const [num, den] = stream.avg_frame_rate.split("/").map(Number);
+      const video = streams.find(s => s.codec_type === "video");
+      if (!video) return reject(new Error("No video stream"));
+
+      const hasAudio = streams.some(s => s.codec_type === "audio");
+
+      const [num, den] = (video.avg_frame_rate || "0/1")
+        .split("/")
+        .map(Number);
+
       const fps = den ? num / den : 0;
 
       resolve({
-        width: stream.width,
-        height: stream.height,
-        fps
+        width: video.width,
+        height: video.height,
+        fps,
+        hasAudio
       });
     });
   });
 }
+
+

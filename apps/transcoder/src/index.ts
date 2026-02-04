@@ -14,6 +14,7 @@ export interface Video {
     width: number;
     height: number;
     fps: number;
+    hasAudio: boolean
   };
   description: string | null;
   cover: string | null;

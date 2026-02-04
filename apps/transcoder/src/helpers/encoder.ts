@@ -29,12 +29,20 @@ export async function reEncode(job: Video) {
   fs.mkdirSync(jobOutDir, { recursive: true });
 
   // ---------- Select valid renditions (NO UPSCALE) ----------
-  const renditions = LADDER.filter(
+  let renditions = LADDER.filter(
     (r) => r.width <= job.mediaInfo.width && r.height <= job.mediaInfo.height,
   );
+  const hasAudio = job.mediaInfo.hasAudio;
 
+  
   if (!renditions.length) {
-    throw new Error("Video too small for encoding ladder");
+    renditions = [{
+      name: "source",
+      width: job.mediaInfo.width,
+      height: job.mediaInfo.height,
+      crf: 30,
+      audioBitrate: 64,
+    }];
   }
 
   // ---------- Build filter_complex ----------
@@ -54,9 +62,11 @@ export async function reEncode(job: Video) {
   });
 
   // map audio once per variant
-  renditions.forEach(() => {
-    args.push("-map", "0:a:0");
-  });
+  if (hasAudio) {
+    renditions.forEach(() => {
+      args.push("-map", "0:a:0");
+    });
+  }
 
   // ---------- Video codec (VP9 CRF) ----------
   args.push(
@@ -104,8 +114,6 @@ export async function reEncode(job: Video) {
     .map((_, i) => `v:${i},a:${i}`)
     .join(" ");
   
-  args.push("-var_stream_map", varStreamMap);
-
   args.push(
     "-f",
     "hls",
