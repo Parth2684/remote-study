@@ -106,6 +106,11 @@ export const uploadVideoHandler: RequestHandler[] = [
           link: string;
           classroomId: string;
           isLive: boolean;
+          mediaInfo: {
+            width: number;
+            height: number;
+            fps: number;
+          };
           description: string | null;
           cover: string | null;
         } = {
@@ -115,6 +120,7 @@ export const uploadVideoHandler: RequestHandler[] = [
           link: "pending",
           classroomId: classroomId,
           isLive: false,
+          mediaInfo,
           description: null,
           cover: null
         };
@@ -132,7 +138,7 @@ export const uploadVideoHandler: RequestHandler[] = [
             ...videoData,
             path
           }
-          let pushToQueue = await redisClient.LPUSH("upload-re-encode", JSON.stringify(toPushRedis))
+          await redisClient.LPUSH("upload-re-encode", JSON.stringify(toPushRedis));
         }
         catch (err) {
           console.error(err)

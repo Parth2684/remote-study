@@ -145,6 +145,7 @@ model Video {
   cover       String?
   link        String
   classroomId String
+  mediaInfo   Json
   classroom   Classroom @relation(fields: [classroomId], references: [id])
   isLive      Boolean   @default(false)
   status      Status  @default(ENCODING)

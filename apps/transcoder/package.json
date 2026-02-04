@@ -1,0 +1,26 @@
+{
+  "name": "transcoder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --target=bun --outdir ./dist",
+    "start": "bun dist/src/indes.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "fmt": "prettier --write ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.1",
+  "devDependencies": {
+    "@repo/db": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^25.2.0"
+  },
+  "dependencies": {
+    "redis": "^5.10.0",
+    "zod": "^4.1.11"
+  }
+}
