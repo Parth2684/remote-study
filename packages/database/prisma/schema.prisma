@@ -15,17 +15,18 @@ datasource db {
 }
 
 model Instructor {
-  id          String      @id @default(uuid())
-  name        String
-  email       String      @unique
-  verified    Boolean     @default(false)
-  token       String?     @unique
-  tokenExpiry DateTime?
-  password    String?
-  classroom   Classroom[]
-  quizzes     Quiz[]
-  messages    Message[]
-  profilePic  String?
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  verified     Boolean       @default(false)
+  token        String?       @unique
+  tokenExpiry  DateTime?
+  password     String?
+  classroom    Classroom[]
+  quizzes      Quiz[]
+  messages     Message[]
+  profilePic   String?
+  liveSessions LiveSession[]
 }
 
 model Student {
@@ -58,6 +59,7 @@ model Classroom {
   messages     Message[]
   quizzes      Quiz[]
   videos       Video[]
+  liveSessions LiveSession[]
 }
 
 model Message {
@@ -171,4 +173,32 @@ enum Status {
   ENCODING
   FAIL
   SUCCESS
+}
+
+model LiveSession {
+  id           String     @id @default(uuid())
+  title        String
+  description  String?
+  classroomId  String
+  instructorId String
+  roomName     String     @unique
+  scheduledAt  DateTime?
+  startedAt    DateTime?
+  endedAt      DateTime?
+  status       LiveStatus @default(SCHEDULED)
+  recordingUrl String?
+  createdAt    DateTime   @default(now())
+
+  classroom  Classroom  @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  instructor Instructor @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+  @@index([classroomId])
+  @@index([instructorId])
+}
+
+enum LiveStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
 }
