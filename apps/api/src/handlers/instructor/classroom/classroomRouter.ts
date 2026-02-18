@@ -4,6 +4,8 @@ import { createQuizHandler } from "./createQuiz";
 import { getMyClassrooms } from './get-classrooms';
 import { getClassroomByIdHandler } from "./getClassroomByIdHandler";
 import { uploadVideoHandler } from './addVideo';
+import { startLive } from "./start-live";
+import { endLive } from "./end-live";
 
 const classroomRouter: Router = Router();
 
@@ -20,5 +22,8 @@ classroomRouter.post(
   ...uploadVideoHandler
 );
 
+classroomRouter.post("/live/start", startLive)
+
+classroomRouter.put("/live/end/:sessionId", endLive)
 
 export default classroomRouter;
