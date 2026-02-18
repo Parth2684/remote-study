@@ -2,6 +2,7 @@ import path from 'path';
 import fs from "fs"
 import type { Video } from "../index";
 import { spawn } from 'child_process';
+
 type Rendition = {
   name: string;
   width: number;
@@ -32,6 +33,7 @@ export async function reEncode(job: Video) {
   let renditions = LADDER.filter(
     (r) => r.width <= job.mediaInfo.width && r.height <= job.mediaInfo.height,
   );
+
   const hasAudio = job.mediaInfo.hasAudio;
 
   
