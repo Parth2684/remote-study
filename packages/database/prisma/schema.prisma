@@ -74,13 +74,13 @@ model Message {
   studentId String?
   student   Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  isEdited Boolean @default(false)
-  isDeleted Boolean @default(false)
+  isEdited  Boolean   @default(false)
+  isDeleted Boolean   @default(false)
   replyToId String?
-  replyTo   Message? @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: Cascade)
+  replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: Cascade)
   replies   Message[] @relation("MessageReplies")
 
-  @@index([classroomId , createdAt])
+  @@index([classroomId, createdAt])
   @@index([instructorId])
   @@index([studentId])
 }
@@ -149,22 +149,22 @@ model QuizAnswer {
 }
 
 model Video {
-  id          String    @id @default(uuid())
-  name        String
-  title       String
-  description String?
-  cover       String?
-  link        String
-  classroomId String
-  mediaInfo   Json
-  classroom   Classroom @relation(fields: [classroomId], references: [id])
-  isLive      Boolean   @default(false)
-  status      Status  @default(ENCODING)
-  failReason  String?
-  originalSize  Float?
-  fhdSize       Float?
-  hdSize        Float?
-  sdSize        Float?
+  id           String    @id @default(uuid())
+  name         String
+  title        String
+  description  String?
+  cover        String?
+  link         String
+  classroomId  String
+  mediaInfo    Json
+  classroom    Classroom @relation(fields: [classroomId], references: [id])
+  isLive       Boolean   @default(false)
+  status       Status    @default(ENCODING)
+  failReason   String?
+  originalSize Float?
+  fhdSize      Float?
+  hdSize       Float?
+  sdSize       Float?
 }
 
 enum Status {
