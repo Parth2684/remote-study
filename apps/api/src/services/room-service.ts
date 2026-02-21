@@ -134,4 +134,37 @@ export class RoomService {
     }
   }
 
+  static async getAllSessions(classroomId: string) {
+
+    if (!classroomId) {
+      throw new Error("Classroom ID is required")
+    }
+
+    const sessions = await prisma.liveSession.findMany({
+      where: {
+        classroomId,
+      },
+      orderBy: {
+        startedAt: "desc"
+      }
+    })
+
+    return sessions
+  }
+
+  static async getActiveSession(classroomId: string) {
+    if (!classroomId) {
+      throw new Error("Classroom ID is required")
+    }
+
+    const session = await prisma.liveSession.findFirst({
+      where: {
+        classroomId,
+        status: "LIVE"
+      }
+    })
+
+    return session
+  }
+
 }

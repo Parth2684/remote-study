@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useEffect, useState, useRef } from "react"
@@ -11,6 +12,7 @@ import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2, Copy, Check, Send }
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
 import { axiosInstance } from "@/lib/axiosInstance"
+import { Sessions } from "@/components/sessions"
 
 // Define the interface for quiz data
 interface Quiz {
@@ -375,9 +377,10 @@ export default function ClassPage() {
         </div>
         
         <Tabs defaultValue="discussions" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="discussions">Discussions</TabsTrigger>
             <TabsTrigger value="quizzes">Quizzes ({classData.quizzes.length})</TabsTrigger>
+            <TabsTrigger value="Sessions">Sessions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="discussions" className="mt-6">
@@ -561,6 +564,9 @@ export default function ClassPage() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+          <TabsContent value="Sessions">
+            <Sessions />
           </TabsContent>
         </Tabs>
       </div>
