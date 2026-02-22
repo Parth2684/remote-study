@@ -137,7 +137,6 @@ export default function ClassPage() {
     const ws = new WebSocket(`${WS_URL}/classroom/${classId}`)
     
     ws.onopen = () => {
-      console.log('WebSocket connected to classroom:', classId)
       setWsConnected(true)
     }
 
@@ -214,7 +213,6 @@ export default function ClassPage() {
     }
 
     ws.onclose = () => {
-      console.log('WebSocket disconnected from classroom:', classId)
       setWsConnected(false)
       
       // Optional: Implement reconnection logic

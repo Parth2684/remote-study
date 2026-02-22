@@ -6,7 +6,7 @@ const LIVEKIT_SECRET = process.env.LIVEKIT_SECRET!
 
 export class RoomService {
 
-  static async startSession(classroomId: string, instructorId: string, title: string) {
+  static async startSession(classroomId: string, instructorId: string, title: string, roomName: string) {
 
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId }
@@ -30,8 +30,6 @@ export class RoomService {
     if (existingLive) {
       throw new Error("Live session already running")
     }
-
-    const roomName = `${classroomId}-${Date.now()}`
 
     const liveSession = await prisma.liveSession.create({
       data: {

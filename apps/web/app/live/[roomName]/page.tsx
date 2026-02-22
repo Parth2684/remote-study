@@ -53,6 +53,26 @@ export default function LiveRoomPage() {
     init()
   }, [roomName, authUser])
 
+  const handleDisconnected = async () => {
+    console.log("Disconnecting...")
+    console.log("auth user: ", authUser)
+    console.log("session id: ", sessionId)
+    try {
+      if (authUser?.role === "INSTRUCTOR" && sessionId) {
+        console.log("Ending live session")
+        const res = await axiosInstance.put(
+          `/instructor/classroom/live/end/${sessionId}`
+        )
+
+        console.log("res: ", res)
+      }
+    } catch (err) {
+      console.error("Error ending session:", err)
+    } finally {
+      router.back()
+    }
+  }
+
   if (loading || !token) {
     return (
       <div className="flex items-center justify-center h-screen bg-black">
@@ -62,27 +82,14 @@ export default function LiveRoomPage() {
   }
 
   return (
-    <div className="h-screen bg-black">
+    <div className="h-[calc(100vh-5rem)]">
       <LiveKitRoom
         video={false}
         audio={false}
         token={token}
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL!}
         data-lk-theme="default"
-        onDisconnected={async () => {
-          try {
-            // Only instructor should end session
-            if (authUser?.role === "INSTRUCTOR" && sessionId) {
-              await axiosInstance.put(
-                `/instructor/classroom/live/end/${sessionId}`
-              )
-            }
-          } catch (err) {
-            console.error("Error ending session:", err)
-          }
-
-          router.back()
-        }}
+        onDisconnected={handleDisconnected}
       >
         <VideoConference />
       </LiveKitRoom>

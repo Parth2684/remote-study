@@ -4,10 +4,10 @@ import { RoomService } from "../../../services/room-service"
 
 export const startLive = async (req: Request, res: Response) => {
     try {
-        const { classroomId, title } = req.body
+        const { classroomId, title, roomName } = req.body
         const instructorId = req.user.id
 
-        const result = await RoomService.startSession(classroomId, instructorId, title)
+        const result = await RoomService.startSession(classroomId, instructorId, title, roomName)
 
         res.status(200).json(result)
         

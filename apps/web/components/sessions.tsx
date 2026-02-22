@@ -7,6 +7,7 @@ import { Badge } from "@/components/badge"
 import { Loader2, Video, Clock } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { axiosInstance } from "@/lib/axiosInstance"
+import { StartLiveModal } from "@/components/start-live-modal"
 import { useParams, useRouter } from "next/navigation"
 
 interface LiveSession {
@@ -23,7 +24,8 @@ export const Sessions = () => {
   const params = useParams()
   const router = useRouter()
   const classId = Array.isArray(params.id) ? params.id[0] : params.id
-
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [title, setTitle] = useState("")
   const [sessions, setSessions] = useState<LiveSession[]>([])
   const [activeSession, setActiveSession] = useState<LiveSession | null>(null)
   const [loading, setLoading] = useState(true)
@@ -54,18 +56,24 @@ export const Sessions = () => {
     if (classId) fetchSessions()
   }, [classId, authUser?.role])
 
-  const handleStartSession = async () => {
+  const handleStartSession = async (title: string) => {
     try {
       setStarting(true)
 
-      const res = await axiosInstance.post(`/${initialRoute}/classroom/live/start`, {
-        classroomId: classId,
-        title: `Live Session - ${new Date().toLocaleString()}`
-      })
+      const res = await axiosInstance.post(
+        `/${initialRoute}/classroom/live/start`,
+        {
+          classroomId: classId,
+          title,
+          roomName: title
+        }
+      )
 
-      const { token, roomName } = res.data
+      const { liveSession, token, roomName } = res.data
 
-      router.push(`/live/${roomName}?token=${token}`)
+      setIsModalOpen(false)
+
+      router.push(`/live/${roomName}?token=${token}&sessionId=${liveSession.id}`)
 
     } catch (err) {
       console.error("Error starting session:", err)
@@ -97,7 +105,7 @@ export const Sessions = () => {
       {/* Instructor Start Button */}
       {authUser?.role === "INSTRUCTOR" && (
         <div className="flex justify-end">
-          <Button onClick={handleStartSession} disabled={starting}>
+          <Button onClick={() => setIsModalOpen(true)}>
             {starting ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : (
@@ -173,6 +181,14 @@ export const Sessions = () => {
           ))
         )}
       </div>
+      <StartLiveModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStart={handleStartSession}
+        loading={starting}
+        title={title}
+        setTitle={setTitle}
+      />
     </div>
   )
 }
