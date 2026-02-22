@@ -35,7 +35,7 @@ export default function LiveRoomPage() {
 
           const res = await axiosInstance.post(
             `/${roleRoute}/classroom/live/join`,
-            { roomName }
+            { sessionId }
           )
 
           finalToken = res.data.token
@@ -64,8 +64,8 @@ export default function LiveRoomPage() {
   return (
     <div className="h-screen bg-black">
       <LiveKitRoom
-        video
-        audio
+        video={false}
+        audio={false}
         token={token}
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL!}
         data-lk-theme="default"
