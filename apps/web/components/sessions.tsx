@@ -11,6 +11,7 @@ import { useParams, useRouter } from "next/navigation"
 
 interface LiveSession {
   id: string
+  roomName: string   
   title: string
   startedAt: string
   endedAt: string | null
@@ -27,13 +28,13 @@ export const Sessions = () => {
   const [activeSession, setActiveSession] = useState<LiveSession | null>(null)
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState(false)
+  const initialRoute = authUser?.role === "INSTRUCTOR" ? "instructor" : "student"
 
   useEffect(() => {
     const fetchSessions = async () => {
       try {
         setLoading(true)
 
-        const initialRoute = authUser?.role === "INSTRUCTOR" ? "instructor" : "student"
 
         const [allRes, activeRes] = await Promise.all([
           axiosInstance.get(`/${initialRoute}/classroom/live/${classId}/sessions`),
@@ -57,14 +58,13 @@ export const Sessions = () => {
     try {
       setStarting(true)
 
-      const res = await axiosInstance.post("/live/start", {
+      const res = await axiosInstance.post(`/${initialRoute}/classroom/live/start`, {
         classroomId: classId,
         title: `Live Session - ${new Date().toLocaleString()}`
       })
 
       const { token, roomName } = res.data
 
-      // Redirect to live page
       router.push(`/live/${roomName}?token=${token}`)
 
     } catch (err) {
@@ -76,7 +76,7 @@ export const Sessions = () => {
 
   const handleJoinLive = () => {
     if (!activeSession) return
-    router.push(`/live/${activeSession.id}`)
+    router.push(`/live/${activeSession.roomName}?sessionId=${activeSession.id}`)
   }
 
   const formatTime = (date: string) => {

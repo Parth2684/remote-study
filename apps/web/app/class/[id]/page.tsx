@@ -376,7 +376,7 @@ export default function ClassPage() {
           </div>
         </div>
         
-        <Tabs defaultValue="discussions" className="w-full">
+        <Tabs defaultValue="Sessions" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="discussions">Discussions</TabsTrigger>
             <TabsTrigger value="quizzes">Quizzes ({classData.quizzes.length})</TabsTrigger>
