@@ -64,8 +64,10 @@ export default function CreateQuizPage() {
     value: string
   ) => {
     const updated = [...questions]
-    updated[qIndex].options[oIndex] = value
-    setQuestions(updated)
+    if (updated[qIndex]) {
+      updated[qIndex].options[oIndex] = value
+      setQuestions(updated)
+    }
   }
 
   const addQuestion = () => {

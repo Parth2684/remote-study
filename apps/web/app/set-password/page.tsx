@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card"
 import { Button } from "@/components/button"
@@ -9,7 +9,7 @@ import { Label } from "@/components/label"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { Eye, EyeOff } from "lucide-react"
 
-export default function SetPasswordPage() {
+function SetPasswordForm() {
   const params = useSearchParams()
   const token = params.get("token")
   const role = (params.get("role") as "STUDENT" | "INSTRUCTOR") || "STUDENT"
@@ -113,5 +113,13 @@ export default function SetPasswordPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function SetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white dark:bg-neutral-950 flex items-center justify-center">Loading...</div>}>
+      <SetPasswordForm />
+    </Suspense>
   )
 }
