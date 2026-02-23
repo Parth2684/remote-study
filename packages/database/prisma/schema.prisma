@@ -81,7 +81,6 @@ model Message {
   replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: Cascade)
   replies   Message[] @relation("MessageReplies")
 
-  // Document attachment fields
   documentUrl  String?
   documentName String?
   documentType String?

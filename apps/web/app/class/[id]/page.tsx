@@ -431,10 +431,10 @@ export default function ClassPage() {
   const getFileIcon = (mimeType?: string) => {
     if (!mimeType) return <FileText className="h-4 w-4" />
     if (mimeType.startsWith('image/')) return <FileText className="h-4 w-4" />
-    if (mimeType.includes('pdf')) return <FileText className="h-4 w-4 text-red-600" />
-    if (mimeType.includes('word')) return <FileText className="h-4 w-4 text-blue-600" />
-    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return <FileText className="h-4 w-4 text-green-600" />
-    if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return <FileText className="h-4 w-4 text-orange-600" />
+    if (mimeType.includes('pdf')) return <FileText className="h-4 w-4 text-red-600 dark:text-red-400" />
+    if (mimeType.includes('word')) return <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
+    if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return <FileText className="h-4 w-4 text-orange-600 dark:text-orange-400" />
     return <FileText className="h-4 w-4" />
   }
 
@@ -594,16 +594,22 @@ export default function ClassPage() {
                         <div 
                           key={message.id} 
                           className={`border rounded-lg p-4 transition-colors ${
-                            message.userId === authUser.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-muted/50'
+                            message.userId === authUser.id 
+                              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' 
+                              : 'hover:bg-muted/50 dark:hover:bg-muted/20'
                           }`}
                         >
                           <div className="flex items-start gap-3">
                             {/* User Avatar */}
                             <div className={`p-2 rounded-full shrink-0 ${
-                              message.role === 'INSTRUCTOR' ? 'bg-purple-100' : 'bg-blue-100'
+                              message.role === 'INSTRUCTOR' 
+                                ? 'bg-purple-100 dark:bg-purple-900/40' 
+                                : 'bg-blue-100 dark:bg-blue-900/40'
                             }`}>
                               <MessageCircle className={`h-4 w-4 ${
-                                message.role === 'INSTRUCTOR' ? 'text-purple-600' : 'text-blue-600'
+                                message.role === 'INSTRUCTOR' 
+                                  ? 'text-purple-600 dark:text-purple-400' 
+                                  : 'text-blue-600 dark:text-blue-400'
                               }`} />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -635,7 +641,7 @@ export default function ClassPage() {
                                       <Button
                                         size="sm"
                                         variant="ghost"
-                                        className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        className="h-6 w-6 p-0 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40"
                                         onClick={() => handleDeleteMessage(message.id)}
                                       >
                                         <Trash2 className="h-3 w-3" />
@@ -647,7 +653,7 @@ export default function ClassPage() {
                                     <Button
                                       size="sm"
                                       variant="ghost"
-                                      className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      className="h-6 w-6 p-0 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40"
                                       onClick={() => handleDeleteMessage(message.id)}
                                     >
                                       <Trash2 className="h-3 w-3" />
@@ -700,7 +706,7 @@ export default function ClassPage() {
                               
                               {/* Document Attachment */}
                               {message.documentUrl && (
-                                <div className="mt-2 p-3 bg-muted/50 border rounded-lg flex items-center gap-3">
+                                <div className="mt-2 p-3 bg-muted/50 dark:bg-muted/20 border dark:border-muted rounded-lg flex items-center gap-3">
                                   {getFileIcon(message.documentType)}
                                   <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium truncate">{message.documentName}</p>
@@ -734,7 +740,7 @@ export default function ClassPage() {
                 <div className="border-t p-4">
                   {/* Selected File Preview */}
                   {selectedFile && (
-                    <div className="mb-3 p-2 bg-muted/50 border rounded-lg flex items-center gap-2">
+                    <div className="mb-3 p-2 bg-muted/50 dark:bg-muted/20 border dark:border-muted rounded-lg flex items-center gap-2">
                       {getFileIcon(selectedFile.type)}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{selectedFile.name}</p>
@@ -823,14 +829,14 @@ export default function ClassPage() {
                   </form>
                   <p className="text-xs text-muted-foreground mt-2">
                     {newMessage.length}/2000 characters
-                    {!wsConnected && <span className="text-amber-600 ml-2">• Offline mode - messages will sync when reconnected</span>}
+                    {!wsConnected && <span className="text-amber-600 dark:text-amber-400 ml-2">• Offline mode - messages will sync when reconnected</span>}
                   </p>
                 </div>
               </Card>
 
               {/* Documents Modal */}
               {showDocuments && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
                   <Card className="w-full max-w-3xl max-h-[80vh] flex flex-col">
                     <CardHeader className="pb-3 border-b">
                       <div className="flex items-center justify-between">
@@ -866,10 +872,10 @@ export default function ClassPage() {
                           {documents.map((doc) => (
                             <div
                               key={doc.id}
-                              className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+                              className="border dark:border-muted rounded-lg p-4 hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors"
                             >
                               <div className="flex items-start gap-3">
-                                <div className="p-2 bg-muted rounded-lg">
+                                <div className="p-2 bg-muted dark:bg-muted/40 rounded-lg">
                                   {getFileIcon(doc.documentType)}
                                 </div>
                                 <div className="flex-1 min-w-0">
