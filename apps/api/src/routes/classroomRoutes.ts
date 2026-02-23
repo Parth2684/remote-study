@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '@repo/db';
 import { studentAuth, instructorAuth } from '../middleware/auth';
 import { documentUpload } from '../middleware/documentUpload';
+import { broadcastToClassroom } from '../websocket';
 import path from 'path';
 import fs from 'fs';
 
@@ -147,6 +148,12 @@ router.post('/:classroomId/messages', classroomAuth, async (req: any, res) => {
       documentSize: message.documentSize
     };
 
+    // Broadcast the message to all connected WebSocket clients
+    broadcastToClassroom(classroomId, {
+      type: 'new_message',
+      ...formattedMessage
+    });
+
     res.status(201).json({ message: formattedMessage });
   } catch (error) {
     console.error('Error creating message:', error);
@@ -180,6 +187,12 @@ router.delete('/:classroomId/messages/:messageId', classroomAuth, async (req: an
     await prisma.message.update({
       where: { id: messageId },
       data: { isDeleted: true }
+    });
+
+    // Broadcast the deletion to all connected WebSocket clients
+    broadcastToClassroom(classroomId, {
+      type: 'delete_message',
+      messageId: messageId
     });
 
     res.json({ success: true });
@@ -246,6 +259,12 @@ router.patch('/:classroomId/messages/:messageId', classroomAuth, async (req: any
       documentType: updatedMessage.documentType,
       documentSize: updatedMessage.documentSize
     };
+
+    // Broadcast the edit to all connected WebSocket clients
+    broadcastToClassroom(classroomId, {
+      type: 'edit_message',
+      ...formattedMessage
+    });
 
     res.json({ message: formattedMessage });
   } catch (error) {
@@ -324,6 +343,12 @@ router.post('/:classroomId/documents', classroomAuth, documentUpload.single('doc
       documentType: message.documentType,
       documentSize: message.documentSize
     };
+
+    // Broadcast the document message to all connected WebSocket clients
+    broadcastToClassroom(classroomId, {
+      type: 'new_message',
+      ...formattedMessage
+    });
 
     res.status(201).json({ message: formattedMessage });
   } catch (error) {

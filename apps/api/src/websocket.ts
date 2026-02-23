@@ -68,7 +68,7 @@ async function checkClassroomAccess(classroomId: string, userId: string, role: s
   }
 }
 
-function broadcastToClassroom(classroomId: string, message: any, excludeWs?: WebSocket) {
+export function broadcastToClassroom(classroomId: string, message: any, excludeWs?: WebSocket) {
   const connections = classroomConnections.get(classroomId);
   if (!connections) return;
 
