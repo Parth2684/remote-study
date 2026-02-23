@@ -68,7 +68,7 @@ async function checkClassroomAccess(classroomId: string, userId: string, role: s
   }
 }
 
-function broadcastToClassroom(classroomId: string, message: any, excludeWs?: WebSocket) {
+export function broadcastToClassroom(classroomId: string, message: any, excludeWs?: WebSocket) {
   const connections = classroomConnections.get(classroomId);
   if (!connections) return;
 
@@ -112,7 +112,11 @@ async function getMessageHistory(classroomId: string, limit: number = 50) {
     userId: msg.instructorId || msg.studentId,
     userName: msg.instructor?.name || msg.student?.name,
     userProfilePic: msg.instructor?.profilePic || msg.student?.profilePic,
-    role: msg.instructorId ? 'INSTRUCTOR' : 'STUDENT'
+    role: msg.instructorId ? 'INSTRUCTOR' : 'STUDENT',
+    documentUrl: msg.documentUrl,
+    documentName: msg.documentName,
+    documentType: msg.documentType,
+    documentSize: msg.documentSize
   }));
 }
 
@@ -230,7 +234,11 @@ export function createWebSocketServer(server: any) {
               userId: newMessage.instructorId || newMessage.studentId,
               userName: newMessage.instructor?.name || newMessage.student?.name,
               userProfilePic: newMessage.instructor?.profilePic || newMessage.student?.profilePic,
-              role: newMessage.instructorId ? 'INSTRUCTOR' : 'STUDENT'
+              role: newMessage.instructorId ? 'INSTRUCTOR' : 'STUDENT',
+              documentUrl: newMessage.documentUrl,
+              documentName: newMessage.documentName,
+              documentType: newMessage.documentType,
+              documentSize: newMessage.documentSize
             };
 
             broadcastToClassroom(ws.classroomId, broadcastMessage);
@@ -327,7 +335,11 @@ export function createWebSocketServer(server: any) {
               isEdited: true,
               userId: updatedMessage.instructorId || updatedMessage.studentId,
               userName: updatedMessage.instructor?.name || updatedMessage.student?.name,
-              userProfilePic: updatedMessage.instructor?.profilePic || updatedMessage.student?.profilePic
+              userProfilePic: updatedMessage.instructor?.profilePic || updatedMessage.student?.profilePic,
+              documentUrl: updatedMessage.documentUrl,
+              documentName: updatedMessage.documentName,
+              documentType: updatedMessage.documentType,
+              documentSize: updatedMessage.documentSize
             });
             break;
 

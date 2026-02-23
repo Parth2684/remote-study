@@ -21,7 +21,7 @@
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.15.30",
     "@types/pg": "^8.16.0",
-    "prisma": "^7.3.0",
+    "prisma": "^7.4.0",
     "tsup": "^8.5.0",
     "tsx": "^4.20.6"
   },

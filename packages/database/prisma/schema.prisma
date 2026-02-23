@@ -81,6 +81,11 @@ model Message {
   replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: Cascade)
   replies   Message[] @relation("MessageReplies")
 
+  documentUrl  String?
+  documentName String?
+  documentType String?
+  documentSize Int?
+
   @@index([classroomId, createdAt])
   @@index([instructorId])
   @@index([studentId])
