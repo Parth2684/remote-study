@@ -189,7 +189,6 @@ router.delete('/:classroomId/messages/:messageId', classroomAuth, async (req: an
       data: { isDeleted: true }
     });
 
-    // Broadcast the deletion to all connected WebSocket clients
     broadcastToClassroom(classroomId, {
       type: 'delete_message',
       messageId: messageId
@@ -273,7 +272,6 @@ router.patch('/:classroomId/messages/:messageId', classroomAuth, async (req: any
   }
 });
 
-// Upload document to classroom
 router.post('/:classroomId/documents', classroomAuth, documentUpload.single('document'), async (req: any, res) => {
   try {
     const { classroomId } = req.params;
@@ -285,7 +283,6 @@ router.post('/:classroomId/documents', classroomAuth, documentUpload.single('doc
       return res.status(400).json({ error: 'No document uploaded' });
     }
 
-    // Verify classroom access
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
       include: {
@@ -305,7 +302,6 @@ router.post('/:classroomId/documents', classroomAuth, documentUpload.single('doc
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // Create message with document attachment
     const message = await prisma.message.create({
       data: {
         content: content?.trim() || `Shared a document: ${req.file.originalname}`,
@@ -344,7 +340,6 @@ router.post('/:classroomId/documents', classroomAuth, documentUpload.single('doc
       documentSize: message.documentSize
     };
 
-    // Broadcast the document message to all connected WebSocket clients
     broadcastToClassroom(classroomId, {
       type: 'new_message',
       ...formattedMessage
@@ -357,14 +352,12 @@ router.post('/:classroomId/documents', classroomAuth, documentUpload.single('doc
   }
 });
 
-// Get all documents for a classroom
 router.get('/:classroomId/documents', classroomAuth, async (req: any, res) => {
   try {
     const { classroomId } = req.params;
     const userId = req.user.id;
     const userRole = req.user.role;
 
-    // Verify classroom access
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
       include: {
@@ -384,7 +377,6 @@ router.get('/:classroomId/documents', classroomAuth, async (req: any, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // Get all messages with documents
     const documents = await prisma.message.findMany({
       where: {
         classroomId,
@@ -425,14 +417,12 @@ router.get('/:classroomId/documents', classroomAuth, async (req: any, res) => {
   }
 });
 
-// Serve document file
 router.get('/:classroomId/documents/:filename', classroomAuth, async (req: any, res) => {
   try {
     const { classroomId, filename } = req.params;
     const userId = req.user.id;
     const userRole = req.user.role;
 
-    // Verify classroom access
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
       include: {
@@ -452,7 +442,6 @@ router.get('/:classroomId/documents/:filename', classroomAuth, async (req: any, 
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // Serve the file
     const filePath = path.join(__dirname, '../../../uploads/documents', filename);
     
     if (!fs.existsSync(filePath)) {

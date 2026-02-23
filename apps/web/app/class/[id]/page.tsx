@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs"
 import { Badge } from "@/components/badge"
 import { Input } from "@/components/input"
 import { useParams } from "next/navigation"
-import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2, Copy, Check, Send, Paperclip, FileText, X, Download } from "lucide-react"
+import { ArrowLeft, Users, MessageCircle, BookOpen, Loader2, Copy, Check, Send, Paperclip, FileText, X, Download, Edit2, Trash2 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
 import { axiosInstance } from "@/lib/axiosInstance"
@@ -73,6 +73,8 @@ export default function ClassPage() {
   const [newMessage, setNewMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [wsConnected, setWsConnected] = useState(false)
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
+  const [editingContent, setEditingContent] = useState("")
   
   // Document state
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -122,7 +124,6 @@ export default function ClassPage() {
           })),
         })
 
-        // Load existing messages via REST API
         try {
           const messagesRes = await axiosInstance.get(`/classroom/${classId}/messages`)
           if (messagesRes.data.messages) {
@@ -156,15 +157,11 @@ export default function ClassPage() {
     fetchClassData()
   }, [classId, authUser])
 
-  // WebSocket connection setup
   useEffect(() => {
     if (!classId || !authUser) return
 
-    // REPLACE WITH YOUR BACKEND URL
     const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080'
     
-    // Create WebSocket connection
-    // Cookie with authToken will be sent automatically by browser
     const ws = new WebSocket(`${WS_URL}/classroom/${classId}`)
     
     ws.onopen = () => {
@@ -175,14 +172,12 @@ export default function ClassPage() {
       try {
         const data = JSON.parse(event.data)
         
-        // Handle different message types from server
         switch (data.type) {
           case 'auth_success':
             console.log('Authenticated as:', data.userName, data.role)
             break
             
           case 'new_message':
-            // Add new message to the list
             setMessages((prev) => [...prev, {
               id: data.id,
               userId: data.userId,
@@ -200,7 +195,6 @@ export default function ClassPage() {
             break
             
           case 'message_history':
-            // Load historical messages (already loaded via REST API, but can update if needed)
             if (data.messages && data.messages.length > 0) {
               setMessages(data.messages.map((msg: any) => ({
                 id: msg.id,
@@ -220,12 +214,10 @@ export default function ClassPage() {
             break
             
           case 'delete_message':
-            // Remove deleted message
             setMessages((prev) => prev.filter(msg => msg.id !== data.messageId))
             break
             
           case 'edit_message':
-            // Update edited message
             setMessages((prev) => prev.map(msg => 
               msg.id === data.id 
                 ? { ...msg, content: data.content, isEdited: true }
@@ -235,7 +227,6 @@ export default function ClassPage() {
             
           case 'error':
             console.error('WebSocket error:', data.message)
-            // Show error to user (you can add toast notification here)
             break
             
           default:
@@ -263,7 +254,6 @@ export default function ClassPage() {
 
     wsRef.current = ws
 
-    // Cleanup on unmount
     return () => {
       if (wsRef.current) {
         wsRef.current.close()
@@ -271,12 +261,10 @@ export default function ClassPage() {
     }
   }, [classId, authUser])
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Handle sending messages
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -286,7 +274,6 @@ export default function ClassPage() {
     
     try {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        // Send via WebSocket
         const messageData = {
           type: 'send_message',
           content: newMessage.trim()
@@ -294,12 +281,10 @@ export default function ClassPage() {
         
         wsRef.current.send(JSON.stringify(messageData))
       } else {
-        // Fallback to REST API if WebSocket is not connected
         const response = await axiosInstance.post(`/classroom/${classId}/messages`, {
           content: newMessage.trim()
         })
         
-        // Add message to local state
         if (response.data.message) {
           setMessages(prev => [...prev, {
             id: response.data.message.id,
@@ -318,12 +303,10 @@ export default function ClassPage() {
         }
       }
       
-      // Clear input
       setNewMessage("")
       
     } catch (err) {
       console.error('Error sending message:', err)
-      // Show error to user (you can add toast notification here)
       alert('Failed to send message. Please try again.')
     } finally {
       setIsSending(false)
@@ -357,11 +340,9 @@ export default function ClassPage() {
     }
   }
 
-  // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // Check file size (50MB limit)
       if (file.size > 50 * 1024 * 1024) {
         alert('File size must be less than 50MB')
         return
@@ -370,7 +351,6 @@ export default function ClassPage() {
     }
   }
 
-  // Handle document upload
   const handleDocumentUpload = async () => {
     if (!selectedFile || !authUser) return
 
@@ -408,7 +388,6 @@ export default function ClassPage() {
         }])
       }
 
-      // Clear inputs
       setSelectedFile(null)
       setNewMessage("")
       if (fileInputRef.current) {
@@ -422,7 +401,6 @@ export default function ClassPage() {
     }
   }
 
-  // Load all documents
   const loadDocuments = async () => {
     if (!classId) return
 
@@ -439,20 +417,17 @@ export default function ClassPage() {
     }
   }
 
-  // Load documents when modal opens
   const handleViewDocuments = () => {
     setShowDocuments(true)
     loadDocuments()
   }
 
-  // Format file size
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B'
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
 
-  // Get file icon based on mime type
   const getFileIcon = (mimeType?: string) => {
     if (!mimeType) return <FileText className="h-4 w-4" />
     if (mimeType.startsWith('image/')) return <FileText className="h-4 w-4" />
@@ -461,6 +436,68 @@ export default function ClassPage() {
     if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return <FileText className="h-4 w-4 text-green-600" />
     if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return <FileText className="h-4 w-4 text-orange-600" />
     return <FileText className="h-4 w-4" />
+  }
+
+  const handleEditMessage = (messageId: string, currentContent: string) => {
+    setEditingMessageId(messageId)
+    setEditingContent(currentContent)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null)
+    setEditingContent("")
+  }
+
+  const handleSaveEdit = async (messageId: string) => {
+    if (!editingContent.trim()) return
+
+    try {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        const messageData = {
+          type: 'edit_message',
+          messageId: messageId,
+          content: editingContent.trim()
+        }
+        wsRef.current.send(JSON.stringify(messageData))
+      } else {
+        await axiosInstance.patch(`/classroom/${classId}/messages/${messageId}`, {
+          content: editingContent.trim()
+        })
+      }
+
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, content: editingContent.trim(), isEdited: true }
+          : msg
+      ))
+
+      setEditingMessageId(null)
+      setEditingContent("")
+    } catch (err) {
+      console.error('Error editing message:', err)
+      alert('Failed to edit message. Please try again.')
+    }
+  }
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) return
+
+    try {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        const messageData = {
+          type: 'delete_message',
+          messageId: messageId
+        }
+        wsRef.current.send(JSON.stringify(messageData))
+      } else {
+        await axiosInstance.delete(`/classroom/${classId}/messages/${messageId}`)
+      }
+
+      setMessages(prev => prev.filter(msg => msg.id !== messageId))
+    } catch (err) {
+      console.error('Error deleting message:', err)
+      alert('Failed to delete message. Please try again.')
+    }
   }
 
 
@@ -532,7 +569,7 @@ export default function ClassPage() {
 
           <TabsContent value="discussions" className="mt-6">
             <div className="space-y-6">
-              <Card className="h-[600px] flex flex-col">
+              <Card className="h-150 flex flex-col">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2">
                     <MessageCircle className="h-5 w-5" />
@@ -580,13 +617,87 @@ export default function ClassPage() {
                                     <span className="text-xs text-muted-foreground">(edited)</span>
                                   )}
                                 </div>
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                  {formatTimestamp(message.timestamp)}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                    {formatTimestamp(message.timestamp)}
+                                  </span>
+                                  {/* Edit and Delete buttons - only show for own messages */}
+                                  {message.userId === authUser.id && !message.documentUrl && (
+                                    <div className="flex gap-1">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() => handleEditMessage(message.id, message.content)}
+                                      >
+                                        <Edit2 className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        onClick={() => handleDeleteMessage(message.id)}
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  )}
+                                  {/* Delete button for documents or instructor deleting any message */}
+                                  {(message.userId === authUser.id && message.documentUrl) || (authUser.role === 'INSTRUCTOR' && message.userId !== authUser.id) ? (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      onClick={() => handleDeleteMessage(message.id)}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  ) : null}
+                                </div>
                               </div>
-                              <p className="text-sm text-foreground break-word">
-                                {message.content}
-                              </p>
+                              
+                              {/* Editing mode */}
+                              {editingMessageId === message.id ? (
+                                <div className="space-y-2">
+                                  <Input
+                                    type="text"
+                                    value={editingContent}
+                                    onChange={(e) => setEditingContent(e.target.value)}
+                                    className="text-sm"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault()
+                                        handleSaveEdit(message.id)
+                                      }
+                                      if (e.key === 'Escape') {
+                                        handleCancelEdit()
+                                      }
+                                    }}
+                                  />
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleSaveEdit(message.id)}
+                                      disabled={!editingContent.trim()}
+                                    >
+                                      Save
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={handleCancelEdit}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-foreground break-word">
+                                  {message.content}
+                                </p>
+                              )}
+                              
                               {/* Document Attachment */}
                               {message.documentUrl && (
                                 <div className="mt-2 p-3 bg-muted/50 border rounded-lg flex items-center gap-3">
