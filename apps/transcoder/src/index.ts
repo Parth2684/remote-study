@@ -24,6 +24,7 @@ export interface Video {
 async function main() {
   while (true) {
     const popJob = await redisClient.BRPOP("upload-re-encode", 0); // 0 = wait forever
+    console.log(popJob)
 
     if (!popJob) continue;
 

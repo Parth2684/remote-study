@@ -8,4 +8,5 @@ export type InstructorState = {
 export type InstructorAction = {
   createClassroom: (name: string, description: string) => Promise<void>
   getClassrooms: () => Promise<void>
+  uploadVideo: (classroomId: string, formData: FormData) => Promise<void>
 }

@@ -16,16 +16,17 @@ const uploadVideoSchema = z.object({
 
 export const uploadVideoHandler: RequestHandler[] = [
   upload.single("video"),
-
+  
   async (req: Request, res: Response) => {
-    const classroomId = req.params.classroomId;
+    const classroomId = req.params.classroomId as string | undefined;
     if (!classroomId) {
       res.status(411).json({
         message: "error parsing classoom id",
       });
       return;
     }
-
+    console.log("BODY:", req.body)
+    console.log("FILE:", req.file)
     try {
       const classroom = await prisma.classroom.findUnique({
         where: {
@@ -151,6 +152,7 @@ export const uploadVideoHandler: RequestHandler[] = [
         res.status(500).json({
           message: "error creating database entry for the video please try again",
         });
+        return;
       }
     } catch (e) {
       console.error(e);
@@ -159,12 +161,6 @@ export const uploadVideoHandler: RequestHandler[] = [
       });
       return;
     }
-
-    // await enqueueEncodingJob({
-    //   videoId,
-    //   inputPath: req.file.path,
-    //   originalName: req.file.originalname
-    // });
 
     res.json({
       message: "successfully video added in queue for encoding",
