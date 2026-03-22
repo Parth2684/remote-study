@@ -53,7 +53,7 @@ export const uploadRecordingHandler: RequestHandler[] = [
           link: `/uploads/${file.filename}`, // local path
           classroomId: session.classroomId,
           mediaInfo: {},
-          isLive: false,
+          isLive: true,
           status: "SUCCESS"
         }
       })

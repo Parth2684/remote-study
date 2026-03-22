@@ -34,6 +34,6 @@ classroomRouter.get("/live/:classId/sessions", getAllSessions)
 classroomRouter.get("/live/:classId/active", getActiveSession)
 
 classroomRouter.post("/live/upload-recording", uploadRecordingHandler)
-classroomRouter.get("/:classroomId/videos", fetchVideos)
+classroomRouter.get("/videos/:classroomId", fetchVideos)
 
 export default classroomRouter;

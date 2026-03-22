@@ -17,7 +17,6 @@ export const fetchVideos = async(req: Request, res: Response) => {
                 uploadedAt: "desc"
             }   
         })
-        console.log("Found videos:", videos)
         res.json({
             videos
         })
