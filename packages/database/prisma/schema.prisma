@@ -171,6 +171,7 @@ model Video {
   fhdSize      Float?
   hdSize       Float?
   sdSize       Float?
+  uploadedAt   DateTime   @default(now())
 }
 
 enum Status {

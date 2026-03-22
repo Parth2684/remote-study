@@ -30,7 +30,7 @@ export default function SignInPage() {
   useEffect(() => {
 
     if (authUser) {
-      authUser.role == "INSTRUCTOR" ? redirect("/instructor") : redirect("/dashboard") 
+      redirect("/dashboard") 
     }
   }, [authUser])
 

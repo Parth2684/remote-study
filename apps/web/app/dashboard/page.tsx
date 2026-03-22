@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs";
-import { BookOpen, Users, Loader2, PenSquare } from "lucide-react";
+import { BookOpen, Users, Loader2, PenSquare, Upload, Play, Plus } from "lucide-react";
 import { useAuthStore } from "../../stores/authStore/useAuthStore";
 import ClientAuthLoader from "../../components/client-auth-loader";
 import { axiosInstance } from "../../lib/axiosInstance";
@@ -75,14 +76,26 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-neutral-50 dark:bg-neutral-950/70 min-h-[calc(100vh-4.05rem)]">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            Welcome back, {authUser.name}!
-          </h2>
-          <p className="text-muted-foreground">
-            {authUser.role === "INSTRUCTOR"
-              ? "Manage your classrooms and create engaging content for your students."
-              : "Access your courses and track your learning progress."}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">
+                Welcome back, {authUser.name}!
+              </h2>
+              <p className="text-muted-foreground">
+                {authUser.role === "INSTRUCTOR"
+                  ? "Manage your classrooms and create engaging content for your students."
+                  : "Access your courses and track your learning progress."}
+              </p>
+            </div>
+            {authUser.role === "INSTRUCTOR" && (
+              <Button asChild size="lg" className="shadow-lg">
+                <Link href="/instructor/classroom/create">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Create Classroom
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
 
         <Tabs defaultValue="classes" className="w-full">
@@ -169,6 +182,32 @@ export default function DashboardPage() {
                 <p className="text-red-500 mb-4">{error}</p>
                 <Button onClick={() => window.location.reload()}>Try Again</Button>
               </div>
+            ) : classroomsToDisplay.length === 0 && authUser.role === "INSTRUCTOR" ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <BookOpen className="h-16 w-16 text-muted-foreground mb-4" />
+                  <h2 className="text-xl font-semibold mb-2">No classrooms yet</h2>
+                  <p className="text-muted-foreground mb-4 text-center max-w-md">
+                    Create your first classroom to start uploading videos and engaging with students
+                  </p>
+                  <Button asChild size="lg">
+                    <Link href="/instructor/classroom/create">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Your First Classroom
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : classroomsToDisplay.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <BookOpen className="h-16 w-16 text-muted-foreground mb-4" />
+                  <h2 className="text-xl font-semibold mb-2">No classes enrolled</h2>
+                  <p className="text-muted-foreground mb-4 text-center max-w-md">
+                    You haven't enrolled in any classes yet. Join a class to start learning!
+                  </p>
+                </CardContent>
+              </Card>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {classroomsToDisplay.map((classroom) => (
@@ -182,17 +221,66 @@ export default function DashboardPage() {
                     }}
                   >
                     <CardHeader>
-                      <CardTitle className="text-lg">{classroom.name}</CardTitle>
+                      <CardTitle className="text-lg flex items-center justify-between">
+                        <span>{classroom.name}</span>
+                        {authUser.role === "INSTRUCTOR" && classroom.videosCount !== undefined && (
+                          <span className="text-sm font-normal text-muted-foreground bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">
+                            {classroom.videosCount} videos
+                          </span>
+                        )}
+                      </CardTitle>
                       <CardDescription>
                         {authUser.role === "INSTRUCTOR"
                           ? `${classroom.studentsCount || 0} students enrolled`
-                          : `Instructor: ${classroom.instructor.name || "Unknown"}`}
+                          : `Instructor: ${classroom.instructor?.name || "Unknown"}`}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex justify-end">
-                        <Button size="sm">Open</Button>
-                      </div>
+                    <CardContent className="space-y-3">
+                      {authUser.role === "INSTRUCTOR" ? (
+                        <>
+                          <div className="flex gap-2">
+                            <Button 
+                              asChild 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Link href={`/instructor/classroom/${classroom.id}/upload-video`}>
+                                <Upload className="h-4 w-4 mr-2" />
+                                Upload
+                              </Link>
+                            </Button>
+                            <Button 
+                              asChild 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Link href={`/instructor/classroom/${classroom.id}/create-quiz`}>
+                                <Play className="h-4 w-4 mr-2" />
+                                Quiz
+                              </Link>
+                            </Button>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            className="w-full"
+                            onClick={() => router.push(`/instructor/classroom/${classroom.id}`)}
+                          >
+                            View Classroom
+                          </Button>
+                        </>
+                      ) : (
+                        <Button 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => router.push(`/class/${classroom.id}`)}
+                        >
+                          Open Classroom
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))}

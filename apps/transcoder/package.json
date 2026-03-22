@@ -17,9 +17,11 @@
   "devDependencies": {
     "@repo/db": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@types/express": "^5.0.6",
     "@types/node": "^25.2.0"
   },
   "dependencies": {
+    "express": "^5.2.1",
     "redis": "^5.10.0",
     "zod": "^4.1.11"
   }

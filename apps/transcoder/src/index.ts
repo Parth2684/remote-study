@@ -1,7 +1,6 @@
 import redisClient from "./helpers/redis";
-import z from "zod";
-import { prisma } from "@repo/db";
 import { reEncode } from "./helpers/encoder";
+import express from "express"
 
 export interface Video {
   title: string;
@@ -21,7 +20,12 @@ export interface Video {
   path: string;
 }
 
+const app = express()
+app.use(express.static("videos"))
+app.listen(5000, () => console.log("Videos Hosted on port 5000"))
+
 async function main() {
+  
   while (true) {
     const popJob = await redisClient.BRPOP("upload-re-encode", 0); // 0 = wait forever
     console.log(popJob)
@@ -33,7 +37,6 @@ async function main() {
       await reEncode(video);
     } catch (err) {
       console.error("Job failed:", err);
-      // optional: push to dead-letter queue
     }
   }
 }

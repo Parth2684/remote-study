@@ -57,8 +57,18 @@ export default function ClassroomDetailPage() {
         setClassroom(classroomRes.data.classroom)
 
         // Get classroom videos
-        const videosRes = await axiosInstance.get(`/instructor/classroom/${classroomId}/videos`)
-        setVideos(videosRes.data.videos || [])
+        try {
+          const videosRes = await axiosInstance.get(`/instructor/classroom/${classroomId}/videos`)
+          console.log("Videos API response:", videosRes.data)
+          const videosData = videosRes.data
+          // Handle different response structures
+          const videosArray = Array.isArray(videosData) ? videosData : (videosData.videos || [])
+          console.log("Videos array:", videosArray)
+          setVideos(videosArray)
+        } catch (videoError) {
+          console.error("Failed to fetch videos:", videoError)
+          setVideos([]) // Set empty array on error
+        }
       } catch (error) {
         console.error(error)
         toast.error("Failed to fetch classroom data")
@@ -94,7 +104,7 @@ export default function ClassroomDetailPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Classroom not found</h1>
           <Button asChild>
-            <Link href="/instructor">
+            <Link href="/dashboard">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Link>
@@ -109,7 +119,7 @@ export default function ClassroomDetailPage() {
       {/* Header */}
       <div className="mb-8">
         <Button asChild variant="ghost" className="mb-4">
-          <Link href="/instructor">
+          <Link href="/dashboard">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Link>
@@ -184,7 +194,7 @@ export default function ClassroomDetailPage() {
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {videos.map((video) => (
+            {Array.isArray(videos) && videos.map((video) => (
               <Card key={video.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">

@@ -2,11 +2,12 @@ import { Request, RequestHandler, Response } from "express";
 import { upload } from "../../../middleware/upload";
 import { ffprobeVideo } from "../../../utils/getMediaInfo";
 import z from "zod";
-import { prisma, Video } from "@repo/db";
+import { prisma, Status, Video } from "@repo/db";
 import redisClient from "../../../utils/redis";
 import cloudinary from "../../../utils/cloudinary";
 import { convertImageToWebP } from "../../../utils/image";
 import { UploadApiResponse } from "cloudinary";
+import { unlink } from "fs/promises";
 
 const uploadVideoSchema = z.object({
   title: z.string(),
@@ -16,7 +17,7 @@ const uploadVideoSchema = z.object({
 
 export const uploadVideoHandler: RequestHandler[] = [
   upload.single("video"),
-  
+
   async (req: Request, res: Response) => {
     const classroomId = req.params.classroomId as string | undefined;
     if (!classroomId) {
@@ -25,8 +26,7 @@ export const uploadVideoHandler: RequestHandler[] = [
       });
       return;
     }
-    console.log("BODY:", req.body)
-    console.log("FILE:", req.file)
+
     try {
       const classroom = await prisma.classroom.findUnique({
         where: {
@@ -107,6 +107,7 @@ export const uploadVideoHandler: RequestHandler[] = [
           link: string;
           classroomId: string;
           isLive: boolean;
+          status: Status;
           mediaInfo: {
             width: number;
             height: number;
@@ -124,7 +125,8 @@ export const uploadVideoHandler: RequestHandler[] = [
           isLive: false,
           mediaInfo,
           description: null,
-          cover: null
+          cover: null,
+          status: Status.ENCODING
         };
         if (parsedBody.data.description) {
           videoData.description = parsedBody.data.description;
@@ -132,7 +134,7 @@ export const uploadVideoHandler: RequestHandler[] = [
         if (uploadResponse) {
           videoData.cover = uploadResponse.secure_url;
         }
-        const video = await prisma.video.create({
+        await prisma.video.create({
           data: videoData,
         });
         try {
@@ -141,14 +143,28 @@ export const uploadVideoHandler: RequestHandler[] = [
             path
           }
           await redisClient.LPUSH("upload-re-encode", JSON.stringify(toPushRedis));
+          try {
+            await unlink(path);
+          } catch (error) {
+            console.error("Error deleting file:", error);
+          }
         }
         catch (err) {
           console.error(err)
-          
+          await unlink(path).catch((error) => {
+            console.error("Error deleting file:", error);
+          });
+          res.status(500).json({
+            message: "error adding video to queue for encoding, please try again",
+          });
+          return;
         }
         
       } catch (e) {
         console.error(e);
+        await unlink(path).catch((error) => {
+          console.error("Error deleting file:", error);
+        });
         res.status(500).json({
           message: "error creating database entry for the video please try again",
         });
@@ -156,12 +172,15 @@ export const uploadVideoHandler: RequestHandler[] = [
       }
     } catch (e) {
       console.error(e);
+      await unlink(path).catch((error) => {
+        console.error("Error deleting file:", error);
+      });
       res.status(500).json({
         message: "error getting media information",
       });
       return;
     }
-
+    
     res.json({
       message: "successfully video added in queue for encoding",
     });

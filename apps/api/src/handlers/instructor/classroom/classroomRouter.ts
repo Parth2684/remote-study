@@ -9,6 +9,7 @@ import { endLive } from "./end-live";
 import { getAllSessions } from "../../student/get-all-sessions";
 import { getActiveSession } from "../../student/get-active-sessions";
 import { uploadRecordingHandler } from "./upload-recording";
+import { fetchVideos } from "./fetchVideos";
 
 const classroomRouter: Router = Router();
 
@@ -33,5 +34,6 @@ classroomRouter.get("/live/:classId/sessions", getAllSessions)
 classroomRouter.get("/live/:classId/active", getActiveSession)
 
 classroomRouter.post("/live/upload-recording", uploadRecordingHandler)
+classroomRouter.get("/:classroomId/videos", fetchVideos)
 
 export default classroomRouter;
