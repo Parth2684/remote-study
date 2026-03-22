@@ -337,7 +337,7 @@ export default function ClassPage() {
     return `${days}d ago`
   }
 
-  const handleCopyCode = async () => {
+  const handleCopy = async () => {
   try {
       await navigator.clipboard.writeText(classData!.code)
       setCopied(true)
@@ -556,11 +556,17 @@ export default function ClassPage() {
                   <BookOpen className="h-4 w-4" />
 
                   <span>Code: {classData.code}</span>
-                </div>
-                {/* WebSocket connection indicator */}
-                <div className="flex items-center gap-1">
-                  <div className={`h-2 w-2 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-                  <span className="text-xs">{wsConnected ? 'Live' : 'Offline'}</span>
+
+                  <button
+                    onClick={handleCopy}
+                    className="p-1 hover:bg-foreground/20 rounded transition"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>

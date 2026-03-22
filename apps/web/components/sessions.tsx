@@ -24,7 +24,7 @@ interface VideoType {
   title: string
   link: string
   isLive: boolean
-  createdAt: string
+  uploadedAt: string
 }
 
 export const Sessions = () => {
@@ -238,7 +238,14 @@ export const Sessions = () => {
                 </div>
 
                 <div className="text-sm text-gray-500">
-                  {new Date(video.createdAt).toLocaleString()}
+                  {new Date(video.uploadedAt).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
                 </div>
 
                 <div className="mt-2">
