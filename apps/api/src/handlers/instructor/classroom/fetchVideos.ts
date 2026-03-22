@@ -14,7 +14,7 @@ export const fetchVideos = async(req: Request, res: Response) => {
                 classroom: true
             },
             orderBy: {
-                : "desc"
+                uploadedAt: "desc"
             }   
         })
         console.log("Found videos:", videos)
