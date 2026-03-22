@@ -104,7 +104,10 @@ export const Sessions = () => {
 
       {/* Instructor Start Button */}
       {authUser?.role === "INSTRUCTOR" && (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-4">
+          <Button onClick={() => router.push(`/instructor/classroom/${classId}/upload-video`)}>
+            Upload Session
+          </Button>
           <Button onClick={() => setIsModalOpen(true)}>
             {starting ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
