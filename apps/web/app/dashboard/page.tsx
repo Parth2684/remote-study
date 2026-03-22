@@ -1,78 +1,83 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs"
-import { BookOpen, Users, Loader2, PenSquare } from "lucide-react"
-import { useAuthStore } from "../../stores/authStore/useAuthStore"
-import ClientAuthLoader from "../../components/client-auth-loader"
-import { axiosInstance } from "../../lib/axiosInstance"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs";
+import { BookOpen, Users, Loader2, PenSquare } from "lucide-react";
+import { useAuthStore } from "../../stores/authStore/useAuthStore";
+import ClientAuthLoader from "../../components/client-auth-loader";
+import { axiosInstance } from "../../lib/axiosInstance";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const { authUser } = useAuthStore()
-  const [classrooms, setClassrooms] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { authUser } = useAuthStore();
+  const [classrooms, setClassrooms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   // Fetch classrooms from API
   useEffect(() => {
     const fetchClassrooms = async () => {
       try {
-        setLoading(true)
-        setError(null) // Reset error state on new fetch
+        setLoading(true);
+        setError(null); // Reset error state on new fetch
 
-        const role = authUser?.role
-        const endpoint = role === "INSTRUCTOR" ? '/instructor/classroom/my-classrooms' : '/student/classroom'
-        const response = await axiosInstance.get(endpoint)
-        
-        const data = await response.data
-        
+        const role = authUser?.role;
+        const endpoint =
+          role === "INSTRUCTOR" ? "/instructor/classroom/my-classrooms" : "/student/classroom";
+        const response = await axiosInstance.get(endpoint);
+
+        const data = await response.data;
+
         if (response.status === 200) {
-          const classroomsData = Array.isArray(data.classrooms) ? data.classrooms : []
-          setClassrooms(classroomsData) // Assuming data is pre-sorted or order doesn't matter
+          const classroomsData = Array.isArray(data.classrooms) ? data.classrooms : [];
+          setClassrooms(classroomsData); // Assuming data is pre-sorted or order doesn't matter
         } else {
-          setError(data.message || 'Failed to fetch classrooms')
+          setError(data.message || "Failed to fetch classrooms");
         }
       } catch (err: any) {
-        console.error('Error fetching classrooms:', err)
+        console.error("Error fetching classrooms:", err);
         if (err.response) {
           if (err.response.status === 500) {
-            setError('An internal server error occurred. Please try again later.')
+            setError("An internal server error occurred. Please try again later.");
           } else if (err.response.status === 404) {
-            setClassrooms([])
+            setClassrooms([]);
           } else {
-            setError(err.response.data.message || `An error occurred: ${err.response.status}`)
+            setError(err.response.data.message || `An error occurred: ${err.response.status}`);
           }
         } else if (err.request) {
-          setError('Network error. Could not connect to the server.')
+          setError("Network error. Could not connect to the server.");
         } else {
-          setError('An unexpected error occurred.')
+          setError("An unexpected error occurred.");
         }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     if (authUser) {
-      fetchClassrooms()
+      fetchClassrooms();
     }
-  }, [authUser])
+  }, [authUser]);
 
   if (!authUser) {
-    return <ClientAuthLoader />
+    return <ClientAuthLoader />;
   }
 
   // Determine which classroom data to display. If the fetched data is empty (and not loading/error), use the JSON fallback.
   const classroomsToDisplay = classrooms;
-    
-  const uniqueInstructorsCount = new Set(classroomsToDisplay.map(c => c.instructorName)).size;
+
+  const uniqueInstructorsCount = new Set(classroomsToDisplay.map((c) => c.instructorName)).size;
 
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-neutral-50 dark:bg-neutral-950/70 min-h-[calc(100vh-4.05rem)]">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, {authUser.name}!</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Welcome back, {authUser.name}!
+          </h2>
           <p className="text-muted-foreground">
             {authUser.role === "INSTRUCTOR"
               ? "Manage your classrooms and create engaging content for your students."
@@ -99,7 +104,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold text-blue-600">
                     {loading ? "..." : classroomsToDisplay.length}
                   </div>
-                   <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {authUser.role === "INSTRUCTOR" ? "Ready to manage" : "Ready to explore"}
                   </p>
                 </CardContent>
@@ -113,13 +118,15 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-green-600">
-                      {loading ? "..." : classroomsToDisplay.reduce((sum, c) => sum + (c.studentsCount || 0), 0)}
+                      {loading
+                        ? "..."
+                        : classroomsToDisplay.reduce((sum, c) => sum + (c.studentsCount || 0), 0)}
                     </div>
                     <p className="text-xs text-muted-foreground">Across all your classes</p>
                   </CardContent>
                 </Card>
               ) : (
-                 <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Your Instructors</CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
@@ -140,7 +147,9 @@ export default function DashboardPage() {
                     <PenSquare className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-purple-600">{loading ? "..." : "8"}</div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {loading ? "..." : "8"}
+                    </div>
                     <p className="text-xs text-muted-foreground">Quizzes and assignments</p>
                   </CardContent>
                 </Card>
@@ -166,15 +175,18 @@ export default function DashboardPage() {
                   <Card
                     key={classroom.id}
                     className="flex flex-col justify-between hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-                    onClick={() => window.location.href = `/class/${classroom.id}`}
+                    onClick={() => {
+                      authUser.role == "INSTRUCTOR"
+                        ? router.push(`/instructor/classroom/${classroom.id}`)
+                        : router.push(`/class/${classroom.id}`);
+                    }}
                   >
                     <CardHeader>
                       <CardTitle className="text-lg">{classroom.name}</CardTitle>
                       <CardDescription>
-                        {authUser.role === "INSTRUCTOR" 
+                        {authUser.role === "INSTRUCTOR"
                           ? `${classroom.studentsCount || 0} students enrolled`
-                          : `Instructor: ${classroom.instructor.name || 'Unknown'}`
-                        }
+                          : `Instructor: ${classroom.instructor.name || "Unknown"}`}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -190,6 +202,5 @@ export default function DashboardPage() {
         </Tabs>
       </main>
     </div>
-  )
+  );
 }
-
