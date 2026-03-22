@@ -14,12 +14,10 @@ import { axiosInstance } from "@/lib/axiosInstance"
 
 function LiveRoomInner({
   authUser,
-  sessionId,
-  onLeave
+  sessionId
 }: {
   authUser: any
   sessionId: string | null
-  onLeave: () => void
 }) {
   const room = useRoomContext()
 
@@ -28,14 +26,13 @@ function LiveRoomInner({
   const [recording, setRecording] = useState(false)
   const [uploading, setUploading] = useState(false)
 
-  // ✅ Enable camera + mic properly
   useEffect(() => {
     if (!room) return
 
     const enableMedia = async () => {
       try {
-        await room.localParticipant.setCameraEnabled(true)
-        await room.localParticipant.setMicrophoneEnabled(true)
+        await room.localParticipant.setCameraEnabled(false)
+        await room.localParticipant.setMicrophoneEnabled(false)
       } catch (err) {
         console.error("Media error:", err)
       }
@@ -44,12 +41,10 @@ function LiveRoomInner({
     enableMedia()
   }, [room])
 
-  // 🎥 START RECORDING (screen + mic)
   const startRecording = async () => {
     try {
       if (!room) return
 
-      // screen video only
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: false
@@ -57,20 +52,13 @@ function LiveRoomInner({
 
       const tracks: MediaStreamTrack[] = []
 
-      // add screen
       screenStream.getVideoTracks().forEach((t) => tracks.push(t))
 
-      // add mic ONLY if enabled
       room.localParticipant.audioTrackPublications.forEach((pub) => {
         if (pub.track?.mediaStreamTrack) {
           tracks.push(pub.track.mediaStreamTrack)
         }
       })
-
-      if (tracks.length === 0) {
-        alert("Enable mic first")
-        return
-      }
 
       const stream = new MediaStream(tracks)
       const recorder = new MediaRecorder(stream)
@@ -99,8 +87,9 @@ function LiveRoomInner({
             { headers: { "Content-Type": "multipart/form-data" } }
           )
 
+          console.log("Recording uploaded")
         } catch (err) {
-          console.error(err)
+          console.error("Upload failed:", err)
         } finally {
           setUploading(false)
         }
@@ -109,7 +98,6 @@ function LiveRoomInner({
       recorder.start()
       mediaRecorderRef.current = recorder
       setRecording(true)
-
     } catch (err) {
       console.error("Recording error:", err)
     }
@@ -122,11 +110,8 @@ function LiveRoomInner({
 
   return (
     <div className="relative h-full">
-
-      {/* 🎥 Recording Controls */}
       {authUser?.role === "INSTRUCTOR" && (
         <div className="absolute top-4 right-4 z-50 flex gap-3">
-
           <button
             onClick={recording ? stopRecording : startRecording}
             className={`px-4 py-2 rounded text-white ${
@@ -161,35 +146,35 @@ export default function LiveRoomPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!roomName || !authUser) return
+    if (!roomName) return
 
     const init = async () => {
       try {
-        let finalToken = tokenFromQuery
-
-        if (!finalToken) {
-          const roleRoute =
-            authUser.role === "INSTRUCTOR" ? "instructor" : "student"
-
-          const res = await axiosInstance.post(
-            `/${roleRoute}/classroom/live/join`,
-            { sessionId }
-          )
-
-          finalToken = res.data.token
+        if (tokenFromQuery) {
+          setToken(tokenFromQuery)
+          setLoading(false)
+          return
         }
 
-        setToken(finalToken!)
-        setLoading(false)
+        if (!authUser) return
 
+        const roleRoute =
+          authUser.role === "INSTRUCTOR" ? "instructor" : "student"
+
+        const res = await axiosInstance.post(
+          `/${roleRoute}/classroom/live/join`,
+          { sessionId }
+        )
+
+        setToken(res.data.token)
+        setLoading(false)
       } catch (err) {
-        console.error(err)
-        router.back()
+        console.error("Failed to get token:", err)
       }
     }
 
     init()
-  }, [roomName, authUser, tokenFromQuery])
+  }, [roomName, authUser, tokenFromQuery, sessionId])
 
   const handleDisconnected = async () => {
     try {
@@ -199,8 +184,9 @@ export default function LiveRoomPage() {
         )
       }
     } catch (err) {
-      console.error(err)
+      console.error("Error ending session:", err)
     } finally {
+      // router.replace(`/class/${classId}`)
       router.back()
     }
   }
@@ -224,7 +210,6 @@ export default function LiveRoomPage() {
         <LiveRoomInner
           authUser={authUser}
           sessionId={sessionId}
-          onLeave={handleDisconnected}
         />
       </LiveKitRoom>
     </div>

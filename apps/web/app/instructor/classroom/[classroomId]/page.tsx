@@ -62,7 +62,6 @@ export default function ClassroomDetailPage() {
       } catch (error) {
         console.error(error)
         toast.error("Failed to fetch classroom data")
-        router.push("/instructor")
       } finally {
         setLoading(false)
       }

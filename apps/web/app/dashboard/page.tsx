@@ -177,7 +177,7 @@ export default function DashboardPage() {
                     className="flex flex-col justify-between hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
                     onClick={() => {
                       authUser.role == "INSTRUCTOR"
-                        ? router.push(`/instructor/classroom/${classroom.id}`)
+                        ? router.push(`/class/${classroom.id}`)
                         : router.push(`/class/${classroom.id}`);
                     }}
                   >

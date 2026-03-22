@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/card"
 import { Button } from "@/components/button"
 import { Badge } from "@/components/badge"
-import { Loader2, Video, Clock } from "lucide-react"
+import { Loader2, Video, Clock, Plus } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { axiosInstance } from "@/lib/axiosInstance"
 import { StartLiveModal } from "@/components/start-live-modal"
@@ -106,7 +106,7 @@ export const Sessions = () => {
       {authUser?.role === "INSTRUCTOR" && (
         <div className="flex justify-end gap-4">
           <Button onClick={() => router.push(`/instructor/classroom/${classId}/upload-video`)}>
-            Upload Session
+           <Plus /> Upload Session
           </Button>
           <Button onClick={() => setIsModalOpen(true)}>
             {starting ? (

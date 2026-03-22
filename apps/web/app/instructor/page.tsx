@@ -99,7 +99,7 @@ export default function InstructorPage() {
                   </Button>
                 </div>
                 <Button asChild size="sm" className="w-full">
-                  <Link href={`/instructor/classroom/${classroom.id}`}>
+                  <Link href={`/class/${classroom.id}`}>
                     View Classroom
                   </Link>
                 </Button>
