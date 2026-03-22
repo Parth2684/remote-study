@@ -9,6 +9,7 @@ import studentRouter from "./routes/studentRoutes";
 import { checkAuth } from "./handlers/check-auth";
 import classroomRoutes from "./routes/classroomRoutes";
 import { createWebSocketServer } from "./websocket";
+import path from "path";
 
 const PORT = process.env.PORT || 4000;
 const app = express();
@@ -25,6 +26,11 @@ app.use(
     optionsSuccessStatus: 200,
   }),
 );
+
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"))
+)
 
 app.use(cookieParser());
 
