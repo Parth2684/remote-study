@@ -200,7 +200,7 @@ export default function LiveRoomPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-5rem)] bg-black">
+    <div className="h-screen bg-white">
       <LiveKitRoom
         token={token}
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL!}
