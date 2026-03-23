@@ -50,7 +50,6 @@ export const Sessions = () => {
   const initialRoute =
     authUser?.role === "INSTRUCTOR" ? "instructor" : "student"
 
-  // ================= FETCH DATA =================
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -226,7 +225,7 @@ export const Sessions = () => {
             {filteredVideos.map((video) => (
               <div
                 key={video.id}
-                onClick={() => setSelectedVideo(video)}
+                onClick={() => router.push(`/video/${video.id}`)}
                 className="border rounded-lg p-3 cursor-pointer hover:shadow"
               >
                 <div className="h-40 bg-gray-300 rounded mb-2 flex items-center justify-center">
