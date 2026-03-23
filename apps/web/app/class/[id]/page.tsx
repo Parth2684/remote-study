@@ -654,100 +654,64 @@ export default function ClassPage() {
 
           <TabsContent value="discussions" className="mt-6">
             <div className="space-y-6">
-              <Card className="h-150 flex flex-col">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2">
+              <Card className="flex flex-col h-150">
+                <CardHeader className="pb-4 border-b bg-muted/30 dark:bg-muted/10">
+                  <CardTitle className="text-lg flex items-center gap-2">
                     <MessageCircle className="h-5 w-5" />
                     Class Discussions
                   </CardTitle>
-                  <CardDescription>Join the conversation with your classmates</CardDescription>
+                  <CardDescription className="text-xs">
+                    Engage with classmates and instructors
+                  </CardDescription>
                 </CardHeader>
                 
                 {/* Messages Area */}
-                <CardContent className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                <CardContent className="flex-1 overflow-y-auto px-0 py-2">
                   {messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-center text-muted-foreground">
+                    <div className="flex items-center justify-center h-full text-center text-muted-foreground px-6">
                       <div>
-                        <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p className="font-medium">No messages yet</p>
-                        <p className="text-sm">Be the first to start a discussion!</p>
+                        <MessageCircle className="h-10 w-10 mx-auto mb-2 opacity-40" />
+                        <p className="font-medium text-sm">No messages yet</p>
+                        <p className="text-xs mt-1">Start a conversation to get things moving!</p>
                       </div>
                     </div>
                   ) : (
                     <>
-                      {messages.map((message) => (
-                        <div 
-                          key={message.id} 
-                          className={`border rounded-lg p-4 transition-colors ${
-                            message.userId === authUser.id 
-                              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' 
-                              : 'hover:bg-muted/50 dark:hover:bg-muted/20'
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
+                      {messages.map((message) => {
+                        const userInitials = message.userName
+                          .split(' ')
+                          .map(n => n[0])
+                          .join('')
+                          .toUpperCase()
+                          .slice(0, 2)
+                        
+                        return (
+                          <div 
+                            key={message.id} 
+                            className="group flex gap-3 py-2 px-4 rounded-lg hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors"
+                          >
                             {/* User Avatar */}
-                            <div className={`p-2 rounded-full shrink-0 ${
+                            <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white ${
                               message.role === 'INSTRUCTOR' 
-                                ? 'bg-purple-100 dark:bg-purple-900/40' 
-                                : 'bg-blue-100 dark:bg-blue-900/40'
+                                ? 'bg-gradient-to-br from-purple-500 to-purple-600' 
+                                : 'bg-gradient-to-br from-blue-500 to-blue-600'
                             }`}>
-                              <MessageCircle className={`h-4 w-4 ${
-                                message.role === 'INSTRUCTOR' 
-                                  ? 'text-purple-600 dark:text-purple-400' 
-                                  : 'text-blue-600 dark:text-blue-400'
-                              }`} />
+                              {userInitials}
                             </div>
+
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2 mb-1">
-                                <div className="flex items-center gap-2">
-                                  <h3 className="font-medium truncate">{message.userName}</h3>
-                                  {message.role === 'INSTRUCTOR' && (
-                                    <Badge variant="secondary" className="text-xs">Instructor</Badge>
-                                  )}
-                                  {message.isEdited && (
-                                    <span className="text-xs text-muted-foreground">(edited)</span>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                    {formatTimestamp(message.timestamp)}
-                                  </span>
-                                  {/* Edit and Delete buttons - only show for own messages */}
-                                  {message.userId === authUser.id && !message.documentUrl && (
-                                    <div className="flex gap-1">
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-6 w-6 p-0"
-                                        onClick={() => handleEditMessage(message.id, message.content)}
-                                      >
-                                        <Edit2 className="h-3 w-3" />
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-6 w-6 p-0 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40"
-                                        onClick={() => handleDeleteMessage(message.id)}
-                                      >
-                                        <Trash2 className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  )}
-                                  {/* Delete button for documents or instructor deleting any message */}
-                                  {(message.userId === authUser.id && message.documentUrl) || (authUser.role === 'INSTRUCTOR' && message.userId !== authUser.id) ? (
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-6 w-6 p-0 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40"
-                                      onClick={() => handleDeleteMessage(message.id)}
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  ) : null}
-                                </div>
+                              {/* Header with name, role badge, and timestamp */}
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <h3 className="font-medium text-sm text-foreground">{message.userName}</h3>
+                                {message.role === 'INSTRUCTOR' && (
+                                  <Badge variant="secondary" className="text-xs px-1.5 py-0">Instructor</Badge>
+                                )}
+                                <span className="text-xs text-muted-foreground ml-auto group-hover:inline hidden">
+                                  {formatTimestamp(message.timestamp)}
+                                </span>
                               </div>
                               
-                              {/* Editing mode */}
+                              {/* Message content - editing mode */}
                               {editingMessageId === message.id ? (
                                 <div className="space-y-2">
                                   <Input
@@ -784,17 +748,24 @@ export default function ClassPage() {
                                   </div>
                                 </div>
                               ) : (
-                                <p className="text-sm text-foreground break-word">
-                                  {message.content}
-                                </p>
+                                <>
+                                  <p className="text-sm text-foreground break-word leading-relaxed">
+                                    {message.content}
+                                  </p>
+                                  {message.isEdited && (
+                                    <span className="text-xs text-muted-foreground">(edited)</span>
+                                  )}
+                                </>
                               )}
                               
                               {/* Document Attachment */}
                               {message.documentUrl && (
-                                <div className="mt-2 p-3 bg-muted/50 dark:bg-muted/20 border dark:border-muted rounded-lg flex items-center gap-3">
-                                  {getFileIcon(message.documentType)}
+                                <div className="mt-2 p-2.5 bg-muted/40 dark:bg-muted/30 border border-muted rounded-md flex items-center gap-2.5">
+                                  <div className="shrink-0">
+                                    {getFileIcon(message.documentType)}
+                                  </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">{message.documentName}</p>
+                                    <p className="text-sm font-medium text-foreground truncate">{message.documentName}</p>
                                     <p className="text-xs text-muted-foreground">
                                       {message.documentSize && formatFileSize(message.documentSize)}
                                     </p>
@@ -804,36 +775,75 @@ export default function ClassPage() {
                                     download={message.documentName}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    className="shrink-0"
                                   >
-                                    <Button size="sm" variant="outline" className="gap-1">
+                                    <Button size="sm" variant="outline" className="gap-1 h-8">
                                       <Download className="h-3 w-3" />
-                                      Download
+                                      <span className="hidden sm:inline">Download</span>
                                     </Button>
                                   </a>
                                 </div>
                               )}
                             </div>
+
+                            {/* Action buttons - shown on hover */}
+                            <div className="shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {message.userId === authUser.id && !message.documentUrl && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 w-7 p-0"
+                                    onClick={() => handleEditMessage(message.id, message.content)}
+                                    title="Edit message"
+                                  >
+                                    <Edit2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => handleDeleteMessage(message.id)}
+                                    title="Delete message"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </>
+                              )}
+                              {(message.userId === authUser.id && message.documentUrl) || (authUser.role === 'INSTRUCTOR' && message.userId !== authUser.id) ? (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  onClick={() => handleDeleteMessage(message.id)}
+                                  title="Delete message"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              ) : null}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                       <div ref={messagesEndRef} />
                     </>
                   )}
                 </CardContent>
 
                 {/* Message Input Area */}
-                <div className="border-t p-4">
+                <div className="border-t bg-muted/20 dark:bg-muted/10 p-4 space-y-3">
                   {/* Selected File Preview */}
                   {selectedFile && (
-                    <div className="mb-3 p-2 bg-muted/50 dark:bg-muted/20 border dark:border-muted rounded-lg flex items-center gap-2">
+                    <div className="p-2.5 bg-muted/50 dark:bg-muted/30 border border-muted rounded-lg flex items-center gap-2.5">
                       {getFileIcon(selectedFile.type)}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{selectedFile.name}</p>
+                        <p className="text-sm font-medium text-foreground truncate">{selectedFile.name}</p>
                         <p className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
                       </div>
                       <Button
                         size="sm"
                         variant="ghost"
+                        className="shrink-0 h-7 w-7 p-0"
                         onClick={() => {
                           setSelectedFile(null)
                           if (fileInputRef.current) {
@@ -846,17 +856,20 @@ export default function ClassPage() {
                     </div>
                   )}
                   
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center justify-between mb-2">
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={handleViewDocuments}
-                      className="gap-1"
+                      className="gap-1 text-xs h-8"
                     >
-                      <FileText className="h-4 w-4" />
-                      View Documents
+                      <FileText className="h-3.5 w-3.5" />
+                      Documents
                     </Button>
+                    {!wsConnected && (
+                      <span className="text-xs text-amber-600 dark:text-amber-400">Offline mode</span>
+                    )}
                   </div>
 
                   <form onSubmit={handleSendMessage} className="flex gap-2">
@@ -869,10 +882,12 @@ export default function ClassPage() {
                     />
                     <Button
                       type="button"
-                      size="icon"
+                      size="sm"
                       variant="outline"
+                      className="h-9 w-9 p-0 shrink-0"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isSending || isUploading}
+                      title="Attach file"
                     >
                       <Paperclip className="h-4 w-4" />
                     </Button>
@@ -882,7 +897,7 @@ export default function ClassPage() {
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       disabled={isSending || isUploading}
-                      className="flex-1"
+                      className="flex-1 h-9 text-sm"
                       maxLength={2000}
                     />
                     {selectedFile ? (
@@ -890,31 +905,34 @@ export default function ClassPage() {
                         type="button"
                         onClick={handleDocumentUpload}
                         disabled={isUploading}
-                        size="icon"
+                        size="sm"
+                        className="h-9 px-3 gap-1"
                       >
                         {isUploading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
-                          <Send className="h-4 w-4" />
+                          <Send className="h-3.5 w-3.5" />
                         )}
+                        <span className="hidden sm:inline">Send</span>
                       </Button>
                     ) : (
                       <Button 
                         type="submit" 
                         disabled={!newMessage.trim() || isSending}
-                        size="icon"
+                        size="sm"
+                        className="h-9 px-3 gap-1"
                       >
                         {isSending ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
-                          <Send className="h-4 w-4" />
+                          <Send className="h-3.5 w-3.5" />
                         )}
+                        <span className="hidden sm:inline">Send</span>
                       </Button>
                     )}
                   </form>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {newMessage.length}/2000 characters
-                    {!wsConnected && <span className="text-amber-600 dark:text-amber-400 ml-2">• Offline mode - messages will sync when reconnected</span>}
+                  <p className="text-xs text-muted-foreground px-1">
+                    {newMessage.length}/2000
                   </p>
                 </div>
               </Card>
