@@ -29,4 +29,19 @@ export const useInstructorStore = create<InstructorState & InstructorAction>((se
       toast.error("Error creating classroom");
     }
   },
+  uploadVideo: async (classroomId: string, formData: FormData) => {
+    try {
+      await axiosInstance.post(`/instructor/classroom/upload-video/${classroomId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+      toast.success("Video uploaded successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error uploading video");
+    }
+  },
 }));

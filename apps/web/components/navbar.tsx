@@ -18,7 +18,7 @@ export default function Navbar() {
   const { authUser, signout, isSigningOut, isCheckingAuth } = useAuthStore()
 
   const hideNavbarRoutes = ['/signin', '/signup', '/forgot-password', '/set-password']
-  const shouldHideNavbar = hideNavbarRoutes.includes(pathname)
+  const shouldHideNavbar = hideNavbarRoutes.includes(pathname) || pathname.startsWith("/live")
 
   useEffect(() => {
     // Check if we're on the client side

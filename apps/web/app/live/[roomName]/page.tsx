@@ -1,12 +1,136 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useParams, useSearchParams, useRouter } from "next/navigation"
-import { LiveKitRoom, VideoConference } from "@livekit/components-react"
+import {
+  LiveKitRoom,
+  VideoConference,
+  useRoomContext
+} from "@livekit/components-react"
 import "@livekit/components-styles"
 import { Loader2 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { axiosInstance } from "@/lib/axiosInstance"
+
+function LiveRoomInner({
+  authUser,
+  sessionId
+}: {
+  authUser: any
+  sessionId: string | null
+}) {
+  const room = useRoomContext()
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const chunksRef = useRef<Blob[]>([])
+  const [recording, setRecording] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
+  useEffect(() => {
+    if (!room) return
+
+    const enableMedia = async () => {
+      try {
+        await room.localParticipant.setCameraEnabled(false)
+        await room.localParticipant.setMicrophoneEnabled(false)
+      } catch (err) {
+        console.error("Media error:", err)
+      }
+    }
+
+    enableMedia()
+  }, [room])
+
+  const startRecording = async () => {
+    try {
+      if (!room) return
+
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: false
+      })
+
+      const tracks: MediaStreamTrack[] = []
+
+      screenStream.getVideoTracks().forEach((t) => tracks.push(t))
+
+      room.localParticipant.audioTrackPublications.forEach((pub) => {
+        if (pub.track?.mediaStreamTrack) {
+          tracks.push(pub.track.mediaStreamTrack)
+        }
+      })
+
+      const stream = new MediaStream(tracks)
+      const recorder = new MediaRecorder(stream)
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data)
+      }
+
+      recorder.onstop = async () => {
+        try {
+          setUploading(true)
+
+          const blob = new Blob(chunksRef.current, {
+            type: "video/webm"
+          })
+
+          chunksRef.current = []
+
+          const formData = new FormData()
+          formData.append("video", blob, "recording.webm")
+          formData.append("sessionId", sessionId || "")
+
+          await axiosInstance.post(
+            "/instructor/classroom/live/upload-recording",
+            formData,
+            { headers: { "Content-Type": "multipart/form-data" } }
+          )
+
+          console.log("Recording uploaded")
+        } catch (err) {
+          console.error("Upload failed:", err)
+        } finally {
+          setUploading(false)
+        }
+      }
+
+      recorder.start()
+      mediaRecorderRef.current = recorder
+      setRecording(true)
+    } catch (err) {
+      console.error("Recording error:", err)
+    }
+  }
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop()
+    setRecording(false)
+  }
+
+  return (
+    <div className="relative h-full">
+      {authUser?.role === "INSTRUCTOR" && (
+        <div className="absolute top-4 right-4 z-50 flex gap-3">
+          <button
+            onClick={recording ? stopRecording : startRecording}
+            className={`px-4 py-2 rounded text-white ${
+              recording ? "bg-red-600" : "bg-green-600"
+            }`}
+          >
+            {recording ? "Stop Recording" : "Start Recording"}
+          </button>
+
+          {uploading && (
+            <span className="text-white text-sm">Uploading...</span>
+          )}
+        </div>
+      )}
+
+      <VideoConference />
+    </div>
+  )
+}
 
 export default function LiveRoomPage() {
   const { authUser } = useAuthStore()
@@ -22,53 +146,47 @@ export default function LiveRoomPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!roomName || !authUser) return
+    if (!roomName) return
 
     const init = async () => {
       try {
-        let finalToken = tokenFromQuery
-
-        // If no token in query → fetch (student case)
-        if (!finalToken) {
-          const roleRoute =
-            authUser.role === "INSTRUCTOR" ? "instructor" : "student"
-
-          const res = await axiosInstance.post(
-            `/${roleRoute}/classroom/live/join`,
-            { sessionId }
-          )
-
-          finalToken = res.data.token
+        if (tokenFromQuery) {
+          setToken(tokenFromQuery)
+          setLoading(false)
+          return
         }
 
-        setToken(finalToken!)
-        setLoading(false)
+        if (!authUser) return
 
+        const roleRoute =
+          authUser.role === "INSTRUCTOR" ? "instructor" : "student"
+
+        const res = await axiosInstance.post(
+          `/${roleRoute}/classroom/live/join`,
+          { sessionId }
+        )
+
+        setToken(res.data.token)
+        setLoading(false)
       } catch (err) {
         console.error("Failed to get token:", err)
-        router.back()
       }
     }
 
     init()
-  }, [roomName, authUser])
+  }, [roomName, authUser, tokenFromQuery, sessionId])
 
   const handleDisconnected = async () => {
-    console.log("Disconnecting...")
-    console.log("auth user: ", authUser)
-    console.log("session id: ", sessionId)
     try {
       if (authUser?.role === "INSTRUCTOR" && sessionId) {
-        console.log("Ending live session")
-        const res = await axiosInstance.put(
+        await axiosInstance.put(
           `/instructor/classroom/live/end/${sessionId}`
         )
-
-        console.log("res: ", res)
       }
     } catch (err) {
       console.error("Error ending session:", err)
     } finally {
+      // router.replace(`/class/${classId}`)
       router.back()
     }
   }
@@ -82,16 +200,17 @@ export default function LiveRoomPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-5rem)]">
+    <div className="h-screen bg-white">
       <LiveKitRoom
-        video={false}
-        audio={false}
         token={token}
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL!}
         data-lk-theme="default"
         onDisconnected={handleDisconnected}
       >
-        <VideoConference />
+        <LiveRoomInner
+          authUser={authUser}
+          sessionId={sessionId}
+        />
       </LiveKitRoom>
     </div>
   )

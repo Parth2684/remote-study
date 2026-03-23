@@ -156,7 +156,7 @@ model QuizAnswer {
 
 model Video {
   id           String    @id @default(uuid())
-  name         String
+  name         String    @unique
   title        String
   description  String?
   cover        String?
@@ -171,6 +171,7 @@ model Video {
   fhdSize      Float?
   hdSize       Float?
   sdSize       Float?
+  uploadedAt   DateTime   @default(now())
 }
 
 enum Status {

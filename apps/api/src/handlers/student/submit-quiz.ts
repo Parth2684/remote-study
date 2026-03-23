@@ -35,7 +35,7 @@ export const submitQuiz = async (req: Request, res: Response) => {
     const studentExistsInClass = await prisma.studentClassroom.findFirst({
       where: {
         studentId: student.id,
-        classroomId,
+        classroomId: classroomId as string,
       },
     });
 

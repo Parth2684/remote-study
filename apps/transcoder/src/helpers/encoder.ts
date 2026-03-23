@@ -1,7 +1,7 @@
-import path from 'path';
-import fs from "fs"
+import path from "path";
+import fs from "fs";
 import type { Video } from "../index";
-import { spawn } from 'child_process';
+import { spawn } from "child_process";
 
 type Rendition = {
   name: string;
@@ -12,8 +12,8 @@ type Rendition = {
 };
 
 const LADDER: Rendition[] = [
-  { name: "576", width: 1024, height: 576, crf: 30, audioBitrate: 48 },
-  { name: "720", width: 1280, height: 720, crf: 30, audioBitrate: 64 },
+  { name: "576", width: 1024, height: 576, crf: 34, audioBitrate: 48 },
+  { name: "720", width: 1280, height: 720, crf: 32, audioBitrate: 64 },
   { name: "1080", width: 1920, height: 1080, crf: 30, audioBitrate: 80 },
 ];
 
@@ -36,28 +36,43 @@ export async function reEncode(job: Video) {
 
   const hasAudio = job.mediaInfo.hasAudio;
 
-  
   if (!renditions.length) {
-    renditions = [{
-      name: "source",
-      width: job.mediaInfo.width,
-      height: job.mediaInfo.height,
-      crf: 30,
-      audioBitrate: 64,
-    }];
+    renditions = [
+      {
+        name: "source",
+        width: job.mediaInfo.width,
+        height: job.mediaInfo.height,
+        crf: 30,
+        audioBitrate: 64,
+      },
+    ];
   }
 
   // ---------- Build filter_complex ----------
   const splitLabels = renditions.map((_, i) => `[v${i}]`).join("");
-  let filter = `[0:v]fps=${fps},split=${renditions.length}${splitLabels};`;
+  let filter = `[0:v]split=${renditions.length}${splitLabels};`;
 
   renditions.forEach((r, i) => {
-    filter += `[v${i}]scale=w=${r.width}:h=-2:force_original_aspect_ratio=decrease[v${i}out];`;
+    filter += `[v${i}]scale=w=${r.width}:h=-${r.height}:force_original_aspect_ratio=decrease[v${i}out];`;
   });
 
   // ---------- FFmpeg args ----------
-  const args: string[] = ["-y", "-i", `../uploads/${job.name}`, "-filter_complex", filter];
+  const args: string[] = [
+    "-y",
+    "-fflags",
+    "+genpts",
+    "-i",
+    `../uploads/${job.name}`,
+    "-filter_complex",
+    filter,
+  ];
 
+  args.push("-r", String(fps), "-vsync", "cfr");
+
+  args.push("-g", String(fps * 4), "-keyint_min", String(fps * 4));
+
+  args.push("-af", "aresample=async=1000:first_pts=0");
+  args.push("-max_muxing_queue_size", "1024");
   // map video
   renditions.forEach((_, i) => {
     args.push("-map", `[v${i}out]`);
@@ -77,13 +92,15 @@ export async function reEncode(job: Video) {
     "-deadline",
     "good",
     "-cpu-used",
-    "2",
+    "4",
     "-row-mt",
     "1",
     "-tile-columns",
     "2",
     "-frame-parallel",
     "1",
+    "-threads",
+    "0",
   );
 
   renditions.forEach((r, i) => {
@@ -102,7 +119,7 @@ export async function reEncode(job: Video) {
     "-application",
     "voip",
     "-ac",
-    "1",
+    "2",
   );
 
   renditions.forEach((r, i) => {
@@ -110,12 +127,10 @@ export async function reEncode(job: Video) {
   });
 
   // ---------- HLS ----------
-  // 
+  //
   // ---------- Variant stream map (CRITICAL) ----------
-  const varStreamMap = renditions
-    .map((_, i) => `v:${i},a:${i}`)
-    .join(" ");
-  
+  const varStreamMap = renditions.map((_, i) => `v:${i},a:${i}`).join(" ");
+
   args.push(
     "-f",
     "hls",
@@ -127,14 +142,14 @@ export async function reEncode(job: Video) {
     "independent_segments",
     "-hls_segment_type",
     "fmp4",
-  
+
     "-hls_segment_filename",
     path.join(jobOutDir, "v%v", "seg_%03d.m4s"),
   );
-  
+
   // 👇 THIS MUST COME BEFORE master playlist
   args.push("-var_stream_map", varStreamMap);
-  
+
   // master + variant playlists
   args.push(
     "-master_pl_name",

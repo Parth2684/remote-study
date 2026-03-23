@@ -30,7 +30,7 @@ export default function SignInPage() {
   useEffect(() => {
 
     if (authUser) {
-      redirect("/dashboard")
+      redirect("/dashboard") 
     }
   }, [authUser])
 

@@ -160,8 +160,18 @@ export default function ClassPage() {
     if (!classId || !authUser) return
 
     const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080'
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
     
-    const ws = new WebSocket(`${WS_URL}/classroom/${classId}`)
+    if (!token) {
+      console.error('No authentication token found')
+      return
+    }
+    
+    // Include token in WebSocket URL as query parameter
+    const wsUrl = `${WS_URL}/classroom/${classId}?token=${encodeURIComponent(token)}`
+    console.log('Connecting to WebSocket:', wsUrl.replace(/token=[^&]+/, 'token=***'))
+    
+    const ws = new WebSocket(wsUrl)
     
     ws.onopen = () => {
       setWsConnected(true)

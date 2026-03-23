@@ -31,8 +31,13 @@ export class ChatServer {
   private handleConnection(ws: AuthenticatedWebSocket, req: IncomingMessage): void {
     const userInfo: UserInfo = (req as any).userInfo;
 
-    
-    
+    // Check if userInfo exists
+    if (!userInfo) {
+      console.log('❌ Connection rejected: No user info found');
+      ws.close(1008, 'Authentication failed');
+      return;
+    }
+
     // Initialize WebSocket properties
     ws.userId = userInfo.userId;
     ws.userType = userInfo.userType;
