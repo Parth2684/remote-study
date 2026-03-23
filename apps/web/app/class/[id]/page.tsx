@@ -167,103 +167,153 @@ export default function ClassPage() {
       return
     }
     
-    // Include token in WebSocket URL as query parameter
-    const wsUrl = `${WS_URL}/classroom/${classId}?token=${encodeURIComponent(token)}`
-    console.log('Connecting to WebSocket:', wsUrl.replace(/token=[^&]+/, 'token=***'))
+    let reconnectAttempts = 0
+    const maxReconnectAttempts = 5
+    let reconnectTimeout: NodeJS.Timeout | null = null
     
-    const ws = new WebSocket(wsUrl)
-    
-    ws.onopen = () => {
-      setWsConnected(true)
-    }
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        
-        switch (data.type) {
-          case 'auth_success':
-            console.log('Authenticated as:', data.userName, data.role)
-            break
-            
-          case 'new_message':
-            setMessages((prev) => [...prev, {
-              id: data.id,
-              userId: data.userId,
-              userName: data.userName,
-              userProfilePic: data.userProfilePic,
-              content: data.content,
-              timestamp: new Date(data.createdAt),
-              isEdited: data.isEdited,
-              role: data.role,
-              documentUrl: data.documentUrl,
-              documentName: data.documentName,
-              documentType: data.documentType,
-              documentSize: data.documentSize
-            }])
-            break
-            
-          case 'message_history':
-            if (data.messages && data.messages.length > 0) {
-              setMessages(data.messages.map((msg: any) => ({
-                id: msg.id,
-                userId: msg.userId,
-                userName: msg.userName,
-                userProfilePic: msg.userProfilePic,
-                content: msg.content,
-                timestamp: new Date(msg.createdAt),
-                isEdited: msg.isEdited,
-                role: msg.role,
-                documentUrl: msg.documentUrl,
-                documentName: msg.documentName,
-                documentType: msg.documentType,
-                documentSize: msg.documentSize
-              })))
-            }
-            break
-            
-          case 'delete_message':
-            setMessages((prev) => prev.filter(msg => msg.id !== data.messageId))
-            break
-            
-          case 'edit_message':
-            setMessages((prev) => prev.map(msg => 
-              msg.id === data.id 
-                ? { ...msg, content: data.content, isEdited: true }
-                : msg
-            ))
-            break
-            
-          case 'error':
-            console.error('WebSocket error:', data.message)
-            break
-            
-          default:
-            console.log('Unknown message type:', data.type)
-        }
-      } catch (err) {
-        console.error('Error parsing WebSocket message:', err)
-      }
-    }
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error)
-      setWsConnected(false)
-    }
-
-    ws.onclose = () => {
-      setWsConnected(false)
+    const connectWebSocket = () => {
+      // Include token in WebSocket URL as query parameter
+      const wsUrl = `${WS_URL}/classroom/${classId}?token=${encodeURIComponent(token)}`
+      console.log('Connecting to WebSocket:', wsUrl.replace(/token=[^&]+/, 'token=***'))
       
-      // Optional: Implement reconnection logic
-      // setTimeout(() => {
-      //   console.log('Attempting to reconnect...')
-      //   // Reconnect logic here
-      // }, 3000)
-    }
+      const ws = new WebSocket(wsUrl)
+      
+      ws.onopen = () => {
+        console.log('WebSocket connected successfully')
+        setWsConnected(true)
+        reconnectAttempts = 0 // Reset attempts on successful connection
+      }
 
-    wsRef.current = ws
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          
+          switch (data.type) {
+            case 'auth_success':
+              console.log('Authenticated as:', data.userName, data.role)
+              break
+              
+            case 'new_message':
+              setMessages((prev) => {
+                // Check if message already exists (optimistic message case)
+                const existingIndex = prev.findIndex(msg => 
+                  msg.id === data.id || 
+                  (msg.userId === data.userId && msg.content === data.content && msg.id.startsWith('temp-'))
+                )
+                
+                if (existingIndex !== -1) {
+                  // Replace optimistic message with the real one
+                  const updated = [...prev]
+                  updated[existingIndex] = {
+                    id: data.id,
+                    userId: data.userId,
+                    userName: data.userName,
+                    userProfilePic: data.userProfilePic,
+                    content: data.content,
+                    timestamp: new Date(data.createdAt),
+                    isEdited: data.isEdited,
+                    role: data.role,
+                    documentUrl: data.documentUrl,
+                    documentName: data.documentName,
+                    documentType: data.documentType,
+                    documentSize: data.documentSize
+                  }
+                  return updated
+                } else {
+                  // New message from another user
+                  return [...prev, {
+                    id: data.id,
+                    userId: data.userId,
+                    userName: data.userName,
+                    userProfilePic: data.userProfilePic,
+                    content: data.content,
+                    timestamp: new Date(data.createdAt),
+                    isEdited: data.isEdited,
+                    role: data.role,
+                    documentUrl: data.documentUrl,
+                    documentName: data.documentName,
+                    documentType: data.documentType,
+                    documentSize: data.documentSize
+                  }]
+                }
+              })
+              break
+              
+            case 'message_history':
+              if (data.messages && data.messages.length > 0) {
+                setMessages(data.messages.map((msg: any) => ({
+                  id: msg.id,
+                  userId: msg.userId,
+                  userName: msg.userName,
+                  userProfilePic: msg.userProfilePic,
+                  content: msg.content,
+                  timestamp: new Date(msg.createdAt),
+                  isEdited: msg.isEdited,
+                  role: msg.role,
+                  documentUrl: msg.documentUrl,
+                  documentName: msg.documentName,
+                  documentType: msg.documentType,
+                  documentSize: msg.documentSize
+                })))
+              }
+              break
+              
+            case 'delete_message':
+              setMessages((prev) => prev.filter(msg => msg.id !== data.messageId))
+              break
+              
+            case 'edit_message':
+              setMessages((prev) => prev.map(msg => 
+                msg.id === data.id 
+                  ? { ...msg, content: data.content, isEdited: true }
+                  : msg
+              ))
+              break
+              
+            case 'error':
+              console.error('WebSocket error:', data.message)
+              break
+              
+            default:
+              console.log('Unknown message type:', data.type)
+          }
+        } catch (err) {
+          console.error('Error parsing WebSocket message:', err)
+        }
+      }
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error)
+        setWsConnected(false)
+      }
+
+      ws.onclose = () => {
+        console.log('WebSocket disconnected')
+        setWsConnected(false)
+        
+        // Implement reconnection logic with exponential backoff
+        if (reconnectAttempts < maxReconnectAttempts) {
+          reconnectAttempts++
+          const backoffDelay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 30000) // Max 30 second wait
+          console.log(`Reconnecting in ${backoffDelay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})`)
+          
+          if (reconnectTimeout) clearTimeout(reconnectTimeout)
+          reconnectTimeout = setTimeout(() => {
+            connectWebSocket()
+          }, backoffDelay)
+        } else {
+          console.warn('Max reconnection attempts reached')
+        }
+      }
+
+      wsRef.current = ws
+    }
+    
+    // Initial connection
+    connectWebSocket()
 
     return () => {
+      if (reconnectTimeout) clearTimeout(reconnectTimeout)
       if (wsRef.current) {
         wsRef.current.close()
       }
@@ -280,42 +330,68 @@ export default function ClassPage() {
     if (!newMessage.trim() || !authUser) return
     
     setIsSending(true)
+    const contentToSend = newMessage.trim()
     
     try {
+      // Create optimistic message for immediate UI feedback
+      const optimisticMessage: Message = {
+        id: `temp-${Date.now()}`,
+        userId: authUser.id,
+        userName: authUser.name || 'Unknown',
+        userProfilePic: authUser.profilePic,
+        content: contentToSend,
+        timestamp: new Date(),
+        isEdited: false,
+        role: authUser.role as 'INSTRUCTOR' | 'STUDENT',
+        documentUrl: undefined,
+        documentName: undefined,
+        documentType: undefined,
+        documentSize: undefined
+      }
+      
+      // Add message to state immediately for instant feedback
+      setMessages(prev => [...prev, optimisticMessage])
+      setNewMessage("")
+      
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         const messageData = {
           type: 'send_message',
-          content: newMessage.trim()
+          content: contentToSend
         }
         
         wsRef.current.send(JSON.stringify(messageData))
       } else {
         const response = await axiosInstance.post(`/classroom/${classId}/messages`, {
-          content: newMessage.trim()
+          content: contentToSend
         })
         
         if (response.data.message) {
-          setMessages(prev => [...prev, {
-            id: response.data.message.id,
-            userId: response.data.message.userId,
-            userName: response.data.message.userName,
-            userProfilePic: response.data.message.userProfilePic,
-            content: response.data.message.content,
-            timestamp: new Date(response.data.message.createdAt),
-            isEdited: response.data.message.isEdited,
-            role: response.data.message.role,
-            documentUrl: response.data.message.documentUrl,
-            documentName: response.data.message.documentName,
-            documentType: response.data.message.documentType,
-            documentSize: response.data.message.documentSize
-          }])
+          // Replace optimistic message with actual message from server
+          setMessages(prev => prev.map(msg => 
+            msg.id === optimisticMessage.id 
+              ? {
+                  id: response.data.message.id,
+                  userId: response.data.message.userId,
+                  userName: response.data.message.userName,
+                  userProfilePic: response.data.message.userProfilePic,
+                  content: response.data.message.content,
+                  timestamp: new Date(response.data.message.createdAt),
+                  isEdited: response.data.message.isEdited,
+                  role: response.data.message.role,
+                  documentUrl: response.data.message.documentUrl,
+                  documentName: response.data.message.documentName,
+                  documentType: response.data.message.documentType,
+                  documentSize: response.data.message.documentSize
+                }
+              : msg
+          ))
         }
       }
       
-      setNewMessage("")
-      
     } catch (err) {
       console.error('Error sending message:', err)
+      // Remove optimistic message on failure
+      setMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')))
       alert('Failed to send message. Please try again.')
     } finally {
       setIsSending(false)
