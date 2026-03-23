@@ -76,6 +76,10 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             if(data.role === "STUDENT"){
                 const res = await axiosInstance.post("/student/signin", data)
                 set({ authUser: res.data.student })
+                // Store token in localStorage for WebSocket authentication
+                if (res.data.token) {
+                    localStorage.setItem("token", res.data.token)
+                }
                 console.log("auth user: ", get().authUser)
                 toast.success("Signed in successfully")
             }
@@ -83,6 +87,10 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
                 const res = await axiosInstance.post("/instructor/signin", data)
                 const { user } = res.data 
                 set({ authUser: user })
+                // Store token in localStorage for WebSocket authentication
+                if (res.data.token) {
+                    localStorage.setItem("token", res.data.token)
+                }
                 console.log("auth user: ", get().authUser)
                 toast.success("Signed in successfully")
             }
@@ -115,6 +123,8 @@ export const useAuthStore = create<authState & authAction>((set, get) => ({
             await axiosInstance.post(endpoint)
 
             set({ authUser: null })
+            // Clear token from localStorage
+            localStorage.removeItem("token")
             toast.success("Signed out successfully")
         } catch (error) {
             console.error("Error while signing out: ", error)
