@@ -210,7 +210,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile navigation - only show for authenticated users */}
-        {authUser && (
+        {/* {authUser && (
           <div className="md:hidden border-t border-border/40 py-2">
             <div className="flex items-center justify-around text-center">
               <Link 
@@ -282,8 +282,8 @@ export default function Navbar() {
                 </>
               )}
             </div>
-          </div>
-        )}
+          </div> 
+        )} */}
       </div>
     </nav>
   )

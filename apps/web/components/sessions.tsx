@@ -264,8 +264,8 @@ export const Sessions = () => {
         )}
       </div>
 
-      {/* <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Previous Sessions</h2>
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Previous Live Sessions</h2>
 
         {sessions.length === 0 ? (
           <div className="text-muted-foreground text-sm">
@@ -290,7 +290,7 @@ export const Sessions = () => {
             </Card>
           ))
         )}
-      </div> */}
+      </div>
 
       <StartLiveModal
         isOpen={isModalOpen}

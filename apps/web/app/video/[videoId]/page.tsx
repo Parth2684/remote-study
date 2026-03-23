@@ -53,7 +53,7 @@ export default function VideoPage() {
     if (Hls.isSupported()) {
       hls = new Hls()
 
-      hls.loadSource(video.link) // 👈 master.m3u8
+      hls.loadSource(video.link+"/master.m3u8") // 👈 master.m3u8
       hls.attachMedia(videoRef.current)
     } else if (
       videoRef.current.canPlayType("application/vnd.apple.mpegurl")
@@ -79,7 +79,7 @@ export default function VideoPage() {
 
       {/* 🎬 Video */}
       <video
-        ref={videoRef}
+        src={video.link+"/master.m3u8"}
         controls
         className="w-full max-h-[600px] bg-black rounded-lg"
       />

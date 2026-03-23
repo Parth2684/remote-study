@@ -161,7 +161,7 @@ export default function ClassPage() {
   useEffect(() => {
     if (!classId || !authUser) return
 
-    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080'
+    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000'
     const token = localStorage.getItem('token') || sessionStorage.getItem('token')
     
     if (!token) {
