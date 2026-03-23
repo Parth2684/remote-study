@@ -6,19 +6,20 @@ async function main() {
   const hashedInstructorPassword = await hash('test', 10)
   const hashedStudentPassword = await hash('test', 10)
 
-  await prisma.instructor.create({
+  await prisma.student.create({
     data: {
-      name: 'John Doe',
-      email: 'instructor@gmail.com',
+      name: 'Student 2',
+      email: 'student2@gmail.com',
       password: hashedInstructorPassword,
       verified: true,
+      provider: 'CREDENTIALS',
     }
   })
 
   await prisma.student.create({
     data: {
-      name: 'Jane Smith',
-      email: 'student@gmail.com',
+      name: 'Student 3',
+      email: 'studen3@gmail.com',
       password: hashedStudentPassword,
       verified: true,
       provider: 'CREDENTIALS',

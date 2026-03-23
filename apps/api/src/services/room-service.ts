@@ -120,7 +120,7 @@ export class RoomService {
     token.addGrant({
         room: session.roomName,
         roomJoin: true,
-        canPublish: false,
+        canPublish: true,
         canSubscribe: true
     })
 

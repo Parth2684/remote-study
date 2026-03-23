@@ -186,7 +186,7 @@ model LiveSession {
   description  String?
   classroomId  String
   instructorId String
-  roomName     String     @unique
+  roomName     String  
   scheduledAt  DateTime?
   startedAt    DateTime?
   endedAt      DateTime?
