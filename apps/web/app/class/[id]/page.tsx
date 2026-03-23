@@ -13,6 +13,7 @@ import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useRouter } from "next/navigation"
 import { axiosInstance } from "@/lib/axiosInstance"
 import { Sessions } from "@/components/sessions"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/dropdown-menu"
 
 // Define the interface for quiz data
 interface Quiz {
@@ -74,6 +75,7 @@ export default function ClassPage() {
   const [wsConnected, setWsConnected] = useState(false)
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState("")
+  const [deleteConfirmMessageId, setDeleteConfirmMessageId] = useState<string | null>(null)
   
   // Document state
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -338,7 +340,7 @@ export default function ClassPage() {
         id: `temp-${Date.now()}`,
         userId: authUser.id,
         userName: authUser.name || 'Unknown',
-        userProfilePic: authUser.profilePic,
+        // userProfilePic: authUser.profilePic,
         content: contentToSend,
         timestamp: new Date(),
         isEdited: false,
@@ -565,8 +567,10 @@ export default function ClassPage() {
   }
 
   const handleDeleteMessage = async (messageId: string) => {
-    if (!confirm('Are you sure you want to delete this message?')) return
+    setDeleteConfirmMessageId(messageId)
+  }
 
+  const confirmDeleteMessage = async (messageId: string) => {
     try {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         const messageData = {
@@ -579,10 +583,16 @@ export default function ClassPage() {
       }
 
       setMessages(prev => prev.filter(msg => msg.id !== messageId))
+      setDeleteConfirmMessageId(null)
     } catch (err) {
       console.error('Error deleting message:', err)
       alert('Failed to delete message. Please try again.')
+      setDeleteConfirmMessageId(null)
     }
+  }
+
+  const cancelDeleteMessage = () => {
+    setDeleteConfirmMessageId(null)
   }
 
 
@@ -693,8 +703,8 @@ export default function ClassPage() {
                             {/* User Avatar */}
                             <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white ${
                               message.role === 'INSTRUCTOR' 
-                                ? 'bg-gradient-to-br from-purple-500 to-purple-600' 
-                                : 'bg-gradient-to-br from-blue-500 to-blue-600'
+                                ? 'bg-linear-to-br from-purple-500 to-purple-600' 
+                                : 'bg-linear-to-br from-blue-500 to-blue-600'
                             }`}>
                               {userInitials}
                             </div>
@@ -799,6 +809,63 @@ export default function ClassPage() {
                                   >
                                     <Edit2 className="h-3.5 w-3.5" />
                                   </Button>
+                                  {deleteConfirmMessageId === message.id ? (
+                                    <div className="flex gap-1">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        onClick={() => confirmDeleteMessage(message.id)}
+                                        title="Confirm delete"
+                                      >
+                                        <Check className="h-3.5 w-3.5" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-7 w-7 p-0"
+                                        onClick={() => cancelDeleteMessage()}
+                                        title="Cancel delete"
+                                      >
+                                        <X className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                      onClick={() => handleDeleteMessage(message.id)}
+                                      title="Delete message"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </Button>
+                                  )}
+                                </>
+                              )}
+                              {(message.userId === authUser.id && message.documentUrl) || (authUser.role === 'INSTRUCTOR' && message.userId !== authUser.id) ? (
+                                deleteConfirmMessageId === message.id ? (
+                                  <div className="flex gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                      onClick={() => confirmDeleteMessage(message.id)}
+                                      title="Confirm delete"
+                                    >
+                                      <Check className="h-3.5 w-3.5" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 w-7 p-0"
+                                      onClick={() => cancelDeleteMessage()}
+                                      title="Cancel delete"
+                                    >
+                                      <X className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </div>
+                                ) : (
                                   <Button
                                     size="sm"
                                     variant="ghost"
@@ -808,18 +875,7 @@ export default function ClassPage() {
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
                                   </Button>
-                                </>
-                              )}
-                              {(message.userId === authUser.id && message.documentUrl) || (authUser.role === 'INSTRUCTOR' && message.userId !== authUser.id) ? (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  onClick={() => handleDeleteMessage(message.id)}
-                                  title="Delete message"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
+                                )
                               ) : null}
                             </div>
                           </div>
