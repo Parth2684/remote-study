@@ -103,6 +103,7 @@ export const signinStudentHandler = async (req: Request, res: Response) => {
     res.json({
       message: "Signin Successful",
       student: returnStudent,
+      token: token,
     });
   } catch (error) {
     console.error(error);

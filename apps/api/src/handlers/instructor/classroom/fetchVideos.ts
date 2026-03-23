@@ -1,4 +1,4 @@
-import { prisma } from "@repo/db"
+import { prisma, Status } from "@repo/db"
 import { Request, Response } from "express"
 
 
@@ -8,7 +8,8 @@ export const fetchVideos = async(req: Request, res: Response) => {
         console.log("Fetching videos for classroom:", classroomId)
         const videos = await prisma.video.findMany({
             where: {
-                classroomId: classroomId,
+            classroomId: classroomId,
+            status: Status.SUCCESS
             },
             include: {
                 classroom: true
