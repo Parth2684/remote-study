@@ -21,7 +21,7 @@ export const joinClassroom = async (req: Request, res: Response) => {
     const existingRelation = await prisma.studentClassroom.findFirst({
       where: {
         studentId: student.id,
-        classroomId,
+        classroomId: classroomId as string,
       },
     });
 
@@ -34,7 +34,7 @@ export const joinClassroom = async (req: Request, res: Response) => {
     const studentClassroom = await prisma.studentClassroom.create({
       data: {
         studentId: student.id,
-        classroomId,
+        classroomId: classroomId as string,
       },
       include: {
         student: true,

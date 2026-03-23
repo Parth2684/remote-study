@@ -159,7 +159,7 @@ export const Sessions = () => {
         </div>
       )}
 
-      {authUser?.role === "STUDENT" && activeSession && (
+      {activeSession && (
         <Card className="border-red-400 bg-red-50">
           <CardHeader>
             <div className="flex justify-between items-center">

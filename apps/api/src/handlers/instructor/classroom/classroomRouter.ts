@@ -11,6 +11,7 @@ import { getActiveSession } from "../../student/get-active-sessions";
 import { uploadRecordingHandler } from "./upload-recording";
 import { fetchVideos } from "./fetchVideos";
 import { getVideoById } from "./get-video";
+import { joinLive } from "./join-live";
 
 const classroomRouter: Router = Router();
 
@@ -28,7 +29,7 @@ classroomRouter.post(
 );
 
 classroomRouter.post("/live/start", startLive)
-
+classroomRouter.post("/live/join", joinLive)
 classroomRouter.put("/live/end/:sessionId", endLive)
 
 classroomRouter.get("/live/:classId/sessions", getAllSessions)
