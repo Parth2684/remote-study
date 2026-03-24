@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "build": "bun build src/index.ts --target=bun --outdir ./dist",
-    "start": "bun dist/src/indes.js",
+    "start": "bun dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "fmt": "prettier --write ."
   },

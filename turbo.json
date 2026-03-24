@@ -28,6 +28,10 @@
     },
     "db:deploy": {
       "cache": false
+    },
+    "start": {
+      "dependsOn": ["build"],
+      "cache": false
     }
   }
 }
