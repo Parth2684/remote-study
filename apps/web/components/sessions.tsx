@@ -214,7 +214,7 @@ export const Sessions = () => {
             <video
               src={selectedVideo.link}
               controls
-              className="w-full h-[400px]"
+              className="w-full h-100"
             />
             <div className="p-3 text-white">
               {selectedVideo.title}

@@ -206,6 +206,7 @@ export function createWebSocketServer(server: any) {
               return;
             }
 
+            // Create message and send immediately to sender without waiting for includes
             const newMessage = await prisma.message.create({
               data: {
                 content: message.content.trim(),
@@ -214,14 +215,6 @@ export function createWebSocketServer(server: any) {
                   ? { instructorId: ws.userId }
                   : { studentId: ws.userId }
                 )
-              },
-              include: {
-                instructor: {
-                  select: { id: true, name: true, profilePic: true }
-                },
-                student: {
-                  select: { id: true, name: true, profilePic: true }
-                }
               }
             });
 
@@ -231,17 +224,22 @@ export function createWebSocketServer(server: any) {
               content: newMessage.content,
               createdAt: newMessage.createdAt.toISOString(),
               isEdited: newMessage.isEdited,
-              userId: newMessage.instructorId || newMessage.studentId,
-              userName: newMessage.instructor?.name || newMessage.student?.name,
-              userProfilePic: newMessage.instructor?.profilePic || newMessage.student?.profilePic,
-              role: newMessage.instructorId ? 'INSTRUCTOR' : 'STUDENT',
+              userId: ws.userId,
+              userName: ws.userName,
+              userProfilePic: undefined, // We can add this separately if needed
+              role: ws.role,
               documentUrl: newMessage.documentUrl,
               documentName: newMessage.documentName,
               documentType: newMessage.documentType,
               documentSize: newMessage.documentSize
             };
 
-            broadcastToClassroom(ws.classroomId, broadcastMessage);
+            // Send immediately to sender so they can update optimistic message
+            sendToClient(ws, broadcastMessage);
+            
+            // Broadcast to others asynchronously (don't wait)
+            broadcastToClassroom(ws.classroomId, broadcastMessage, ws);
+            
             break;
 
           case 'get_history':
@@ -317,14 +315,6 @@ export function createWebSocketServer(server: any) {
               data: {
                 content: message.content.trim(),
                 isEdited: true
-              },
-              include: {
-                instructor: {
-                  select: { id: true, name: true, profilePic: true }
-                },
-                student: {
-                  select: { id: true, name: true, profilePic: true }
-                }
               }
             });
 
@@ -333,13 +323,8 @@ export function createWebSocketServer(server: any) {
               id: updatedMessage.id,
               content: updatedMessage.content,
               isEdited: true,
-              userId: updatedMessage.instructorId || updatedMessage.studentId,
-              userName: updatedMessage.instructor?.name || updatedMessage.student?.name,
-              userProfilePic: updatedMessage.instructor?.profilePic || updatedMessage.student?.profilePic,
-              documentUrl: updatedMessage.documentUrl,
-              documentName: updatedMessage.documentName,
-              documentType: updatedMessage.documentType,
-              documentSize: updatedMessage.documentSize
+              userId: ws.userId,
+              userName: ws.userName
             });
             break;
 
