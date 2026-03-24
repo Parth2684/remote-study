@@ -90,6 +90,7 @@ export default function UploadVideoPage() {
       const formData = new FormData()
       formData.append("video", videoFile)
       formData.append("title", title.trim())
+      formData.append("isLive", "false")
       if (description.trim()) {
         formData.append("description", description.trim())
       }

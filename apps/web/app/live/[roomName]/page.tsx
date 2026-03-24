@@ -110,6 +110,7 @@ function LiveRoomInner({
           const formData = new FormData()
           formData.append("video", file)
           formData.append("title", `Recording - ${title}`)
+          formData.append("isLive", "true")
           formData.append("description", `Live session recording`)
 
           await uploadVideo(classroomId, formData)

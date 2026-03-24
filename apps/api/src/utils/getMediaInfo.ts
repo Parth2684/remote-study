@@ -35,7 +35,11 @@ export function ffprobeVideo(file: string): Promise<{
         .split("/")
         .map(Number);
 
-      const fps = den ? num / den : 0;
+      let fps = den ? num / den : 0;
+
+      if (!fps || fps < 1 || !isFinite(fps)) {
+        fps = 30; // safe default
+      }
 
       resolve({
         width: video.width,

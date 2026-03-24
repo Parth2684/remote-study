@@ -12,6 +12,7 @@ const uploadVideoSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   cover: z.string().optional(), //base64 string from frontend
+  isLive: z.string().optional()
 });
 
 export const uploadVideoHandler: RequestHandler[] = [
@@ -58,6 +59,7 @@ export const uploadVideoHandler: RequestHandler[] = [
       return;
     }
     let uploadResponse: UploadApiResponse | null = null;
+    const isLive = parsedBody.data.isLive === "true";
     try {
       const { cover } = parsedBody.data;
 
@@ -122,7 +124,7 @@ export const uploadVideoHandler: RequestHandler[] = [
           originalSize: size,
           link: "pending",
           classroomId: classroomId,
-          isLive: false,
+          isLive: isLive,
           mediaInfo,
           description: null,
           cover: null,
