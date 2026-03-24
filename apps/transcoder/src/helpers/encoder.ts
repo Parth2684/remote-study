@@ -129,26 +129,28 @@ export async function reEncode(job: Video) {
   // ---------- HLS ----------
   //
   // ---------- Variant stream map (CRITICAL) ----------
-  const varStreamMap = renditions.map((_, i) => `v:${i},a:${i}`).join(" ");
+  const varStreamMap = renditions
+    .map((_, i) => (hasAudio ? `v:${i},a:${i}` : `v:${i}`))
+    .join(" ");
 
-  args.push(
-    "-f",
-    "hls",
-    "-hls_time",
-    "4",
-    "-hls_playlist_type",
-    "vod",
-    "-hls_flags",
-    "independent_segments",
-    "-hls_segment_type",
-    "fmp4",
+  if (hasAudio) {
+    args.push(
+      "-c:a",
+      "libopus",
+      "-vbr",
+      "on",
+      "-compression_level",
+      "10",
+      "-application",
+      "voip",
+      "-ac",
+      "2",
+    );
 
-    "-hls_segment_filename",
-    path.join(jobOutDir, "v%v", "seg_%03d.m4s"),
-  );
-
-  // 👇 THIS MUST COME BEFORE master playlist
-  args.push("-var_stream_map", varStreamMap);
+    renditions.forEach((r, i) => {
+      args.push(`-b:a:${i}`, `${r.audioBitrate}k`);
+    });
+  }
 
   // master + variant playlists
   args.push(
