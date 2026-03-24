@@ -11,7 +11,6 @@ export const getStudentClassroomByIdHandler = async (
   res: Response
 ) => {
   try {
-    // 1️⃣ Validate classroom id
     const parsedParams = classroomParamsSchema.safeParse(req.params);
     if (!parsedParams.success) {
       return res.status(400).json({
@@ -22,7 +21,6 @@ export const getStudentClassroomByIdHandler = async (
     const classroomId = parsedParams.data.id;
     const studentId = req.user.id;
 
-    // 2️⃣ Check if student is enrolled
     const enrollment = await prisma.studentClassroom.findUnique({
       where: {
         studentId_classroomId: {
@@ -38,7 +36,6 @@ export const getStudentClassroomByIdHandler = async (
       });
     }
 
-    // 3️⃣ Fetch classroom details
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
       include: {
@@ -63,10 +60,15 @@ export const getStudentClassroomByIdHandler = async (
           },
         },
         quizzes: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
+          include: {
+            quizAttempts: {
+              where: {
+                attemptedById: studentId,
+              },
+              select: {
+                id: true,
+              },
+            },
           },
         },
       },
@@ -78,7 +80,6 @@ export const getStudentClassroomByIdHandler = async (
       });
     }
 
-    // 4️⃣ Shape response
     return res.status(200).json({
       classroom: {
         id: classroom.id,
@@ -86,7 +87,13 @@ export const getStudentClassroomByIdHandler = async (
         description: classroom.description,
         instructor: classroom.instructor,
         students: classroom.students.map((s) => s.student),
-        quizzes: classroom.quizzes,
+        quizzes: classroom.quizzes.map((quiz) => ({
+          id: quiz.id,
+          title: quiz.title,
+          description: quiz.description,
+          attempted: quiz.quizAttempts.length > 0,
+          attemptId: quiz.quizAttempts[0]?.id || null,
+        })),
       },
     });
   } catch (error) {

@@ -8,7 +8,6 @@ const classroomIdSchema = z.object({
 
 export const getClassroomByIdHandler = async (req: Request, res: Response) => {
   try {
-    // 1️⃣ Validate params
     const parsedParams = classroomIdSchema.safeParse(req.params);
     if (!parsedParams.success) {
       return res.status(400).json({
@@ -18,7 +17,6 @@ export const getClassroomByIdHandler = async (req: Request, res: Response) => {
 
     const { id } = parsedParams.data;
 
-    // 2️⃣ Fetch classroom
     const classroom = await prisma.classroom.findUnique({
       where: { id },
       include: {
@@ -43,10 +41,12 @@ export const getClassroomByIdHandler = async (req: Request, res: Response) => {
           },
         },
         quizzes: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
+          include: {
+            _count: {
+              select: {
+                quizAttempts: true,
+              },
+            },
           },
         },
       },
@@ -65,7 +65,12 @@ export const getClassroomByIdHandler = async (req: Request, res: Response) => {
         description: classroom.description,
         instructor: classroom.instructor,
         students: classroom.students.map((s) => s.student),
-        quizzes: classroom.quizzes,
+        quizzes: classroom.quizzes.map((quiz) => ({
+          id: quiz.id,
+          title: quiz.title,
+          description: quiz.description,
+          attempts: quiz._count.quizAttempts,
+        })),
       },
     });
   } catch (error) {

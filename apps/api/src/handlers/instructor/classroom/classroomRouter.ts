@@ -11,12 +11,18 @@ import { getActiveSession } from "../../student/get-active-sessions";
 import { fetchVideos } from "./fetchVideos";
 import { getVideoById } from "./get-video";
 import { joinLive } from "./join-live";
+import { getQuizzesWithAttempts } from "./getQuizzesWithAttempts";
+import { getQuizAttempts } from "./getQuizAttempts";
+import { getAttemptDetails } from "./getAttemptDetails";
 
 const classroomRouter: Router = Router();
 
 classroomRouter.post("/create-classroom", createClassroomHandler);
 
 classroomRouter.post("/create-quiz/:classroomId", createQuizHandler);
+classroomRouter.get("/:classId/quizzes", getQuizzesWithAttempts)
+classroomRouter.get("/quiz/:quizId/attempts", getQuizAttempts)
+classroomRouter.get("/quiz/attempt/:attemptId", getAttemptDetails)
 
 classroomRouter.get("/my-classrooms", getMyClassrooms);
 

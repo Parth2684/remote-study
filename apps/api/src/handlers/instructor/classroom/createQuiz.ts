@@ -17,77 +17,89 @@ const quizSchema = z.object({
 
 export const createQuizHandler = async (req: Request, res: Response) => {
   try {
-    const body = req.body;
-    const parsedBody = quizSchema.safeParse(body);
+    const parsedBody = quizSchema.safeParse(req.body);
+
     if (!parsedBody.success) {
-      res
-        .json({
-          message: "Please provide correct input",
-        })
-        .status(411);
-      return;
+      return res.status(400).json({
+        message: "Please provide correct input",
+        error: parsedBody.error,
+      });
     }
 
     const { title, description, questionAnswer } = parsedBody.data;
     const classroomId = req.params.classroomId;
+
     if (!classroomId) {
-      res.status(411).json({
+      return res.status(400).json({
         message: "classroom id not provided",
       });
-      return;
     }
 
+    const quizId = uuidv4();
+
     await prisma.$transaction(async (tx) => {
-      const quizId = uuidv4();
       await tx.quiz.create({
         data: {
           id: quizId,
           instructorId: req.user.id,
           title,
           description,
-          classroomId: classroomId,
+          classroomId: classroomId as string,
         },
       });
 
       const { questionArray, optionArray } = questionAnswer.reduce<{
         questionArray: { id: string; text: string; quizId: string }[];
-        optionArray: { id: string; text: string; isCorrect: boolean; questionId: string }[];
+        optionArray: {
+          id: string;
+          text: string;
+          isCorrect: boolean;
+          questionId: string;
+        }[];
       }>(
-        (acc, questionAnswerPair) => {
-          const id = uuidv4();
-
-          const options = questionAnswerPair.options.map((option) => ({
-            id: uuidv4(),
-            text: option,
-            isCorrect: option === questionAnswerPair.correctOption,
-            questionId: id,
-          }));
+        (acc, qa) => {
+          const questionId = uuidv4();
 
           acc.questionArray.push({
-            id,
-            text: questionAnswerPair.question,
+            id: questionId,
+            text: qa.question,
             quizId,
           });
 
-          acc.optionArray.push(...options);
+          qa.options.forEach((opt) => {
+            acc.optionArray.push({
+              id: uuidv4(),
+              text: opt,
+              isCorrect: opt === qa.correctOption,
+              questionId,
+            });
+          });
 
           return acc;
         },
-        { questionArray: [], optionArray: [] },
+        { questionArray: [], optionArray: [] }
       );
-      await Promise.all([
-        tx.question.createMany({
-          data: questionArray,
-        }),
-        tx.option.createMany({
-          data: optionArray,
-        }),
-      ]);
+
+      await tx.question.createMany({
+        data: questionArray,
+      });
+
+      await tx.option.createMany({
+        data: optionArray,
+      });
     });
+
+    // ✅ IMPORTANT: always send response
+    return res.status(201).json({
+      message: "Quiz created successfully",
+      quizId,
+    });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({
-      message: "Error while creating class",
+
+    return res.status(500).json({
+      message: "Error while creating quiz",
     });
   }
 };

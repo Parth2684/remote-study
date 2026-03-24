@@ -85,7 +85,7 @@ export default function CreateQuizPage() {
     }
 
     setLoading(true)
-
+    console.log("classroom id: ", selectedClassroomId)
     try {
       await axiosInstance.post(
         `/instructor/classroom/create-quiz/${selectedClassroomId}`,

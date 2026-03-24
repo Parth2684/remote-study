@@ -14,15 +14,17 @@ const attemptQuizSchema = z.object({
 });
 
 export const submitQuiz = async (req: Request, res: Response) => {
+  console.log("hey")
   try {
+    console.log("🚀 submitQuiz called");
+
     const { classroomId } = req.params;
-    const body = req.body;
+    const parsedBody = attemptQuizSchema.safeParse(req.body);
     const student = req.user;
 
-    const parsedBody = attemptQuizSchema.safeParse(body);
     if (!parsedBody.success) {
       return res.status(400).json({
-        message: "Please provide an appropriate body",
+        message: "Invalid body",
       });
     }
 
@@ -41,31 +43,33 @@ export const submitQuiz = async (req: Request, res: Response) => {
 
     if (!studentExistsInClass) {
       return res.status(404).json({
-        message: "Student not enrolled in classroom",
+        message: "Student not enrolled",
       });
     }
 
     const { quizId, questionAnswers } = parsedBody.data;
 
-    const saveToDb = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
+      console.log("📦 Transaction started");
+
       const questions = await tx.question.findMany({
         where: { quizId },
         include: { options: true },
       });
 
       const totalQuestions = questions.length;
-      const correctOptionIds = new Set<string>();
-      let correctAnswerCount = 0;
 
-      questions.forEach((question) => {
-        const correctOption = question.options.find((opt) => opt.isCorrect);
-        if (correctOption) {
-          correctOptionIds.add(correctOption.id);
-        }
+      const correctOptionIds = new Set<string>();
+
+      questions.forEach((q) => {
+        const correct = q.options.find((o) => o.isCorrect);
+        if (correct) correctOptionIds.add(correct.id);
       });
 
-      questionAnswers.forEach((questionAnswerPair) => {
-        if (correctOptionIds.has(questionAnswerPair.optionId as string)) {
+      let correctAnswerCount = 0;
+
+      questionAnswers.forEach((qa) => {
+        if (qa.optionId && correctOptionIds.has(qa.optionId)) {
           correctAnswerCount++;
         }
       });
@@ -73,39 +77,47 @@ export const submitQuiz = async (req: Request, res: Response) => {
       const quizAttempt = await tx.quizAttempt.create({
         data: {
           attemptedById: student.id,
-          quizId: quizId,
+          quizId,
           totalCount: totalQuestions,
           correctCount: correctAnswerCount,
         },
       });
 
-      const quizAnswerArray = questionAnswers.map((questionAnswerPair) => ({
+      const answersToInsert = questionAnswers.map((qa) => ({
         id: uuidv4(),
-        questionId: questionAnswerPair.questionId,
-        selectedOptionId: questionAnswerPair.optionId ?? null,
-        isCorrect: questionAnswerPair.optionId
-          ? correctOptionIds.has(questionAnswerPair.optionId)
+        questionId: qa.questionId,
+        selectedOptionId: qa.optionId ?? null,
+        isCorrect: qa.optionId
+          ? correctOptionIds.has(qa.optionId)
           : false,
         quizAttemptId: quizAttempt.id,
       }));
 
       await tx.quizAnswer.createMany({
-        data: quizAnswerArray,
+        data: answersToInsert,
       });
+
+      console.log("✅ Transaction done");
 
       return {
         correctAnswerCount,
         totalQuestions,
+        attemptId: quizAttempt.id,
       };
     });
 
+    console.log("🎯 Sending response");
+
     return res.json({
       message: "Quiz submitted successfully",
-      correctAnswerCount: saveToDb.correctAnswerCount,
-      totalQuestionCount: saveToDb.totalQuestions,
+      correctAnswerCount: result.correctAnswerCount,
+      totalQuestionCount: result.totalQuestions,
+      attemptId: result.attemptId, // ✅ IMPORTANT
     });
+
   } catch (error) {
-    console.error(error);
+    console.error("❌ submitQuiz error:", error);
+
     return res.status(500).json({
       message: "Server Error",
     });

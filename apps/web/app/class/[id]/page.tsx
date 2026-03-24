@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { axiosInstance } from "@/lib/axiosInstance"
 import { Sessions } from "@/components/sessions"
 import { DiscussionTab } from "@/components/discussion-tab"
+import { QuizSection } from "@/components/quiz-section"
 
 // Define the interface for quiz data
 interface Quiz {
@@ -70,6 +71,8 @@ export default function ClassPage() {
             title: quiz.title,
             description: quiz.description,
             attempts: quiz.attempts ?? 0,
+            attempted: quiz.attempted,
+            attemptId: quiz.attemptId
           })),
         })
       } catch (err) {
@@ -168,69 +171,20 @@ export default function ClassPage() {
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         <BookOpen className="h-5 w-5" />
-                        Quizzes & Assignments
+                        Quizzes
                       </CardTitle>
-                      <CardDescription>Test your knowledge with quizzes and assignments</CardDescription>
+                      <CardDescription>Test your knowledge with quizzes</CardDescription>
                     </div>
                     <Badge variant="outline" className="text-sm">
                       {classData.quizzes.length} {classData.quizzes.length === 1 ? 'quiz' : 'quizzes'}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  {classData.quizzes.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-                      <BookOpen className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                      <p className="font-medium">No quizzes available yet</p>
-                      <p className="text-sm">
-                        {authUser?.role === 'INSTRUCTOR' 
-                          ? 'Create your first quiz to get started' 
-                          : 'Check back later for available quizzes'}
-                      </p>
-                      {authUser?.role === 'INSTRUCTOR' && (
-                        <Button 
-                          onClick={() => router.push(`/quiz/create?classId=${classId}`)}
-                          className="mt-4"
-                        >
-                          Create Quiz
-                        </Button>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {classData.quizzes.map((quiz) => (
-                        <Card key={quiz.id} className="hover:shadow-md transition-shadow">
-                          <CardHeader className="pb-3">
-                            <CardTitle className="text-lg">{quiz.title}</CardTitle>
-                            {quiz.description && (
-                              <CardDescription className="line-clamp-2">
-                                {quiz.description}
-                              </CardDescription>
-                            )}
-                          </CardHeader>
-                          <CardContent className="pt-0">
-                            <div className="flex justify-between items-center">
-                              <div className="text-sm text-muted-foreground">
-                                {quiz.attempts !== undefined && (
-                                  <span>{quiz.attempts} {quiz.attempts === 1 ? 'attempt' : 'attempts'}</span>
-                                )}
-                              </div>
-                              <Button 
-                                size="sm" 
-                                onClick={() => router.push(`/quiz/${quiz.id}`)}
-                              >
-                                {authUser?.role === 'INSTRUCTOR' ? 'View' : 'Start'}
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
+                <QuizSection quizzes={classData.quizzes} />
               </Card>
             </div>
           </TabsContent>
+          
           <TabsContent value="Sessions">
             <Sessions />
           </TabsContent>
