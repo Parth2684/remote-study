@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { spawn } from 'child_process';
 import { getVideoSize } from './helpers/fileSize';
 import nodemailer from "nodemailer"
+import cors from "cors"
 dotenv.config()
 
 export interface Video {
@@ -27,7 +28,9 @@ export interface Video {
 }
 
 const app = express()
-app.use(express.static("videos"))
+app.use(cors({
+    origin: "http://localhost:3000",
+  }),express.static("videos"))
 app.listen(5000, () => console.log("Videos Hosted on port 5000"))
 
 const VIDEOS_URL = process.env.VIDEOS_URL as string
@@ -35,10 +38,10 @@ const VIDEOS_URL = process.env.VIDEOS_URL as string
 function getThumbnail(videoName: string): string | null {
   try {
     spawn(
-      `ffmpeg -i ../uploads/${videoName} -vf "thumbnail" -frames:v 1 ../uploads/${videoName}/thumbnail.png`,
+      `ffmpeg -i ../uploads/${videoName} -vf "thumbnail" -frames:v 1 ./videos/${videoName}/thumbnail.png`,
       { shell: true }
     );
-    return `../uploads/${videoName}/thumbnail.png`;
+    return `${process.env.VIDEOS_URL!}/${videoName}/thumbnail.png`;
   } catch {
     return null;
   }

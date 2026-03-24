@@ -26,6 +26,7 @@ interface VideoType {
   link: string
   isLive: boolean
   uploadedAt: string
+  cover: string
 }
 
 export const Sessions = () => {
@@ -233,8 +234,18 @@ export const Sessions = () => {
                 onClick={() => router.push(`/video/${video.id}`)}
                 className="border rounded-lg p-3 cursor-pointer hover:shadow"
               >
-                <div className="h-40 bg-gray-300 rounded mb-2 flex items-center justify-center">
-                  🎬
+                <div className="h-40 rounded mb-2 overflow-hidden bg-gray-200">
+                  {video.cover ? (
+                    <img
+                      src={`${video.cover.replace("../", "")}`}
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      🎬
+                    </div>
+                  )}
                 </div>
 
                 <div className="font-medium">

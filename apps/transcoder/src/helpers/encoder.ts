@@ -154,9 +154,18 @@ export async function reEncode(job: Video) {
 
   // master + variant playlists
   args.push(
+    "-f", "hls",
+    "-hls_time", "4",
+    "-hls_playlist_type", "vod",
+    "-hls_segment_type", "fmp4",
+    "-hls_fmp4_init_filename", "init.mp4",
+    "-hls_segment_filename",
+    path.join(jobOutDir, "v%v", "seg_%03d.m4s"),
     "-master_pl_name",
     "master.m3u8",
-    path.join(jobOutDir, "v%v", "stream.m3u8"),
+    "-var_stream_map",
+    varStreamMap,
+    path.join(jobOutDir, "v%v", "stream.m3u8")
   );
 
   // ---------- Spawn ----------
