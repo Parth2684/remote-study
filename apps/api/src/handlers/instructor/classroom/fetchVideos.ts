@@ -5,6 +5,7 @@ import { Request, Response } from "express"
 export const fetchVideos = async(req: Request, res: Response) => {
     try {
         const classroomId = req.params.classroomId as string
+        console.log("class id: ", classroomId)
 
         const videos = await prisma.video.findMany({
             where: {

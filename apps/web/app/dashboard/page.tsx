@@ -87,89 +87,14 @@ export default function DashboardPage() {
                   : "Access your courses and track your learning progress."}
               </p>
             </div>
-            {authUser.role === "INSTRUCTOR" && (
-              <Button asChild size="lg" className="shadow-lg">
-                <Link href="/instructor/classroom/create">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Create Classroom
-                </Link>
-              </Button>
-            )}
           </div>
         </div>
 
         <Tabs defaultValue="classes" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6 dark:bg-neutral-800">
+          <TabsList className="grid w-full grid-cols-1 mb-6 dark:bg-neutral-800">
             <TabsTrigger value="classes">My Classes</TabsTrigger>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {authUser.role === "INSTRUCTOR" ? "Total Classes" : "Enrolled Classes"}
-                  </CardTitle>
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {loading ? "..." : classroomsToDisplay.length}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {authUser.role === "INSTRUCTOR" ? "Ready to manage" : "Ready to explore"}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {authUser.role === "INSTRUCTOR" ? (
-                <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-600">
-                      {loading
-                        ? "..."
-                        : classroomsToDisplay.reduce((sum, c) => sum + (c.studentsCount || 0), 0)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">Across all your classes</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Your Instructors</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-600">
-                      {loading ? "..." : uniqueInstructorsCount}
-                    </div>
-                    <p className="text-xs text-muted-foreground">Guiding your learning journey</p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {authUser.role === "INSTRUCTOR" && (
-                <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Content Created</CardTitle>
-                    <PenSquare className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-purple-600">
-                      {loading ? "..." : "8"}
-                    </div>
-                    <p className="text-xs text-muted-foreground">Quizzes and assignments</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-            {/* Recent Activity Card remains the same as it uses static data */}
-          </TabsContent>
 
           <TabsContent value="classes" className="mt-6">
             {loading ? (
@@ -191,7 +116,7 @@ export default function DashboardPage() {
                     Create your first classroom to start uploading videos and engaging with students
                   </p>
                   <Button asChild size="lg">
-                    <Link href="/instructor/classroom/create">
+                    <Link href="/create-class">
                       <Plus className="h-4 w-4 mr-2" />
                       Create Your First Classroom
                     </Link>
@@ -238,32 +163,6 @@ export default function DashboardPage() {
                     <CardContent className="space-y-3">
                       {authUser.role === "INSTRUCTOR" ? (
                         <>
-                          <div className="flex gap-2">
-                            <Button 
-                              asChild 
-                              variant="outline" 
-                              size="sm" 
-                              className="flex-1"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Link href={`/instructor/classroom/${classroom.id}/upload-video`}>
-                                <Upload className="h-4 w-4 mr-2" />
-                                Upload
-                              </Link>
-                            </Button>
-                            <Button 
-                              asChild 
-                              variant="outline" 
-                              size="sm" 
-                              className="flex-1"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Link href={`/instructor/classroom/${classroom.id}/create-quiz`}>
-                                <Play className="h-4 w-4 mr-2" />
-                                Quiz
-                              </Link>
-                            </Button>
-                          </div>
                           <Button 
                             size="sm" 
                             className="w-full"

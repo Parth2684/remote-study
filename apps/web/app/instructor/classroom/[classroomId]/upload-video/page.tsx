@@ -106,8 +106,6 @@ export default function UploadVideoPage() {
       setVideoFile(null)
       setCoverImage("")
       
-      toast.success("Video uploaded successfully!")
-      
       // Optionally redirect to classroom page
       setTimeout(() => {
         router.push(`/class/${classroomId}`)

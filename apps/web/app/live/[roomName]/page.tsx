@@ -40,7 +40,7 @@ function LiveRoomInner({
     const enableMedia = async () => {
       try {
         await room.localParticipant.setCameraEnabled(false)
-        await room.localParticipant.setMicrophoneEnabled(false)
+        await room.localParticipant.setMicrophoneEnabled(true)
       } catch (err) {
         console.error(err)
       }
@@ -225,6 +225,7 @@ export default function LiveRoomPage() {
   return (
     <div className="h-screen bg-white">
       <LiveKitRoom
+        audio={true}
         token={token}
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL!}
         data-lk-theme="default"

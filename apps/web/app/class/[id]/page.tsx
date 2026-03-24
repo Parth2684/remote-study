@@ -142,9 +142,9 @@ export default function ClassPage() {
         
         <Tabs defaultValue="Sessions" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="Sessions">Sessions</TabsTrigger>
             <TabsTrigger value="discussions">Discussions</TabsTrigger>
             <TabsTrigger value="quizzes">Quizzes ({classData.quizzes.length})</TabsTrigger>
-            <TabsTrigger value="Sessions">Sessions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="discussions" className="mt-6">
@@ -156,7 +156,7 @@ export default function ClassPage() {
               {authUser?.role === 'INSTRUCTOR' && (
                 <div className="flex justify-end">
                   <Button 
-                    onClick={() => router.push(`/quiz/create?classId=${classId}`)}
+                    onClick={() => router.push(`/create-quiz`)}
                     className="gap-2"
                   >
                     <BookOpen className="h-4 w-4" />

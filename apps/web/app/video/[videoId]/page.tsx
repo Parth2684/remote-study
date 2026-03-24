@@ -127,7 +127,7 @@ export default function VideoPage() {
           <button
             onClick={() => setQuality("576")}
             className={`px-3 py-1 rounded ${
-              quality === "576" ? "bg-blue-500 text-white" : "bg-gray-800"
+              quality === "576" ? "bg-blue-500 text-white" : "bg-neutral-200"
             }`}
           >
             576p (SD)
@@ -138,7 +138,7 @@ export default function VideoPage() {
           <button
             onClick={() => setQuality("720")}
             className={`px-3 py-1 rounded ${
-              quality === "720" ? "bg-blue-500 text-white" : "bg-gray-800"
+              quality === "720" ? "bg-blue-500 text-white" : "bg-neutral-200"
             }`}
           >
             720p (HD)
@@ -149,7 +149,7 @@ export default function VideoPage() {
           <button
             onClick={() => setQuality("1080")}
             className={`px-3 py-1 rounded ${
-              quality === "1080" ? "bg-blue-500 text-white" : "bg-gray-800"
+              quality === "1080" ? "bg-blue-500 text-white" : "bg-neutral-200"
             }`}
           >
             1080p (FHD)
@@ -166,13 +166,13 @@ export default function VideoPage() {
         )}
 
         {/* 📊 Sizes */}
-        <div className="text-sm text-gray-500 space-y-1">
+        {/* <div className="text-sm text-gray-500 space-y-1">
           <p>Original: {formatBytes(video.originalSize)}</p>
 
           {video.sdSize && <p>576p: {video.sdSize} MB</p>}
           {video.hdSize && <p>720p: {video.hdSize} MB</p>}
           {video.fhdSize && <p>1080p: {video.fhdSize} MB</p>}
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -2,7 +2,13 @@
 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/card"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/card"
 import { Badge } from "@/components/badge"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
@@ -19,67 +25,73 @@ export const QuizSection = ({ quizzes }: { quizzes: Quiz[] }) => {
   const { authUser } = useAuthStore()
   const router = useRouter()
 
-  console.log("quizes: ", quizzes)
-
   if (!quizzes || quizzes.length === 0) {
     return (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-sm text-muted-foreground text-center mt-10">
         No quizzes available.
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid gap-5 px-4 sm:grid-cols-2 lg:grid-cols-3">
       {quizzes.map((quiz) => (
-        <Card key={quiz.id} className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>{quiz.title}</CardTitle>
+        <Card
+          key={quiz.id}
+          className="group rounded-2xl border bg-white/60 backdrop-blur-md shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+        >
+          <CardHeader className="space-y-2">
+            {/* Top Row */}
+            <div className="flex items-start justify-between gap-2">
+              <CardTitle className="text-lg font-semibold leading-snug">
+                {quiz.title}
+              </CardTitle>
 
-              {authUser?.role === "INSTRUCTOR" && (
-                <Badge>{quiz.attempts ?? 0} Attempts</Badge>
-              )}
+              {/* Badges */}
+              <div className="flex gap-2 flex-wrap justify-end">
+                {authUser?.role === "INSTRUCTOR" && (
+                  <Badge variant="secondary">
+                    {quiz.attempts ?? 0} Attempts
+                  </Badge>
+                )}
 
-              {authUser?.role === "STUDENT" && quiz.attempted && (
-                <Badge className="bg-green-600 text-white">
-                  Attempted
-                </Badge>
-              )}
+                {authUser?.role === "STUDENT" && quiz.attempted && (
+                  <Badge className="bg-green-600 text-white">
+                    Attempted
+                  </Badge>
+                )}
+              </div>
             </div>
 
+            {/* Description */}
             {quiz.description && (
-              <CardDescription>{quiz.description}</CardDescription>
+              <CardDescription className="text-sm text-muted-foreground line-clamp-2">
+                {quiz.description}
+              </CardDescription>
             )}
           </CardHeader>
 
-          <CardContent className="flex justify-end gap-2">
-
+          <CardContent className="flex justify-end gap-2 pt-2">
             {/* 🎓 STUDENT */}
             {authUser?.role === "STUDENT" && (
               <>
                 {!quiz.attempted ? (
                   <Button
-                    onClick={() =>
-                      router.push(`/quiz/${quiz.id}`)
-                    }
+                    className="rounded-xl"
+                    onClick={() => router.push(`/quiz/${quiz.id}`)}
                   >
                     Start Quiz
                   </Button>
                 ) : (
-                  <>
-                    <Button variant="outline" disabled>
-                      Attempted
-                    </Button>
-
-                    <Button
-                      onClick={() =>
-                        router.push(`/quiz/result/${quiz.attemptId}`)
-                      }
-                    >
-                      View Result
-                    </Button>
-                  </>
+                  <Button
+                    className="rounded-xl"
+                    variant="default"
+                    onClick={() =>
+                      router.push(`/quiz/result/${quiz.attemptId}`)
+                    }
+                  >
+                    View Result
+                  </Button>
                 )}
               </>
             )}
@@ -87,6 +99,7 @@ export const QuizSection = ({ quizzes }: { quizzes: Quiz[] }) => {
             {/* 👨‍🏫 INSTRUCTOR */}
             {authUser?.role === "INSTRUCTOR" && (
               <Button
+                className="rounded-xl"
                 onClick={() =>
                   router.push(`/quiz/${quiz.id}/attempts`)
                 }
@@ -94,7 +107,6 @@ export const QuizSection = ({ quizzes }: { quizzes: Quiz[] }) => {
                 View Attempts
               </Button>
             )}
-
           </CardContent>
         </Card>
       ))}
