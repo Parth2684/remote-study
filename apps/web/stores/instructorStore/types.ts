@@ -3,6 +3,8 @@ import type { Classroom } from "@repo/db"
 
 export type InstructorState = {
   classrooms: Classroom[] 
+  classroomId: string
+  title: string
 }
 
 export type InstructorAction = {

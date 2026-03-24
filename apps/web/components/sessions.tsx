@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { axiosInstance } from "@/lib/axiosInstance"
 import { StartLiveModal } from "@/components/start-live-modal"
 import { useParams, useRouter } from "next/navigation"
+import { useInstructorStore } from "@/stores/instructorStore/useInstructorStore"
 
 interface LiveSession {
   id: string
@@ -46,6 +47,7 @@ export const Sessions = () => {
 
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState(false)
+
 
   const initialRoute =
     authUser?.role === "INSTRUCTOR" ? "instructor" : "student"
@@ -93,7 +95,10 @@ export const Sessions = () => {
           roomName: title
         }
       )
-
+      useInstructorStore.setState({
+        classroomId: classId,
+        title
+      })
       const { liveSession, token, roomName } = res.data
 
       setIsModalOpen(false)

@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 
 export const useInstructorStore = create<InstructorState & InstructorAction>((set, get) => ({
   classrooms: [],
+  classroomId: "",
+  title: "",
 
   getClassrooms: async () => {
     try {

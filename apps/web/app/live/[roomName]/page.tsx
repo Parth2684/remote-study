@@ -10,23 +10,29 @@ import {
 import "@livekit/components-styles"
 import { Loader2 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
+import { useInstructorStore } from "@/stores/instructorStore/useInstructorStore"
 import { axiosInstance } from "@/lib/axiosInstance"
 import { User } from "@/stores/authStore/types"
 
 function LiveRoomInner({
   authUser,
-  sessionId
+  sessionId,
+  roomName
 }: {
   authUser: User
   sessionId: string | null
+  roomName: string
 }) {
   const room = useRoomContext()
+  const { uploadVideo } = useInstructorStore()
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
+
   const [recording, setRecording] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [ending, setEnding] = useState(false)
+  const { classroomId, title } = useInstructorStore()
 
   useEffect(() => {
     if (!room) return
@@ -36,7 +42,7 @@ function LiveRoomInner({
         await room.localParticipant.setCameraEnabled(false)
         await room.localParticipant.setMicrophoneEnabled(false)
       } catch (err) {
-        console.error("Media error:", err)
+        console.error(err)
       }
     }
 
@@ -54,9 +60,8 @@ function LiveRoomInner({
       )
 
       room.disconnect()
-
     } catch (err) {
-      console.error("End meeting failed:", err)
+      console.error(err)
     } finally {
       setEnding(false)
     }
@@ -98,16 +103,16 @@ function LiveRoomInner({
 
           chunksRef.current = []
 
+          const file = new File([blob], `${title}.webm`, {
+            type: "video/webm"
+          })
+
           const formData = new FormData()
-          formData.append("video", blob, "recording.webm")
-          formData.append("sessionId", sessionId || "")
+          formData.append("video", file)
+          formData.append("title", `Recording - ${title}`)
+          formData.append("description", `Live session recording`)
 
-          await axiosInstance.post(
-            "/instructor/classroom/live/upload-recording",
-            formData,
-            { headers: { "Content-Type": "multipart/form-data" } }
-          )
-
+          await uploadVideo(classroomId, formData)
         } catch (err) {
           console.error(err)
         } finally {
@@ -118,7 +123,6 @@ function LiveRoomInner({
       recorder.start()
       mediaRecorderRef.current = recorder
       setRecording(true)
-
     } catch (err) {
       console.error(err)
     }
@@ -131,12 +135,8 @@ function LiveRoomInner({
 
   return (
     <div className="relative h-full">
-
-      {/* 🎯 TOP RIGHT CONTROLS */}
       {authUser?.role === "INSTRUCTOR" && (
         <div className="absolute top-4 right-4 z-50 flex gap-3">
-
-          {/* 🎥 Recording */}
           <button
             onClick={recording ? stopRecording : startRecording}
             className={`px-4 py-2 rounded text-white ${
@@ -202,14 +202,14 @@ export default function LiveRoomPage() {
         setToken(res.data.token)
         setLoading(false)
       } catch (err) {
-        console.error("Failed to get token:", err)
+        console.error(err)
       }
     }
 
     init()
   }, [roomName, authUser, tokenFromQuery, sessionId])
 
-  const handleDisconnected = async () => {
+  const handleDisconnected = () => {
     router.back()
   }
 
@@ -232,6 +232,7 @@ export default function LiveRoomPage() {
         <LiveRoomInner
           authUser={authUser as User}
           sessionId={sessionId}
+          roomName={roomName}
         />
       </LiveKitRoom>
     </div>
