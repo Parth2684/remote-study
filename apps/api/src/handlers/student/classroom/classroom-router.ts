@@ -8,6 +8,7 @@ import { joinLive } from "../join-live";
 import { getAllSessions } from "../get-all-sessions";
 import { getActiveSession } from "../get-active-sessions";
 import { fetchVideos } from "../../instructor/classroom/fetchVideos";
+import { getVideoById } from "../../instructor/classroom/get-video";
 const classroomRouter: Router = Router();
 
 classroomRouter.get("/", fetchClassroom)
@@ -20,4 +21,7 @@ classroomRouter.post("/live/join", joinLive)
 classroomRouter.get("/live/:classId/sessions", getAllSessions)
 classroomRouter.get("/live/:classId/active", getActiveSession)
 classroomRouter.get("/videos/:classroomId", fetchVideos)
+
+classroomRouter.get("/video/:videoId", getVideoById)
+
 export default classroomRouter;

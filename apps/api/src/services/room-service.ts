@@ -98,37 +98,40 @@ export class RoomService {
     })
   }
 
-  static async joinSession(liveSessionId: string, studentId: string) {
-
+  static async joinSession(
+    liveSessionId: string,
+    userId: string,
+    role: "INSTRUCTOR" | "STUDENT"
+  ) {
     const session = await prisma.liveSession.findUnique({
-        where: { id: liveSessionId }
+      where: { id: liveSessionId }
     })
 
     if (!session || session.status !== "LIVE") {
-        throw new Error("Live session not active")
+      throw new Error("Live session not active")
     }
 
     const token = new AccessToken(
-        LIVEKIT_API_KEY,
-        LIVEKIT_SECRET,
-        {
-        identity: studentId,
-        name: "Student"
-        }
+      LIVEKIT_API_KEY,
+      LIVEKIT_SECRET,
+      {
+        identity: userId,
+        name: role === "INSTRUCTOR" ? "Instructor" : "Student"
+      }
     )
 
     token.addGrant({
-        room: session.roomName,
-        roomJoin: true,
-        canPublish: false,
-        canSubscribe: true
+      room: session.roomName,
+      roomJoin: true,
+      canPublish: true, 
+      canSubscribe: true
     })
 
     const jwt = await token.toJwt()
 
     return {
-        roomName: session.roomName,
-        token: jwt
+      roomName: session.roomName,
+      token: jwt
     }
   }
 

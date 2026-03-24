@@ -7,7 +7,6 @@ import redisClient from "../../../utils/redis";
 import cloudinary from "../../../utils/cloudinary";
 import { convertImageToWebP } from "../../../utils/image";
 import { UploadApiResponse } from "cloudinary";
-import { unlink } from "fs/promises";
 
 const uploadVideoSchema = z.object({
   title: z.string(),
@@ -99,6 +98,7 @@ export const uploadVideoHandler: RequestHandler[] = [
 
     try {
       let mediaInfo = await ffprobeVideo(path);
+      console.log("path of video" + path)
       try {
         let videoData: {
           title: string;
@@ -134,6 +134,7 @@ export const uploadVideoHandler: RequestHandler[] = [
         if (uploadResponse) {
           videoData.cover = uploadResponse.secure_url;
         }
+        console.log("vide data"+ JSON.stringify(videoData))
         await prisma.video.create({
           data: videoData,
         });
@@ -143,17 +144,9 @@ export const uploadVideoHandler: RequestHandler[] = [
             path
           }
           await redisClient.LPUSH("upload-re-encode", JSON.stringify(toPushRedis));
-          try {
-            await unlink(path);
-          } catch (error) {
-            console.error("Error deleting file:", error);
-          }
         }
         catch (err) {
           console.error(err)
-          await unlink(path).catch((error) => {
-            console.error("Error deleting file:", error);
-          });
           res.status(500).json({
             message: "error adding video to queue for encoding, please try again",
           });
@@ -162,9 +155,6 @@ export const uploadVideoHandler: RequestHandler[] = [
         
       } catch (e) {
         console.error(e);
-        await unlink(path).catch((error) => {
-          console.error("Error deleting file:", error);
-        });
         res.status(500).json({
           message: "error creating database entry for the video please try again",
         });
@@ -172,9 +162,6 @@ export const uploadVideoHandler: RequestHandler[] = [
       }
     } catch (e) {
       console.error(e);
-      await unlink(path).catch((error) => {
-        console.error("Error deleting file:", error);
-      });
       res.status(500).json({
         message: "error getting media information",
       });

@@ -70,6 +70,7 @@ async function main() {
 
     if (!popJob) continue;
     const video: Video = JSON.parse(popJob.element);
+    let dbVideo;
 
     try {
       name = video.name;
@@ -85,8 +86,9 @@ async function main() {
         r.status === "fulfilled" ? r.value : null
       );
       
+      
       try {
-        const dbVideo = await prisma.video.update({
+        dbVideo = await prisma.video.update({
           where: {
             name: video.name
           },
@@ -146,7 +148,7 @@ async function main() {
           status: Status.FAIL
         }
       })
-      await sendEmail(dbVideo.classroom.instructor.email, "Session Encoding Success", `
+      await sendEmail(dbVideo!.classroom.instructor.email, "Session Encoding Failed", `
       <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:20px;">
         <div style="max-width:600px; margin:auto; background:white; border-radius:10px; padding:20px;">
           

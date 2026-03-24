@@ -11,12 +11,13 @@ import "@livekit/components-styles"
 import { Loader2 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { axiosInstance } from "@/lib/axiosInstance"
+import { User } from "@/stores/authStore/types"
 
 function LiveRoomInner({
   authUser,
   sessionId
 }: {
-  authUser: any
+  authUser: User
   sessionId: string | null
 }) {
   const room = useRoomContext()
@@ -25,6 +26,7 @@ function LiveRoomInner({
   const chunksRef = useRef<Blob[]>([])
   const [recording, setRecording] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [ending, setEnding] = useState(false)
 
   useEffect(() => {
     if (!room) return
@@ -40,6 +42,25 @@ function LiveRoomInner({
 
     enableMedia()
   }, [room])
+
+  const handleEndMeeting = async () => {
+    try {
+      if (!sessionId) return
+
+      setEnding(true)
+
+      await axiosInstance.put(
+        `/instructor/classroom/live/end/${sessionId}`
+      )
+
+      room.disconnect()
+
+    } catch (err) {
+      console.error("End meeting failed:", err)
+    } finally {
+      setEnding(false)
+    }
+  }
 
   const startRecording = async () => {
     try {
@@ -87,9 +108,8 @@ function LiveRoomInner({
             { headers: { "Content-Type": "multipart/form-data" } }
           )
 
-          console.log("Recording uploaded")
         } catch (err) {
-          console.error("Upload failed:", err)
+          console.error(err)
         } finally {
           setUploading(false)
         }
@@ -98,8 +118,9 @@ function LiveRoomInner({
       recorder.start()
       mediaRecorderRef.current = recorder
       setRecording(true)
+
     } catch (err) {
-      console.error("Recording error:", err)
+      console.error(err)
     }
   }
 
@@ -110,8 +131,12 @@ function LiveRoomInner({
 
   return (
     <div className="relative h-full">
+
+      {/* 🎯 TOP RIGHT CONTROLS */}
       {authUser?.role === "INSTRUCTOR" && (
         <div className="absolute top-4 right-4 z-50 flex gap-3">
+
+          {/* 🎥 Recording */}
           <button
             onClick={recording ? stopRecording : startRecording}
             className={`px-4 py-2 rounded text-white ${
@@ -119,6 +144,14 @@ function LiveRoomInner({
             }`}
           >
             {recording ? "Stop Recording" : "Start Recording"}
+          </button>
+
+          <button
+            onClick={handleEndMeeting}
+            disabled={ending}
+            className="px-4 py-2 rounded bg-red-700 text-white"
+          >
+            {ending ? "Ending..." : "End Meeting"}
           </button>
 
           {uploading && (
@@ -177,18 +210,7 @@ export default function LiveRoomPage() {
   }, [roomName, authUser, tokenFromQuery, sessionId])
 
   const handleDisconnected = async () => {
-    try {
-      if (authUser?.role === "INSTRUCTOR" && sessionId) {
-        await axiosInstance.put(
-          `/instructor/classroom/live/end/${sessionId}`
-        )
-      }
-    } catch (err) {
-      console.error("Error ending session:", err)
-    } finally {
-      // router.replace(`/class/${classId}`)
-      router.back()
-    }
+    router.back()
   }
 
   if (loading || !token) {
@@ -208,7 +230,7 @@ export default function LiveRoomPage() {
         onDisconnected={handleDisconnected}
       >
         <LiveRoomInner
-          authUser={authUser}
+          authUser={authUser as User}
           sessionId={sessionId}
         />
       </LiveKitRoom>

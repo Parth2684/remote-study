@@ -24,7 +24,7 @@ interface VideoType {
   title: string
   link: string
   isLive: boolean
-  createdAt: string
+  uploadedAt: string
 }
 
 export const Sessions = () => {
@@ -50,7 +50,6 @@ export const Sessions = () => {
   const initialRoute =
     authUser?.role === "INSTRUCTOR" ? "instructor" : "student"
 
-  // ================= FETCH DATA =================
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -160,7 +159,7 @@ export const Sessions = () => {
         </div>
       )}
 
-      {authUser?.role === "STUDENT" && activeSession && (
+      {activeSession && (
         <Card className="border-red-400 bg-red-50">
           <CardHeader>
             <div className="flex justify-between items-center">
@@ -226,7 +225,7 @@ export const Sessions = () => {
             {filteredVideos.map((video) => (
               <div
                 key={video.id}
-                onClick={() => setSelectedVideo(video)}
+                onClick={() => router.push(`/video/${video.id}`)}
                 className="border rounded-lg p-3 cursor-pointer hover:shadow"
               >
                 <div className="h-40 bg-gray-300 rounded mb-2 flex items-center justify-center">
@@ -238,7 +237,14 @@ export const Sessions = () => {
                 </div>
 
                 <div className="text-sm text-gray-500">
-                  {new Date(video.createdAt).toLocaleString()}
+                  {new Date(video.uploadedAt).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
                 </div>
 
                 <div className="mt-2">
@@ -258,8 +264,8 @@ export const Sessions = () => {
         )}
       </div>
 
-      {/* <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Previous Sessions</h2>
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Previous Live Sessions</h2>
 
         {sessions.length === 0 ? (
           <div className="text-muted-foreground text-sm">
@@ -284,7 +290,7 @@ export const Sessions = () => {
             </Card>
           ))
         )}
-      </div> */}
+      </div>
 
       <StartLiveModal
         isOpen={isModalOpen}

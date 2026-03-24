@@ -109,7 +109,7 @@ export default function UploadVideoPage() {
       
       // Optionally redirect to classroom page
       setTimeout(() => {
-        router.push(`/instructor/classroom/${classroomId}`)
+        router.push(`/class/${classroomId}`)
       }, 1500)
     } catch (error) {
       console.error("Upload error:", error)

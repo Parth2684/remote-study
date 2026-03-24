@@ -9,7 +9,11 @@ export function getVideoSize(path: string): Promise<number> {
 
     if (platform === "win32") {
       command = `powershell -command "(Get-ChildItem -Path './videos/${path}' -Recurse | Measure-Object Length -Sum).Sum"`;
-    } else {
+    } 
+    if(platform === "darwin"){
+      command = `du -sk ./videos/${path} | awk '{print $1 * 1024}' `
+    }
+    else {
       command = `du -sb ./videos/${path}`;
     }
 
